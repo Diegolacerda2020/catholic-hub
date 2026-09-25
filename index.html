@@ -319,7 +319,7 @@ const MISSAS = 'Terça-feira: 19h30\nQuarta-feira: 19h30\nQuinta-feira: 19h30\nP
 function seed(){
   const t0 = new Date();
   return {
-    mode:'painel', tab:'comunicar', pubTab:'avisos', operador:'Secretaria',
+    mode:'painel', tab:'comunicar', pubTab:'igreja', operador:'Secretaria',
     cfg:{
       nome:'Paróquia Santo Antônio – Jaraguá',
       padroeiro:'Santo Antônio',
@@ -754,9 +754,9 @@ const I = {
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 const tabsFor = () => S.mode==='painel'
   ? [['comunicar','Comunicar'],['agenda','Agenda'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
-  : [['avisos','Avisos'],['igreja','Igreja'],['assistir','Assistir'],['agenda','Agenda'],['comunidades','Comunid.'],['contato','Paróquia']];
+  : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades'};
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja'};
 const abaAtual = () => S.mode==='painel' ? S.tab : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
 function renderTabs(){
   const cur = abaAtual();
@@ -1194,7 +1194,7 @@ function ajustesHTML(){
     <div class="field"><label for="c-mis">Horários de missa</label><textarea id="c-mis" name="missas">${esc(c.missas)}</textarea><div class="hint">Uma linha por dia, no formato "Domingo: 7h, 10h e 19h". Os horários aparecem na página e no pedido de intenção.</div></div>
     <div class="field"><label for="c-pix">Chave Pix para ofertas</label><input type="text" id="c-pix" name="pix" placeholder="Opcional" value="${esc(c.pix||'')}"><div class="hint">Aparece como oferta opcional na vela virtual. O dinheiro vai direto para a conta da paróquia.</div></div>
     <div class="field"><label for="c-yt">Canal da paróquia no YouTube</label><input type="text" id="c-yt" name="youtube" inputmode="url" placeholder="Cole o link do canal" value="${esc(c.youtube)}"><div class="hint">Com o link do canal (youtube.com/channel/…), a página mostra os botões para assistir no YouTube. Com o link de um vídeo ou transmissão específica, o vídeo abre dentro da página.</div></div>
-    <div class="field"><label>Orações ao vivo na aba Assistir</label>${CANAIS.map(v=>`<label class="check" style="margin-bottom:6px"><input type="checkbox" name="rec-${v.k}" ${c.rec?.[v.k]!==false?'checked':''}> ${v.nome}</label>`).join('')}</div>
+    <div class="field"><label>Canais na seção Assistir (página, aba Igreja)</label>${CANAIS.map(v=>`<label class="check" style="margin-bottom:6px"><input type="checkbox" name="rec-${v.k}" ${c.rec?.[v.k]!==false?'checked':''}> ${v.nome}</label>`).join('')}</div>
     <div class="field"><label for="c-sec">Horário da secretaria</label><textarea id="c-sec" name="secretaria" style="min-height:60px">${esc(c.secretaria)}</textarea></div>
     <h3 style="margin:16px 0 8px">Jeito de escrever</h3>
     <div class="field"><label for="c-tom">Tom</label><select id="c-tom" name="tom"><option value="acolhedor" ${c.tom==='acolhedor'?'selected':''}>Acolhedor e próximo</option><option value="formal" ${c.tom==='formal'?'selected':''}>Formal e sóbrio</option></select></div>
@@ -1642,28 +1642,100 @@ function devocoesAtivas(){
   const hoje = new Date(); hoje.setHours(0,0,0,0); const y = hoje.getFullYear();
   return DEVOCOES.map(v => ({...v, ini:dt(y,+v.de.slice(0,2),+v.de.slice(3)), fim:dt(y,+v.ate.slice(0,2),+v.ate.slice(3))})).filter(v => hoje >= v.ini && hoje <= v.fim);
 }
-function igrejaPubHTML(){
-  const hoje = new Date(), t = tempoLiturgico(hoje), md = mmdd(hoje);
-  const festaHoje = FIXAS.find(([m]) => m===md)?.[1] || moveis(hoje.getFullYear()).find(([d]) => d.toDateString()===hoje.toDateString())?.[1];
-  const dev = devocoesAtivas(), prox = proximasDatas(5);
-  const noticias = S.avisos.filter(a=>a.categoria==='igreja').sort((a,b)=>b.ts-a.ts);
+/* ---------- HOME pública: IGREJA ----------
+   A porta de entrada do fiel: o dia litúrgico, rezar, a próxima missa, o próximo evento,
+   a sua comunidade, as notícias e as transmissões. Cada bloco some se não tiver conteúdo. */
+const festaDoDia = d => FIXAS.find(([m]) => m===mmdd(d))?.[1] || moveis(d.getFullYear()).find(([x]) => x.toDateString()===d.toDateString())?.[1] || '';
+// Próxima missa a partir de cfg.missas (inclui a regra da primeira sexta-feira do mês, via horariosDoDia).
+function proximaMissa(){
+  for (let i = 0; i < 8; i++){
+    const d = plusDays(i);
+    for (const h of horariosDoDia(d)){
+      const [hh, mm] = h.split('h'), t = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +hh, +(mm || 0));
+      if (t.getTime() > now() - 15*60e3) return {t, i, hora: +hh + 'h' + (mm && mm !== '00' ? mm : '')}; // começou há menos de 15 min: ainda dá tempo
+    }
+  }
+  return null;
+}
+function missaHTML(){
+  const m = proximaMissa();
+  if (!m) return '';
+  const dia = m.i === 0 ? 'Hoje' : m.i === 1 ? 'Amanhã' : cap(DIAS[m.t.getDay()]);
+  return `<div class="block mini" style="display:flex;align-items:center;gap:12px">
+    <div class="grow"><span class="k">Próxima missa</span><b>${dia}, ${m.hora}</b>${m.i > 1 ? `<span class="small muted">${pad(m.t.getDate())}/${pad(m.t.getMonth()+1)}</span>` : ''}</div>
+    <button class="btn sm ghost" data-pub="agenda">Horários</button></div>`;
+}
+// Destaques da Home primeiro; depois o próximo evento (da minha comunidade, se houver).
+function eventosHome(){
+  const evs = eventosPublicos(), minha = minhaComunidade(), r = evs.filter(e => e.highlight_home).slice(0, 2);
+  const prox = (minha && evs.find(e => e.community_id === minha.id)) || evs[0];
+  if (prox && !r.includes(prox) && r.length < 2) r.push(prox);
+  return r.sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+}
+function minhaComunidadeHTML(){
+  const l = comunidadesAtivas(); if (!l.length) return '';
+  const m = minhaComunidade();
+  if (!m) return `<h2>Minha comunidade</h2><div class="block"><p class="small" style="margin:0 0 8px">Escolha a sua comunidade para ver primeiro os avisos e eventos dela. Fica guardado só neste aparelho.</p>
+    <select id="homeCom" aria-label="Escolher minha comunidade"><option value="">Escolher comunidade…</option>${l.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>`;
+  const ev = eventosPublicos().find(e => e.community_id === m.id);
+  const av = S.avisos.filter(a => escopoAviso(a)==='community' && a.communityId===m.id).sort((a,b)=>b.ts-a.ts)[0];
+  return `<h2>Minha comunidade</h2><div class="block">
+    <b style="font-family:var(--serif);font-size:1.25rem">★ ${esc(m.name)}</b>${m.patron ? `<div class="small muted">Padroeiro: ${esc(m.patron)}</div>` : ''}
+    ${av ? `<div class="small" style="margin-top:8px">Aviso: <b>${esc(av.titulo)}</b> <span class="muted">(${ago(av.ts)})</span></div>` : ''}
+    ${ev ? `<div class="small" style="margin-top:6px">Próximo evento: <b>${esc(ev.title)}</b> · ${esc(quandoEvento(ev))}</div>` : ''}
+    <div class="acoes"><button class="btn sm" data-com="${m.id}">Ver minha comunidade</button><button class="btn sm ghost" id="homeTrocar">Trocar</button></div></div>`;
+}
+function noticiasParoquiaHTML(limite){
+  const l = S.avisos.filter(a=>a.categoria==='igreja').sort((a,b)=>b.ts-a.ts).slice(0, limite);
+  return l.length ? `<h3 class="news-sec">Compartilhadas pela paróquia</h3>` + l.map(a=>`<article class="notice"><div class="small muted">${ago(a.ts)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
+    ${a.link?`<div class="when"><a href="${esc(/^https?:\/\//i.test(a.link)?a.link:'https://'+a.link)}" target="_blank" rel="noopener">Ler a notícia completa</a></div>`:''}</article>`).join('') : '';
+}
+function calendarioHTML(){
+  const hoje = new Date(), dev = devocoesAtivas(), prox = proximasDatas(5);
   const falta = d => { const n = Math.round((d - new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()))/DAY); return n===0?'hoje':n===1?'amanhã':'em '+n+' dias'; };
-  return velaHTML() + `<h2>Liturgia de hoje</h2>
-  <div class="block">
-    <div style="display:flex;gap:12px;align-items:center">
-      <span aria-hidden="true" style="width:14px;height:44px;border-radius:7px;background:${COR[t.cor]};flex-shrink:0"></span>
-      <div><b style="font-family:var(--serif);font-size:1.2rem">${t.nome}</b><div class="small muted">${DIAS[hoje.getDay()]}, ${hoje.getDate()} de ${MESES[hoje.getMonth()]}. Cor litúrgica: ${t.cor}${festaHoje?`. Hoje: ${esc(festaHoje)}`:''}</div></div>
-    </div>
-    <a class="btn block-w" style="margin-top:12px" href="https://liturgiadiaria.edicoescnbb.com.br/" target="_blank" rel="noopener">Ler as leituras e o Evangelho de hoje</a>
-    <div class="small muted" style="margin-top:6px;text-align:center">Texto oficial da Edições CNBB</div>
-  </div>
+  return `<h2>Calendário da Igreja</h2>
   ${dev.map(v=>`<div class="notice"><span class="chip gold">Em andamento, termina ${falta(v.fim)}</span><h3 style="margin-top:8px">${esc(v.nome)}</h3><p>${esc(v.desc)}</p></div>`).join('')}
-  <h2>Próximas datas</h2>
-  <div class="list">${prox.map(([d,tt])=>`<div class="row"><span class="time" style="min-width:70px">${pad(d.getDate())}/${pad(d.getMonth()+1)}</span><div class="grow">${esc(tt)}<div class="small muted">${falta(d)}</div></div></div>`).join('')}</div>
+  <div class="list">${prox.map(([d,tt])=>`<div class="row"><span class="time" style="min-width:70px">${pad(d.getDate())}/${pad(d.getMonth()+1)}</span><div class="grow">${esc(tt)}<div class="small muted">${falta(d)}</div></div></div>`).join('')}</div>`;
+}
+function liturgiaHTML(t, festa){
+  return `<div class="block">
+    <h3 style="font-family:var(--serif);font-size:1.3rem">Liturgia de hoje</h3>
+    <div class="small muted" style="margin-top:2px">${esc(festa || t.nome)} · cor ${t.cor}</div>
+    <a class="btn block-w" style="margin-top:12px" href="${CNBB_LITURGIA}" target="_blank" rel="noopener">Ver Liturgia de hoje</a>
+    <div class="small muted" style="margin-top:6px;text-align:center">Leituras e Evangelho no site oficial da Edições CNBB</div>
+  </div>`;
+}
+const CNBB_LITURGIA = 'https://liturgiadiaria.edicoescnbb.com.br/';
+function igrejaPubHTML(){
+  if (velaStep === 'form') return velaHTML();
+  const hoje = new Date(), t = tempoLiturgico(hoje), festa = festaDoDia(hoje), ativa = vendoAtiva();
+  const evs = ativa ? eventosHome() : [];
+  return (velaStep === 'acesa' ? velaHTML() : '') + `<section class="hoje">
+    <div class="par">${esc(nomeVendo())}</div>
+    <h2>Hoje na Igreja</h2>
+    <div class="data">${cap(DIAS[hoje.getDay()])}, ${hoje.getDate()} de ${MESES[hoje.getMonth()]}</div>
+    <div class="tempo"><span class="cor-dot" style="background:${COR[t.cor]}" aria-hidden="true"></span>${t.nome} · Cor litúrgica: ${t.cor}</div>
+    ${festa ? `<div class="festa">${esc(festa)}</div>` : ''}
+  </section>
+  ${liturgiaHTML(t, festa)}
+  ${ativa ? missaHTML() : ''}
+  ${evs.length ? `<h2>${evs.length > 1 ? 'Próximos eventos' : 'Próximo evento'}</h2>${evs.map(e => eventoCard(e)).join('')}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver Agenda</button>` : ''}
+  ${ativa ? minhaComunidadeHTML() : ''}
   <h2>Notícias da Igreja</h2>
-  ${noticias.length ? `<h3 class="news-sec">Compartilhadas pela paróquia</h3>` + noticias.map(a=>`<article class="notice"><div class="small muted">${ago(a.ts)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
-    ${a.link?`<div class="when"><a href="${esc(/^https?:\/\//i.test(a.link)?a.link:'https://'+a.link)}" target="_blank" rel="noopener">Ler a notícia completa</a></div>`:''}</article>`).join('') : ''}
-  ${noticiasArquidioceseHTML()}`;
+  ${noticiasParoquiaHTML(2)}
+  ${noticiasArquidioceseHTML(3)}
+  <button class="btn ghost block-w" data-pub="noticias" style="margin-bottom:10px">Ver todas as notícias</button>
+  ${assistirResumoHTML()}
+  ${calendarioHTML()}`;
+}
+function bindIgreja(root){
+  bindVela(root); bindEventos(root); carregarNoticias();
+  root.querySelectorAll('[data-com]').forEach(b => b.onclick = () => { S.comVendo = b.dataset.com; S.pubTab = 'comunidade'; save(); render(); scrollTo(0,0); });
+  root.querySelector('#homeCom')?.addEventListener('change', e => { if (!e.target.value) return; S.minhaCom = e.target.value; save(); render(); toast('Agora esta é a sua comunidade'); });
+  root.querySelector('#homeTrocar')?.addEventListener('click', () => { S.minhaCom = null; save(); render(); document.getElementById('homeCom')?.focus(); });
+}
+function noticiasPubHTML(){
+  return `<button class="crumb" data-pub="igreja">‹ Igreja</button><h2 style="margin-top:4px">Notícias da Igreja</h2>${noticiasParoquiaHTML(50)}${noticiasArquidioceseHTML()}`;
 }
 
 /* ---------- notícias automáticas da Arquidiocese de BH ----------
@@ -1689,10 +1761,10 @@ async function carregarNoticias(){
     } catch(e){}
   }
   NOTICIAS = {estado: dados ? 'ok' : 'erro', dados: dados || NOTICIAS.dados, em: now()};
-  if (S.mode === 'publico' && S.pubTab === 'igreja') renderSeguro();
+  if (S.mode === 'publico' && ['igreja','noticias'].includes(S.pubTab)) renderSeguro();
 }
-function noticiasArquidioceseHTML(){
-  const itens = (NOTICIAS.dados?.itens || []).map(n => ({...n, url:linkArq(n.url), imagem:linkArq(n.imagem)})).filter(n => n.url && n.titulo);
+function noticiasArquidioceseHTML(limite){
+  const itens = (NOTICIAS.dados?.itens || []).map(n => ({...n, url:linkArq(n.url), imagem:linkArq(n.imagem)})).filter(n => n.url && n.titulo).slice(0, limite || 50);
   const fonte = `<p class="small muted news-fonte">Fonte: Arquidiocese de Belo Horizonte · <a href="${ARQ_SITE}" target="_blank" rel="noopener">arquidiocesebh.org.br</a></p>`;
   let h = `<h3 class="news-sec">Arquidiocese de Belo Horizonte</h3>`;
   if (!itens.length){
@@ -1700,7 +1772,7 @@ function noticiasArquidioceseHTML(){
     return h + `<div class="block"><p style="margin:0 0 10px">As notícias da Arquidiocese não puderam ser carregadas agora.</p><a class="btn sm ghost" href="${ARQ_SITE}" target="_blank" rel="noopener">Ver notícias no site da Arquidiocese →</a></div>${fonte}`;
   }
   return h + itens.map(n => `<article class="notice news">
-    ${n.imagem ? `<a href="${esc(n.url)}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img class="news-img" src="${esc(n.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.remove()"></a>` : ''}
+    ${n.imagem && !limite ? `<a href="${esc(n.url)}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img class="news-img" src="${esc(n.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.remove()"></a>` : ''}
     <div class="news-meta"><span class="chip ${n.prioridade===0?'':'neutro'}">${esc(n.rotulo)}</span><span class="small muted">${esc(n.dataTexto)}</span></div>
     <h3><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.titulo)}</a></h3>
     ${n.resumo ? `<p>${esc(n.resumo)}</p>` : ''}
@@ -1747,7 +1819,7 @@ function assistirHTML(){
   const devSM = devocoesAtivas().some(v => v.nome==='Quaresma de São Miguel');
   const ativos = CANAIS.filter(v => c.rec?.[v.k] !== false);
   const [dest, ...outros] = ativos;
-  let h = `<h2>Assistir</h2><p class="lead small">Transmissões e conteúdos católicos.</p>`;
+  let h = `<button class="crumb" data-pub="igreja">‹ Igreja</button><h2 style="margin-top:4px">Assistir</h2><p class="lead small">Transmissões e conteúdos católicos.</p>`;
   if (dest) h += `<div class="block"><span class="chip">Em destaque</span>
       <h3 style="font-family:var(--serif);font-size:1.25rem;margin-top:6px">${dest.nome}</h3>
       <p class="small muted" style="margin:2px 0 0">${dest.autor}. ${dest.desc}</p>
@@ -1769,6 +1841,17 @@ function assistirHTML(){
     <p class="small muted" style="margin:0 4px">As transmissões abrem no YouTube. Se o canal não estiver ao vivo, o YouTube mostra a programação e os vídeos recentes.</p>`;
   if (!ativos.length && !c.youtube) h += '<div class="empty">Nenhuma transmissão configurada.</div>';
   return h;
+}
+// Resumo para a Home: a transmissão da paróquia (se houver) e alguns canais, com os mesmos botões do YouTube (sem iframe de canal).
+function assistirResumoHTML(){
+  const c = S.cfg, id = canalId(c.youtube), ativos = CANAIS.filter(v => c.rec?.[v.k] !== false).slice(0, 3);
+  if (!ativos.length && !c.youtube) return '';
+  return `<h2>Assistir</h2><div class="list">
+    ${c.youtube && vendoAtiva() ? `<div class="row" style="flex-wrap:wrap"><div class="grow"><b>Missas da ${esc(c.nome)}</b><div class="small muted">Transmissão da paróquia no YouTube.</div></div>
+      <div class="canal-acoes"><a class="btn sm" href="${id ? ytAoVivo(id) : esc(/^https?:\/\//i.test(c.youtube)?c.youtube:'https://'+c.youtube)}" target="_blank" rel="noopener">Assistir agora</a></div></div>` : ''}
+    ${ativos.map(v => `<div class="row" style="flex-wrap:wrap"><div class="grow"><b>${v.nome}</b><div class="small muted">${v.autor}</div></div>
+      <div class="canal-acoes"><a class="btn sm" href="${ytAoVivo(v.canal)}" target="_blank" rel="noopener" aria-label="Assistir agora: ${esc(v.nome)} no YouTube">Assistir agora</a></div></div>`).join('')}
+  </div><button class="btn ghost block-w" data-pub="assistir" style="margin-bottom:10px">Ver todos os canais</button>`;
 }
 function bindAssistir(root){
   root.querySelectorAll('.video .play').forEach(b => b.onclick = () => { const box = b.parentElement; if (videoValido(box.dataset.video)) box.innerHTML = iframeVideo(box.dataset.video); });
@@ -2099,7 +2182,7 @@ function render(){
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
-  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, r => { bindVela(r); carregarNoticias(); }], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
+  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
@@ -2115,6 +2198,7 @@ function render(){
   v.innerHTML = h(); b(v);
 }
 if (NUVEM.ativo && location.hash === '#painel') S.mode = 'painel';
+S.pubTab = 'igreja'; // a página pública sempre abre na Home (Igreja)
 render();
 iniciarNuvem();
 </script>
