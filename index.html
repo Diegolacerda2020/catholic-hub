@@ -204,6 +204,65 @@ details.fold .inner{padding:0 16px 14px}
 .watch .btn.live{background:#fff;color:#1F5B3F;min-height:48px;font-size:1.05rem}
 .watch .btn.yt{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.65)}
 .canal-acoes{display:flex;gap:8px;flex-wrap:wrap;flex-basis:100%}
+
+/* MVP 2 */
+input[type=time],input[type=url]{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+.radio-row{display:flex;gap:6px 14px;flex-wrap:wrap}
+.radio-row label{display:flex;gap:8px;align-items:center;font-size:.95rem}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.crumb{border:0;background:none;color:var(--lit);font-weight:700;padding:2px 4px;margin:0 0 2px}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row .acoes{margin-top:6px}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.filtros button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.88rem;color:var(--muted)}
+.filtros button[aria-pressed="true"]{border-color:var(--lit);background:var(--lit-soft);color:var(--lit);font-weight:700}
+.stats.cinco{grid-template-columns:repeat(auto-fit,minmax(94px,1fr))}
+button.stat{text-align:left;font:inherit;color:inherit;cursor:pointer}
+button.stat[aria-pressed="true"]{border-color:var(--lit);background:var(--lit-soft)}
+.mais-item{width:100%;border:0;background:transparent;text-align:left;display:flex;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid var(--line);color:inherit;position:relative}
+.list > .mais-item:first-child{border-top:0}
+.mais-item svg{width:24px;height:24px;color:var(--lit);flex-shrink:0}
+.mais-item .badge{position:static;margin-left:auto}
+/* home Igreja */
+.hoje{background:var(--lit);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden}
+.hoje .par{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}
+.hoje h2{color:#fff;margin:6px 0 0;font-size:1.5rem}
+.hoje .data{font-size:1.05rem;margin-top:2px}
+.hoje .tempo{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.95rem}
+.cor-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.85);flex-shrink:0}
+.hoje .festa{margin-top:8px;background:rgba(255,255,255,.16);border-radius:10px;padding:6px 10px;font-weight:700}
+.leituras{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:10px 0 2px}
+.leituras dt{color:var(--muted);font-size:.9rem}
+.leituras dd{margin:0;font-weight:700}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.duo .block{margin:0}
+.mini .k{display:block;font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.mini b{display:block;font-family:var(--serif);font-size:1.5rem;line-height:1.15;color:var(--lit)}
+.rezar-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.rz{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:84px;color:inherit}
+.rz .ic{font-size:1.4rem;line-height:1}
+.rz b{font-size:1rem;line-height:1.2;margin-top:4px}
+.rz span.small{color:var(--muted)}
+.rz.vela{background:#141c17;color:#F4EEDF;border-color:#141c17}
+.rz.vela span.small{color:#ffd766}
+.cta-diz{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:16px;margin:14px 0 10px}
+.cta-diz h3{font-family:var(--serif);font-size:1.25rem}
+.cta-diz p{margin:4px 0 12px}
+/* orações guiadas */
+.oracao{font-family:var(--serif);font-size:1.12rem;line-height:1.55;margin:8px 0 0;white-space:pre-line}
+.passos{margin:8px 0 0;padding-left:22px}
+.passos li{margin-bottom:4px}
+details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 0}
+.contador{display:flex;flex-direction:column;align-items:center;gap:10px;margin:14px 0 4px}
+.contador .btn{min-height:64px;font-size:1.15rem;width:100%}
+.contas{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.contas i{width:14px;height:14px;border-radius:50%;border:2px solid var(--lit);display:block}
+.contas i.on{background:var(--lit)}
+.progresso{font-size:.85rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+/* eventos */
+.notice.evento .news-meta{margin-bottom:6px}
+.ev-img{width:100%;border-radius:10px;margin:0 0 10px;border:1px solid var(--line)}
+.cancelado{text-decoration:line-through;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -435,20 +494,23 @@ async function salvarAgora(){
 async function atualizarPublico(){
   const {data, error} = await NUVEM.sb.rpc('get_public_parish', {p_slug:NUVEM.slug});
   if (error || !data) return;
-  const antes = JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub]);
+  const antes = JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub, S.pubRel]);
   if (data.cfg && Object.keys(data.cfg).length) S.cfg = {...S.cfg, ...data.cfg};
   S.avisos = data.avisos || [];
   NUVEM.velasPub = data.velasHoje ?? 0;
+  // Banco ainda sem o MVP 2: a função antiga não traz comunidades/eventos, e a página segue sem eles.
+  S.pubRel = {communities: Array.isArray(data.communities) ? data.communities : [], events: Array.isArray(data.events) ? data.events : []};
   normalizar(); guardarLocal();
   // Só redesenha a página pública: no painel (tela de login) apagaria o formulário e a mensagem de erro.
-  if (antes !== JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub]) && S.mode === 'publico') renderSeguro();
+  if (antes !== JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub, S.pubRel]) && S.mode === 'publico') renderSeguro();
 }
 async function atualizar(){
   if (!NUVEM.sb || document.hidden) return;
   try {
     if (logado()){
       if (NUVEM.salvando) return;
-      if (await puxar()) renderSeguro();
+      const [a, b] = await Promise.all([puxar(), relCarregar().catch(() => false)]);
+      if (a || b) renderSeguro();
       if (pendente()) nuvemAgendar();
       else if (NUVEM.estado === 'offline' || NUVEM.estado === 'erro') marcar('ok');
     } else if (!NUVEM.sessao) await atualizarPublico();
@@ -471,6 +533,7 @@ async function entrarComSessao(sessao){
   const b = lerBase(); // se houver alterações feitas sem internet, elas são juntadas ao que está no banco
   if (b && b.parishId === vinc.parish_id && b.ts){ NUVEM.base = b.data; NUVEM.baseTs = b.ts; }
   await puxar();
+  try { await relCarregar(); } catch(e){ console.warn('Central Paroquial: falha ao ler comunidades/agenda/dizimistas', e); }
   marcar(pendente() ? 'salvando' : 'ok'); render();
   if (pendente()) nuvemAgendar();
 }
@@ -479,6 +542,79 @@ async function enviarPublico(tipo, item){
   try { const {data, error} = await NUVEM.sb.rpc('public_submit', {p_slug:NUVEM.slug, p_kind:tipo, p_item:item}); return !error && data === true; }
   catch(e){ return false; }
 }
+
+/* ---------- MVP 2: comunidades, agenda e dizimistas (tabelas próprias) ----------
+   Diferente do parish_state (um JSON só), estes dados ficam em tabelas com RLS no Supabase.
+   Com login: lidos e gravados direto nas tabelas (e relidos a cada 15 s, como o resto).
+   Página pública sem login: comunidades e eventos vêm de get_public_parish (S.pubRel).
+   Modo demonstração: ficam em S.rel, só neste aparelho.
+   Se o schema.sql novo ainda não foi rodado, REL.faltando avisa a equipe e nada quebra. */
+const TABELA = {communities:'communities', events:'events', tithers:'tither_profiles', leads:'tither_leads'};
+const REL = {communities:[], events:[], tithers:[], leads:[], faltando:false};
+const uuid = () => crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x' ? r : (r&3|8)).toString(16); });
+const rel = k => NUVEM.ativo ? REL[k] : (S.rel[k] ||= []);
+const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(e?.code) || /does not exist|schema cache/i.test(e?.message||'');
+// Matriz de acesso: espelha can_access() do schema.sql. As áreas que já existiam no piloto
+// continuam abertas a toda a equipe nesta versão; dizimistas (dados pessoais) só padre e secretaria.
+const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes'], pascom:['avisos','agenda','comunidades','noticias']};
+const AREAS_ABERTAS = ['comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
+const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
+const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas'};
+async function relCarregar(){
+  if (!logado()) return false;
+  const ks = Object.keys(TABELA).filter(k => pode(AREA_TABELA[k]));
+  const res = await Promise.all(ks.map(k => NUVEM.sb.from(TABELA[k]).select('*').eq('parish_id', NUVEM.parishId)));
+  let mudou = false, faltando = false;
+  res.forEach(({data, error}, i) => {
+    if (error){ if (tabelaFaltando(error)) faltando = true; else console.warn('Central Paroquial: falha ao ler '+ks[i], error); return; }
+    if (!igual(REL[ks[i]], data)){ REL[ks[i]] = data; mudou = true; }
+  });
+  if (REL.faltando !== faltando){ REL.faltando = faltando; mudou = true; }
+  return mudou;
+}
+const semInternos = ({id, parish_id, created_at, updated_at, created_by, ...r}) => r;
+function erroGravar(e){
+  console.warn('Central Paroquial: falha ao gravar', e);
+  if (tabelaFaltando(e)){ REL.faltando = true; return 'O banco ainda não foi atualizado para esta versão. Peça ao responsável para rodar o schema.sql.'; }
+  if (e?.code === '42501') return 'Seu usuário não tem permissão para esta ação.';
+  if (e?.code === '23505') return 'Já existe um cadastro com esse nome.';
+  return navigator.onLine === false ? 'Sem internet. Tente de novo quando a conexão voltar.' : 'Não foi possível salvar. Tente de novo.';
+}
+// Grava (insere sem id, altera com id) e devolve o registro, ou null se falhar.
+async function relGravar(k, obj){
+  const agora = new Date().toISOString();
+  if (!NUVEM.ativo){
+    const l = rel(k), i = obj.id ? l.findIndex(x => x.id === obj.id) : -1;
+    const r = i >= 0 ? {...l[i], ...obj, updated_at:agora} : {id:uuid(), parish_id:'demo', created_at:agora, updated_at:agora, ...obj};
+    if (i >= 0) l[i] = r; else l.push(r);
+    save(); return r;
+  }
+  if (!logado()) return null;
+  const q = NUVEM.sb.from(TABELA[k]);
+  const {data, error} = await (obj.id ? q.update(semInternos(obj)).eq('id', obj.id) : q.insert({...semInternos(obj), parish_id:NUVEM.parishId})).select().single();
+  if (error){ toast(erroGravar(error)); return null; }
+  const l = REL[k], i = l.findIndex(x => x.id === data.id);
+  if (i >= 0) l[i] = data; else l.push(data);
+  return data;
+}
+async function relExcluir(k, id){
+  if (!NUVEM.ativo){ S.rel[k] = rel(k).filter(x => x.id !== id); save(); return true; }
+  const {error} = await NUVEM.sb.from(TABELA[k]).delete().eq('id', id);
+  if (error){ toast(erroGravar(error)); return false; }
+  REL[k] = REL[k].filter(x => x.id !== id); return true;
+}
+function migracaoHTML(){
+  return `<div class="signal wait">Esta parte precisa da atualização do banco (MVP 2). Peça ao responsável pelo sistema para rodar o arquivo <b>supabase/schema.sql</b> no Supabase. O resto do painel continua funcionando normalmente.</div>`;
+}
+
+/* dados públicos: equipe logada e demonstração leem direto; visitante lê o que get_public_parish devolveu */
+const usaRel = () => !NUVEM.ativo || logado();
+const porNome = (a,b) => a.name.localeCompare(b.name, 'pt');
+const todasComunidades = () => (usaRel() ? rel('communities') : S.pubRel.communities);
+const comunidadesAtivas = () => todasComunidades().filter(c => c.active !== false).sort(porNome);
+const comunidadeDe = id => id ? todasComunidades().find(c => c.id === id) || null : null;
+const minhaComunidade = () => { const c = comunidadeDe(S.minhaCom); return c && c.active !== false ? c : null; };
+const slugDe = t => semAcento(t).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'comunidade';
 function carregarScript(src){
   return new Promise((ok, falha) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = falha; document.head.appendChild(s); });
 }
@@ -513,7 +649,24 @@ async function sair(){
   location.hash = ''; location.reload();
 }
 
+function relSeed(){ // só no modo demonstração (sem banco): nomes de exemplo, nunca gravados no Supabase
+  const t = new Date().toISOString(), sj = uuid(), ap = uuid();
+  const em = (dias, hora) => { const d = plusDays(dias); return new Date(`${isoDay(d)}T${hora}:00-03:00`).toISOString(); };
+  return {
+    communities:[
+      {id:sj, parish_id:'demo', name:'Comunidade São José', slug:'comunidade-sao-jose', patron:'São José', address:'Endereço de demonstração', phone:'', description:'Comunidade de demonstração.', photo_url:null, mass_schedule:'Domingo: 09h00', active:true, created_at:t, updated_at:t},
+      {id:ap, parish_id:'demo', name:'Comunidade Nossa Senhora Aparecida', slug:'comunidade-nossa-senhora-aparecida', patron:'Nossa Senhora Aparecida', address:'Endereço de demonstração', phone:'', description:'Comunidade de demonstração.', photo_url:null, mass_schedule:'Sábado: 17h00', active:true, created_at:t, updated_at:t}],
+    events:[
+      {id:uuid(), parish_id:'demo', community_id:sj, scope:'community', title:'Festa da Comunidade São José', description:'Missa festiva, barraquinhas e música. Traga a família!', starts_at:em(9,'18:00'), ends_at:em(9,'22:00'), location:'Salão da comunidade', public:true, highlight_home:true, image_url:null, google_event_id:null, cancelled:false, created_at:t, updated_at:t},
+      {id:uuid(), parish_id:'demo', community_id:null, scope:'parish', title:'Adoração ao Santíssimo', description:'Hora santa pelas famílias da paróquia.', starts_at:em(3,'20:00'), ends_at:em(3,'21:00'), location:'Matriz', public:true, highlight_home:false, image_url:null, google_event_id:null, cancelled:false, created_at:t, updated_at:t}],
+    tithers:[
+      {id:uuid(), parish_id:'demo', community_id:sj, name:'Maria das Graças Silva', whatsapp:'31988887771', birth_date:'1968-'+mmdd(new Date()), marriage_date:null, joined_on:(new Date().getFullYear()-5)+'-'+mmdd(new Date()), status:'active', consent:true, notes:'', created_at:t, updated_at:t}],
+    leads:[]
+  };
+}
 function normalizar(){
+  S.pubRel ??= {communities:[], events:[]}; S.minhaCom ??= null;
+  if (!NUVEM.ativo) S.rel ??= relSeed();
   S.draft.tipo ||= 'paroquia'; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
   S.cfg.missas ||= MISSAS; S.log ??= []; S.pessoas ??= []; S.avisos ??= [];
   if (S.enviadosHoje?.dia !== isoDay(new Date())) { S.enviadosHoje = {dia:isoDay(new Date()), ids:[]}; save(); }
@@ -593,14 +746,20 @@ const I = {
   igreja:'<path d="M12 3v18M7 8h10"/>',
   intencoes:'<path d="M12 2.5c1.6 2 1.6 3.6 0 5-1.6-1.4-1.6-3 0-5z"/><rect x="9" y="9" width="6" height="12" rx="1"/><path d="M6 21h12"/>',
   assistir:'<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/>',
+  comunidades:'<path d="M2.5 21V12l5-4 5 4v9"/><path d="M12.5 21v-6.5l4.5-3.5 4.5 3.5V21"/><path d="M7.5 3v5M5.8 4.7h3.4M1.5 21h21"/>',
+  dizimistas:'<path d="M12 20s-7-4.2-7-9.5A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.5C19 15.8 12 20 12 20z"/><path d="M12 11v4M10 13h4"/>',
+  mais:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   contato:'<path d="M12 2v5M10 4h4M5 21V11l7-4 7 4v10M9 21v-5h6v5"/>'
 };
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 const tabsFor = () => S.mode==='painel'
-  ? [['comunicar','Comunicar'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['uso','Uso'],['ajustes','Ajustes']]
-  : [['avisos','Avisos'],['igreja','Igreja'],['assistir','Assistir'],['agenda','Missas'],['contato','Paróquia']];
+  ? [['comunicar','Comunicar'],['agenda','Agenda'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
+  : [['avisos','Avisos'],['igreja','Igreja'],['assistir','Assistir'],['agenda','Agenda'],['comunidades','Comunid.'],['contato','Paróquia']];
+// Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades'};
+const abaAtual = () => S.mode==='painel' ? S.tab : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
 function renderTabs(){
-  const cur = S.mode==='painel' ? S.tab : S.pubTab;
+  const cur = abaAtual();
   const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
   document.getElementById('tabs').innerHTML = tabsFor().map(([k,l]) => {
     const ni = (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())).length;
@@ -611,6 +770,7 @@ function renderTabs(){
 document.getElementById('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if(!b) return;
   if (S.mode==='painel') S.tab = b.dataset.tab; else S.pubTab = b.dataset.tab;
+  comEdit = evEdit = null; // formulário aberto não segue para outra aba
   save(); render(); scrollTo(0,0);
 });
 
@@ -714,7 +874,7 @@ function comunicarHTML(){
   const d = S.draft, o = d.out;
   const ig = d.tipo==='igreja';
   let h = (publicado ? `<div class="signal green published" role="status">
-    <div class="t">✓ Aviso publicado na página da paróquia</div>
+    <div class="t">✓ Aviso publicado na página da paróquia${publicado.comunidade ? ` (só ${esc(publicado.comunidade)})` : ''}</div>
     <div class="small" style="color:var(--ink);font-weight:500;margin-top:2px">${esc(publicado.titulo)}</div>
     <button class="btn" id="verPub">Ver página pública ›</button></div>` : '') + (!S.cfg.missas.trim() ? `<div class="signal wait" style="margin-top:4px">Falta preencher os horários de missa da paróquia. <button class="link-btn" style="color:inherit;text-decoration:underline;padding:0" id="goAjustes">Preencher em Ajustes</button></div>` : '') + `<h2>O que a paróquia precisa comunicar?</h2>
   <p class="lead small">Escreva do seu jeito, como falaria na missa. O sistema prepara a mensagem de WhatsApp, a legenda do Instagram, o card e a publicação da página.</p>
@@ -724,6 +884,10 @@ function comunicarHTML(){
       <label><input type="radio" name="tipo" value="igreja" ${ig?'checked':''}><span>Notícia da Igreja</span></label>
     </div>
     ${ig?`<p class="small muted" style="margin:0 0 8px">Arquidiocese, CNBB, Vaticano, devoções. Resuma com suas palavras e coloque o link da notícia original.</p>`:''}
+    ${!ig && comunidadesAtivas().length ? `<fieldset style="border:0;padding:0;margin:0 0 10px"><legend class="small" style="font-weight:700;margin-bottom:4px">Quem deve receber este aviso?</legend>
+      <div class="radio-row"><label><input type="radio" name="escopo" value="parish" ${d.scope!=='community'?'checked':''}> Toda a paróquia</label>
+        <label><input type="radio" name="escopo" value="community" ${d.scope==='community'?'checked':''}> Apenas uma comunidade</label></div>
+      ${d.scope==='community' ? `<select id="escCom" aria-label="Comunidade" style="margin-top:8px">${comunidadesAtivas().map(c => `<option value="${c.id}" ${c.id===d.communityId?'selected':''}>${esc(c.name)}</option>`).join('')}</select>` : ''}</fieldset>` : ''}
     <textarea id="txt" aria-label="Texto do aviso" placeholder="${ig?'Ex.: a Arquidiocese convida para a Romaria no domingo, saída às 7h da Catedral':'Ex.: domingo depois da missa das 10h vai ter almoço no salão paroquial, convite 25 reais, renda para a reforma do telhado'}">${esc(d.texto)}</textarea>
     ${ig?`<input type="text" id="lnk" inputmode="url" placeholder="Link da notícia original (opcional)" aria-label="Link da notícia original" value="${esc(d.link)}" style="margin-top:8px">`:''}
     <div class="actions">
@@ -755,7 +919,7 @@ function comunicarHTML(){
     </div>`;
   }
   const recentes = S.avisos.slice().sort((a,b)=>b.ts-a.ts).slice(0,5);
-  h += `<h2>Publicados recentemente</h2>${avisoStatus ? `<div class="signal ${avisoStatus.tipo}" id="avisoStatus" role="status">${avisoStatus.tipo==='wait'?'<span class="spinner" style="display:inline-block;vertical-align:-3px;margin-right:8px"></span>':''}${esc(avisoStatus.texto)}</div>` : ''}${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b><div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}" ${removendo?'disabled':''}>Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
+  h += `<h2>Publicados recentemente</h2>${avisoStatus ? `<div class="signal ${avisoStatus.tipo}" id="avisoStatus" role="status">${avisoStatus.tipo==='wait'?'<span class="spinner" style="display:inline-block;vertical-align:-3px;margin-right:8px"></span>':''}${esc(avisoStatus.texto)}</div>` : ''}${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b><div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${escopoAviso(a)==='community'?`Só ${esc(comunidadeDe(a.communityId)?.name||'uma comunidade')}, `:''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}" ${removendo?'disabled':''}>Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
   return h;
 }
 function bindComunicar(root){
@@ -764,6 +928,8 @@ function bindComunicar(root){
   ta.addEventListener('input', () => { S.draft.texto = ta.value; save(); });
   root.querySelector('#verPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=S.minha; S.pubTab = publicado.categoria==='igreja' ? 'igreja' : 'avisos'; publicado = null; save(); render(); scrollTo(0,0); });
   root.querySelectorAll('input[name=tipo]').forEach(r => r.onchange = () => { S.draft.tipo = r.value; S.draft.out = null; S.draft.cardUrl = null; save(); render(); });
+  root.querySelectorAll('input[name=escopo]').forEach(r => r.onchange = () => { S.draft.scope = r.value; if (r.value==='community' && !comunidadeDe(S.draft.communityId)) S.draft.communityId = comunidadesAtivas()[0]?.id || null; save(); render(); });
+  root.querySelector('#escCom')?.addEventListener('change', e => { S.draft.communityId = e.target.value; save(); });
   const lnk = root.querySelector('#lnk'); lnk?.addEventListener('input', () => { S.draft.link = lnk.value.trim(); save(); });
   root.querySelector('#btnLimpar')?.addEventListener('click', () => { S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); });
   root.querySelector('#btnOrg').addEventListener('click', async () => {
@@ -810,9 +976,11 @@ function bindComunicar(root){
   });
   root.querySelector('#btnPub')?.addEventListener('click', () => {
     const agenda = root.querySelector('#addAgenda');
-    S.avisos.push({id:novoId(), ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null});
+    const com = S.draft.tipo!=='igreja' && S.draft.scope==='community' ? comunidadesAtivas().find(c => c.id===S.draft.communityId) : null;
+    S.avisos.push({id:novoId(), ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null,
+      scope:com ? 'community' : 'parish', communityId:com ? com.id : null});
     registrar('publicou', o.titulo);
-    publicado = {titulo:o.titulo, categoria:S.draft.tipo}; avisoStatus = null;
+    publicado = {titulo:o.titulo, categoria:S.draft.tipo, comunidade:com?.name}; avisoStatus = null;
     S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); scrollTo(0,0);
   });
 }
@@ -968,7 +1136,12 @@ const ACOES = {
   'copiou-whatsapp':'Copiou texto do WhatsApp','copiou-instagram':'Copiou legenda','baixou':'Baixou arquivo',
   'mensagem-especial':'Enviou mensagem de aniversário/bodas','mensagem-grupo':'Abriu mensagem para grupo',
   'confirmou-intencao':'Confirmou intenção de missa','copiou-velas':'Copiou pedidos da vela virtual','copiou-intencoes':'Copiou lista de intenções',
-  'cadastrou-pessoa':'Cadastrou pessoa','importou':'Importou pessoas','excluiu-pessoa':'Excluiu pessoa'
+  'cadastrou-pessoa':'Cadastrou pessoa','importou':'Importou pessoas','excluiu-pessoa':'Excluiu pessoa',
+  'cadastrou-comunidade':'Cadastrou comunidade','editou-comunidade':'Editou comunidade','desativou-comunidade':'Desativou comunidade','reativou-comunidade':'Reativou comunidade',
+  'criou-evento':'Criou evento na agenda','editou-evento':'Editou evento','cancelou-evento':'Cancelou evento','excluiu-evento':'Excluiu evento',
+  'cadastrou-dizimista':'Cadastrou dizimista','editou-dizimista':'Editou dizimista','excluiu-dizimista':'Excluiu cadastro de dizimista',
+  'contatou-interessado':'Falou com interessado no dízimo','converteu-interessado':'Converteu interessado em dizimista','encerrou-interessado':'Encerrou interessado',
+  'mensagem-dizimista':'Enviou mensagem a dizimista'
 };
 function usoHTML(){
   const semana = now() - 7*86400e3;
@@ -1042,26 +1215,347 @@ function bindAjustes(root){
 }
 
 /* =========================================================
+   6. COMUNIDADES — paróquia e suas comunidades
+   ========================================================= */
+let comEdit = null; // null = lista; {} = nova; objeto = editando
+function comunidadesAdmHTML(){
+  if (NUVEM.ativo && REL.faltando) return `<h2>Comunidades</h2>${migracaoHTML()}`;
+  if (comEdit) return comunidadeFormHTML(comEdit);
+  const l = rel('communities').slice().sort((a,b) => (b.active!==false) - (a.active!==false) || porNome(a,b));
+  return `<h2>Comunidades da paróquia</h2>
+  <p class="lead small">As comunidades ativas aparecem na página da paróquia. O fiel pode escolher a sua e ver primeiro o que é dela.</p>
+  <button class="btn block-w" id="comNova" style="margin-bottom:12px">+ Adicionar comunidade</button>
+  ${l.length ? `<div class="list">${l.map(c => `<div class="row" style="align-items:flex-start"><div class="grow">
+      <b>${esc(c.name)}</b> ${c.active===false?'<span class="chip neutro">Desativada</span>':'<span class="chip">Ativa</span>'}
+      <div class="small muted">${[c.patron && 'Padroeiro: '+c.patron, c.address, c.phone].filter(Boolean).map(esc).join(' · ') || 'Sem detalhes ainda'}</div>
+      ${c.mass_schedule?`<div class="small muted" style="white-space:pre-line;margin-top:2px">${esc(c.mass_schedule)}</div>`:''}
+      <div class="acoes"><button class="btn sm ghost" data-com-edit="${c.id}">Editar</button>
+        <button class="btn sm ghost" data-com-ativa="${c.id}">${c.active===false?'Reativar':'Desativar'}</button></div></div></div>`).join('')}</div>`
+    : '<div class="empty">Nenhuma comunidade cadastrada ainda.</div>'}`;
+}
+function comunidadeFormHTML(c){
+  return `<h2>${c.id ? 'Editar comunidade' : 'Nova comunidade'}</h2>
+  <form class="block" id="comF">
+    <div class="field"><label for="cm-nome">Nome *</label><input type="text" id="cm-nome" name="name" value="${esc(c.name||'')}" maxlength="120" required placeholder="Ex.: Comunidade São José"></div>
+    <div class="field"><label for="cm-pad">Padroeiro</label><input type="text" id="cm-pad" name="patron" value="${esc(c.patron||'')}" maxlength="120"></div>
+    <div class="field"><label for="cm-end">Endereço</label><input type="text" id="cm-end" name="address" value="${esc(c.address||'')}" maxlength="300"></div>
+    <div class="field"><label for="cm-tel">Telefone</label><input type="tel" id="cm-tel" name="phone" value="${esc(c.phone||'')}" maxlength="40"><div class="hint">Aparece na página pública. Use o telefone da comunidade, nunca um número pessoal sem autorização.</div></div>
+    <div class="field"><label for="cm-desc">Descrição</label><textarea id="cm-desc" name="description" maxlength="4000">${esc(c.description||'')}</textarea></div>
+    <div class="field"><label for="cm-mis">Horários de celebração</label><textarea id="cm-mis" name="mass_schedule" maxlength="2000" style="min-height:70px" placeholder="Domingo: 9h">${esc(c.mass_schedule||'')}</textarea></div>
+    <div class="field"><label for="cm-foto">Link de uma foto (opcional)</label><input type="url" id="cm-foto" name="photo_url" value="${esc(c.photo_url||'')}" placeholder="https://…"></div>
+    <label class="check"><input type="checkbox" name="active" ${c.active===false?'':'checked'}> Comunidade ativa (aparece na página)</label>
+    <div style="display:flex;gap:8px"><button type="button" class="btn ghost" id="comVoltar">Voltar</button><button class="btn" style="flex:1" id="comSalvar">Salvar comunidade</button></div>
+  </form>`;
+}
+function bindComunidadesAdm(root){
+  root.querySelector('#comNova')?.addEventListener('click', () => { comEdit = {}; render(); scrollTo(0,0); document.getElementById('cm-nome')?.focus(); });
+  root.querySelector('#comVoltar')?.addEventListener('click', () => { comEdit = null; render(); });
+  root.querySelectorAll('[data-com-edit]').forEach(b => b.onclick = () => { comEdit = clone(rel('communities').find(c => c.id === b.dataset.comEdit)); render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-com-ativa]').forEach(b => b.onclick = async () => {
+    const c = rel('communities').find(x => x.id === b.dataset.comAtiva), ativar = c.active === false;
+    if (!ativar && !confirm(`Desativar ${c.name}? Ela some da página pública, mas nada é apagado e dá para reativar depois.`)) return;
+    b.disabled = true;
+    if (await relGravar('communities', {id:c.id, active:ativar})){ registrar(ativar ? 'reativou-comunidade' : 'desativou-comunidade', c.name); toast(ativar ? 'Comunidade reativada' : 'Comunidade desativada'); }
+    render();
+  });
+  root.querySelector('#comF')?.addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target, nome = f.name.value.trim().replace(/\s+/g,' ');
+    if (nome.length < 2){ toast('Escreva o nome da comunidade.'); f.name.focus(); return; }
+    const foto = f.photo_url.value.trim();
+    if (foto && !/^https:\/\//i.test(foto)){ toast('O link da foto precisa começar com https://'); f.photo_url.focus(); return; }
+    const o = {name:nome, patron:f.patron.value.trim()||null, address:f.address.value.trim()||null, phone:f.phone.value.trim()||null,
+      description:f.description.value.trim()||null, mass_schedule:f.mass_schedule.value.trim()||null, photo_url:foto||null, active:f.active.checked};
+    if (comEdit.id) o.id = comEdit.id;
+    else { // slug estável: definido na criação e único na paróquia
+      const usados = new Set(rel('communities').map(c => c.slug)); let s = slugDe(nome), n = 2;
+      while (usados.has(s)) s = slugDe(nome).slice(0, 56) + '-' + n++;
+      o.slug = s;
+    }
+    const btn = f.querySelector('#comSalvar'); btn.disabled = true; btn.textContent = 'Salvando…';
+    const r = await relGravar('communities', o);
+    if (!r){ btn.disabled = false; btn.textContent = 'Salvar comunidade'; return; }
+    registrar(comEdit.id ? 'editou-comunidade' : 'cadastrou-comunidade', r.name);
+    comEdit = null; render(); scrollTo(0,0); toast('Comunidade salva');
+  });
+}
+
+/* =========================================================
+   7. AGENDA — eventos independentes dos avisos
+   ========================================================= */
+// Horários sempre no fuso da paróquia, qualquer que seja o fuso do aparelho.
+const TZ = 'America/Sao_Paulo';
+const FMT_SP = new Intl.DateTimeFormat('en-CA', {timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23'});
+const partesSP = iso => Object.fromEntries(FMT_SP.formatToParts(new Date(iso)).filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+const diaSP = iso => { const p = partesSP(iso); return `${p.year}-${p.month}-${p.day}`; };
+const horaSP = iso => { const p = partesSP(iso); return `${p.hour}:${p.minute}`; };
+const horaBR = iso => { const [h, m] = horaSP(iso).split(':'); return +h + 'h' + (m === '00' ? '' : m); };
+const isoSP = (dia, hora) => new Date(`${dia}T${hora || '00:00'}:00-03:00`).toISOString(); // Brasília sem horário de verão desde 2019
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function diaExtenso(dia){
+  const [y, m, d] = dia.split('-').map(Number), dd = new Date(y, m-1, d);
+  if (dia === isoDay(new Date())) return 'Hoje';
+  if (dia === isoDay(plusDays(1))) return 'Amanhã';
+  return `${cap(DIAS[dd.getDay()])}, ${d} de ${MESES[m-1]}${y !== new Date().getFullYear() ? ' de '+y : ''}`;
+}
+// fixo: sem "Hoje/Amanhã" (para textos que ficam gravados, como o aviso do evento)
+function quandoEvento(e, fixo){
+  const d = diaSP(e.starts_at), dx = fixo ? diaExtensoFixo : diaExtenso;
+  const fim = !e.ends_at ? '' : diaSP(e.ends_at) === d ? ' às ' + horaBR(e.ends_at) : ' até ' + dx(diaSP(e.ends_at)).toLowerCase() + ', ' + horaBR(e.ends_at);
+  return `${dx(d)} · ${horaBR(e.starts_at)}${fim}`;
+}
+const fimEvento = e => e.ends_at || new Date(Date.parse(e.starts_at) + 3600e3).toISOString(); // sem término: 1 hora
+function localEvento(e){
+  if (e.location) return e.location;
+  const c = comunidadeDe(e.community_id);
+  return c ? [c.name, c.address].filter(Boolean).join(', ') : [S.cfg.nome, S.cfg.endereco].filter(Boolean).join(', ');
+}
+function detalhesEvento(e){
+  const c = comunidadeDe(e.community_id);
+  return [e.description, `${c ? c.name + ' · ' : ''}${S.cfg.nome}`].filter(Boolean).join('\n\n');
+}
+// Google Agenda: link "adicionar evento" com fuso explícito (ctz). Não precisa de login nem de OAuth.
+function googleAgendaUrl(e){
+  const g = iso => { const p = partesSP(iso); return `${p.year}${p.month}${p.day}T${p.hour}${p.minute}00`; };
+  const u = new URLSearchParams({action:'TEMPLATE', text:e.title, dates:g(e.starts_at)+'/'+g(fimEvento(e)), ctz:TZ, details:detalhesEvento(e), location:localEvento(e)});
+  return 'https://calendar.google.com/calendar/render?' + u.toString();
+}
+// Arquivo .ics (iPhone, Outlook e outras agendas). Horários em UTC, válidos em qualquer fuso.
+function icsEvento(e){
+  const utc = iso => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const t = s => String(s || '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/[,;]/g, m => '\\' + m);
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Central Paroquial//PT-BR','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    'UID:' + e.id + '@central-paroquial', 'DTSTAMP:' + utc(new Date().toISOString()), 'DTSTART:' + utc(e.starts_at), 'DTEND:' + utc(fimEvento(e)),
+    'SUMMARY:' + t(e.title), 'DESCRIPTION:' + t(detalhesEvento(e)), 'LOCATION:' + t(localEvento(e)), 'END:VEVENT','END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+function baixarIcs(e){
+  const nome = slugDe(e.title).slice(0, 40) + '.ics';
+  const url = URL.createObjectURL(new Blob([icsEvento(e)], {type:'text/calendar;charset=utf-8'})), a = document.createElement('a');
+  a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+// Eventos que o fiel vê: públicos, não cancelados, de comunidade ativa, e que ainda não terminaram.
+function eventosPublicos(){
+  const lim = now() - 6*3600e3;
+  const base = usaRel() ? rel('events').filter(e => e.public && !e.cancelled && (!e.community_id || comunidadesAtivas().some(c => c.id === e.community_id))) : S.pubRel.events;
+  return base.filter(e => Date.parse(e.ends_at || e.starts_at) >= lim).sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+}
+function eventoCard(e){
+  const c = comunidadeDe(e.community_id), loc = e.location || (c?.address ? c.address : '');
+  return `<article class="notice evento">
+    ${e.image_url && /^https:\/\//i.test(e.image_url) ? `<img class="ev-img" src="${esc(e.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+    <div class="news-meta"><span class="chip gold">${esc(quandoEvento(e))}</span>${c ? `<span class="chip">${esc(c.name)}</span>` : '<span class="chip neutro">Toda a paróquia</span>'}</div>
+    <h3>${esc(e.title)}</h3>
+    ${e.description ? `<p>${esc(e.description)}</p>` : ''}
+    ${loc ? `<div class="small muted" style="margin-top:6px">📍 ${esc(loc)}</div>` : ''}
+    <div class="acoes"><a class="btn sm" href="${esc(googleAgendaUrl(e))}" target="_blank" rel="noopener">Adicionar ao Google Agenda</a>
+      <button class="btn sm ghost" data-ics="${esc(e.id)}">Adicionar à agenda</button></div>
+  </article>`;
+}
+function bindEventos(root){
+  root.querySelectorAll('[data-ics]').forEach(b => b.onclick = () => {
+    const e = eventosPublicos().find(x => x.id === b.dataset.ics) || rel('events').find(x => x.id === b.dataset.ics);
+    if (e) baixarIcs(e);
+  });
+}
+
+/* avisos por comunidade: avisos antigos, sem scope, valem para toda a paróquia */
+const escopoAviso = a => a.scope === 'community' && a.communityId ? 'community' : 'parish';
+function avisoCard(a){
+  const c = escopoAviso(a) === 'community' ? comunidadeDe(a.communityId) : null;
+  const ev = a.eventId ? eventosPublicos().find(e => e.id === a.eventId) : null;
+  return `<article class="notice"><div class="small muted">${ago(a.ts)}${c ? ` · <span class="chip">${esc(c.name)}</span>` : ''}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
+    ${a.evento ? `<div class="when"><span class="chip gold">${esc(a.evento.quando)}</span>${a.evento.onde ? `<span class="chip">${esc(a.evento.onde)}</span>` : ''}</div>` : ''}
+    ${ev ? `<div class="acoes"><a class="btn sm" href="${esc(googleAgendaUrl(ev))}" target="_blank" rel="noopener">Adicionar ao Google Agenda</a></div>` : ''}</article>`;
+}
+
+/* painel: lista, criar, editar, cancelar */
+let evEdit = null, evFiltro = 'proximos';
+function agendaAdmHTML(){
+  if (NUVEM.ativo && REL.faltando) return `<h2>Agenda</h2>${migracaoHTML()}`;
+  if (evEdit) return eventoFormHTML(evEdit);
+  const lim = now() - 6*3600e3, evs = rel('events').slice().sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+  const prox = evs.filter(e => Date.parse(e.ends_at || e.starts_at) >= lim), pass = evs.filter(e => !prox.includes(e)).reverse();
+  const l = evFiltro === 'proximos' ? prox : pass;
+  const linha = e => { const c = comunidadeDe(e.community_id);
+    return `<div class="row" style="align-items:flex-start"><div class="grow">
+      <b class="${e.cancelled?'cancelado':''}">${esc(e.title)}</b>
+      <div class="small muted">${esc(quandoEvento(e))}${e.location ? ' · ' + esc(e.location) : ''}</div>
+      <div class="tagline" style="margin-top:4px">${c ? `<span class="chip">${esc(c.name)}</span>` : '<span class="chip neutro">Toda a paróquia</span>'}
+        ${e.cancelled ? '<span class="chip gold">Cancelado</span>' : ''}${!e.public ? '<span class="chip neutro">Só a equipe vê</span>' : ''}${e.highlight_home && !e.cancelled ? '<span class="chip gold">Destaque na Home</span>' : ''}</div>
+      <div class="acoes">${!e.cancelled ? `<button class="btn sm ghost" data-ev-edit="${e.id}">Editar</button><button class="btn sm ghost" data-ev-cancel="${e.id}">Cancelar evento</button>`
+        : `<button class="btn sm ghost" data-ev-reativar="${e.id}">Reativar</button><button class="link-btn" data-ev-del="${e.id}">Excluir</button>`}</div></div></div>`; };
+  return `<h2>Agenda</h2>
+  <p class="lead small">Eventos da paróquia e das comunidades. Os públicos aparecem na página na mesma hora, com o botão para o fiel colocar na agenda do celular.</p>
+  <button class="btn block-w" id="evNovo" style="margin-bottom:12px">+ Novo evento</button>
+  <div class="filtros" role="group" aria-label="Quais eventos">
+    <button data-evf="proximos" aria-pressed="${evFiltro==='proximos'}">Próximos eventos (${prox.length})</button>
+    <button data-evf="passados" aria-pressed="${evFiltro==='passados'}">Eventos passados (${pass.length})</button></div>
+  ${l.length ? `<div class="list">${l.map(linha).join('')}</div>` : `<div class="empty">${evFiltro==='proximos' ? 'Nenhum evento marcado. Toque em “+ Novo evento”.' : 'Nenhum evento passado.'}</div>`}`;
+}
+function eventoFormHTML(e){
+  const novo = !e.id, coms = comunidadesAtivas(), escopo = e.scope || 'parish';
+  const dia = e.starts_at ? diaSP(e.starts_at) : '', hi = e.starts_at ? horaSP(e.starts_at) : '', hf = e.ends_at ? horaSP(e.ends_at) : '';
+  return `<h2>${novo ? 'Novo evento' : 'Editar evento'}</h2>
+  <form class="block" id="evF">
+    <div class="field"><label for="ev-tit">Título *</label><input type="text" id="ev-tit" name="title" maxlength="160" required value="${esc(e.title||'')}" placeholder="Ex.: Festa da Comunidade São José"></div>
+    <div class="field"><label for="ev-desc">Descrição</label><textarea id="ev-desc" name="description" maxlength="4000" style="min-height:80px">${esc(e.description||'')}</textarea></div>
+    <div class="field"><label for="ev-dia">Data *</label><input type="date" id="ev-dia" name="dia" required value="${dia}" ${novo ? `min="${isoDay(new Date())}"` : ''}></div>
+    <div class="two">
+      <div class="field"><label for="ev-hi">Hora inicial *</label><input type="time" id="ev-hi" name="hi" required value="${hi}"></div>
+      <div class="field"><label for="ev-hf">Hora final</label><input type="time" id="ev-hf" name="hf" value="${hf}"><div class="hint">opcional</div></div>
+    </div>
+    <div class="field"><label for="ev-loc">Local</label><input type="text" id="ev-loc" name="location" maxlength="200" value="${esc(e.location||'')}" placeholder="Ex.: Salão paroquial"></div>
+    <fieldset class="field" style="border:0;padding:0;margin:0 0 12px"><legend style="font-weight:500;font-size:.92rem;margin-bottom:6px">Para quem é o evento?</legend>
+      <div class="radio-row" style="flex-direction:column;align-items:flex-start">
+        <label><input type="radio" name="scope" value="parish" ${escopo==='parish'?'checked':''}> Toda a paróquia</label>
+        <label><input type="radio" name="scope" value="community" ${escopo==='community'?'checked':''} ${coms.length?'':'disabled'}> Comunidade específica${coms.length?'':' (cadastre as comunidades em Mais › Comunidades)'}</label></div>
+      <select name="community_id" id="ev-com" aria-label="Comunidade" style="margin-top:8px" ${escopo==='community'?'':'hidden'}>${coms.map(c => `<option value="${c.id}" ${c.id===e.community_id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+    </fieldset>
+    <label class="check"><input type="checkbox" name="public" ${e.public===false?'':'checked'}> Mostrar na agenda pública</label>
+    <label class="check"><input type="checkbox" name="highlight_home" ${e.highlight_home?'checked':''}> Destacar na Home da página</label>
+    ${novo ? '<label class="check"><input type="checkbox" name="aviso" checked> Criar também um aviso</label>' : ''}
+    <label class="check"><input type="checkbox" id="ev-temimg" ${e.image_url?'checked':''}> Adicionar imagem ou folder</label>
+    <div class="field" id="ev-imgf" ${e.image_url?'':'hidden'}><label for="ev-img">Link da imagem (https://…)</label><input type="url" id="ev-img" name="image_url" value="${esc(e.image_url||'')}"><div class="hint">Por enquanto, cole o link de uma imagem já publicada. O envio de arquivos entra numa próxima etapa.</div></div>
+    <div style="display:flex;gap:8px"><button type="button" class="btn ghost" id="evVoltar">Voltar</button><button class="btn" style="flex:1" id="evSalvar">Salvar evento</button></div>
+  </form>`;
+}
+function textoAvisoEvento(e){
+  const c = comunidadeDe(e.community_id);
+  return e.description || `${c ? c.name + ' convida' : 'A paróquia convida'} para ${e.title}.`;
+}
+function bindAgendaAdm(root){
+  root.querySelector('#evNovo')?.addEventListener('click', () => { evEdit = {}; render(); scrollTo(0,0); document.getElementById('ev-tit')?.focus(); });
+  root.querySelector('#evVoltar')?.addEventListener('click', () => { evEdit = null; render(); });
+  root.querySelectorAll('[data-evf]').forEach(b => b.onclick = () => { evFiltro = b.dataset.evf; render(); });
+  root.querySelectorAll('[data-ev-edit]').forEach(b => b.onclick = () => { evEdit = clone(rel('events').find(e => e.id === b.dataset.evEdit)); render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-ev-cancel]').forEach(b => b.onclick = async () => {
+    const e = rel('events').find(x => x.id === b.dataset.evCancel);
+    if (!confirm(`Cancelar “${e.title}”? Ele sai da agenda pública, mas fica no histórico.`)) return;
+    b.disabled = true;
+    if (await relGravar('events', {id:e.id, cancelled:true})){
+      registrar('cancelou-evento', e.title);
+      const av = S.avisos.find(a => a.eventId === e.id);
+      if (av && confirm('Este evento também foi publicado como aviso. Remover o aviso da página?')){ S.avisos = S.avisos.filter(a => a !== av); save(); }
+      toast('Evento cancelado');
+    }
+    render();
+  });
+  root.querySelectorAll('[data-ev-reativar]').forEach(b => b.onclick = async () => { b.disabled = true; if (await relGravar('events', {id:b.dataset.evReativar, cancelled:false})) toast('Evento reativado'); render(); });
+  root.querySelectorAll('[data-ev-del]').forEach(b => b.onclick = async () => {
+    const e = rel('events').find(x => x.id === b.dataset.evDel);
+    if (!confirm(`Excluir de vez “${e.title}”? Não dá para desfazer.`)) return;
+    if (await relExcluir('events', e.id)){ registrar('excluiu-evento', e.title); toast('Evento excluído'); }
+    render();
+  });
+  const f = root.querySelector('#evF'); if (!f) return;
+  f.querySelectorAll('input[name=scope]').forEach(r => r.onchange = () => { f.querySelector('#ev-com').hidden = f.scope.value !== 'community'; });
+  f.querySelector('#ev-temimg').onchange = ev => { f.querySelector('#ev-imgf').hidden = !ev.target.checked; };
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const titulo = f.title.value.trim().replace(/\s+/g, ' '), img = f.querySelector('#ev-temimg').checked ? f.image_url.value.trim() : '';
+    if (titulo.length < 2){ toast('Escreva o título do evento.'); f.title.focus(); return; }
+    if (!f.dia.value || !f.hi.value){ toast('Informe a data e a hora inicial.'); return; }
+    if (f.hf.value && f.hf.value < f.hi.value){ toast('A hora final precisa ser depois da hora inicial.'); f.hf.focus(); return; }
+    if (img && !/^https:\/\//i.test(img)){ toast('O link da imagem precisa começar com https://'); f.image_url.focus(); return; }
+    const comunidade = f.scope.value === 'community';
+    if (comunidade && !f.community_id.value){ toast('Escolha a comunidade.'); return; }
+    const o = {title:titulo, description:f.description.value.trim(), starts_at:isoSP(f.dia.value, f.hi.value), ends_at:f.hf.value ? isoSP(f.dia.value, f.hf.value) : null,
+      location:f.location.value.trim(), scope:comunidade ? 'community' : 'parish', community_id:comunidade ? f.community_id.value : null,
+      public:f.public.checked, highlight_home:f.highlight_home.checked, image_url:img || null};
+    if (evEdit.id) o.id = evEdit.id; else o.cancelled = false;
+    const criarAviso = !evEdit.id && f.aviso?.checked;
+    const btn = f.querySelector('#evSalvar'); btn.disabled = true; btn.textContent = 'Salvando…';
+    const r = await relGravar('events', o);
+    if (!r){ btn.disabled = false; btn.textContent = 'Salvar evento'; return; }
+    registrar(evEdit.id ? 'editou-evento' : 'criou-evento', r.title);
+    const quando = {titulo:r.title, quando:quandoEvento(r, true), onde:r.location || ''};
+    const ligado = S.avisos.find(a => a.eventId === r.id);
+    if (ligado){ ligado.evento = quando; save(); } // edição: o aviso acompanha a data e o local do evento
+    if (criarAviso){ // um aviso normal, que referencia o evento (o evento não é duplicado)
+      S.avisos.push({id:novoId(), ts:now(), categoria:'paroquia', link:'', titulo:r.title, texto:textoAvisoEvento(r), evento:quando,
+        scope:r.scope, communityId:r.community_id, eventId:r.id});
+      registrar('publicou', r.title); save();
+    }
+    evEdit = null; evFiltro = 'proximos'; render(); scrollTo(0,0);
+    toast(!r.public ? 'Evento salvo (só a equipe vê)' : criarAviso ? 'Evento e aviso publicados na página' : 'Evento salvo e publicado na agenda');
+  });
+}
+// No aviso (lido dias depois), "Hoje/Amanhã" ficaria errado: usa sempre o dia da semana e a data.
+function diaExtensoFixo(dia){ const [y, m, d] = dia.split('-').map(Number), dd = new Date(y, m-1, d); return `${cap(DIAS[dd.getDay()])}, ${d} de ${MESES[m-1]}`; }
+
+/* página pública: lista, detalhe e "minha comunidade" (preferência só neste aparelho) */
+const mapaLink = end => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(end);
+function comunidadesPubHTML(){
+  const l = comunidadesAtivas(), minha = minhaComunidade();
+  if (!l.length) return `<h2>Comunidades</h2><div class="empty">A paróquia ainda não publicou as comunidades por aqui.</div>${contatoBtn()}`;
+  return `<h2>Comunidades</h2>
+  <p class="lead small">A ${esc(S.cfg.nome)} é formada pela Matriz e por estas comunidades. Escolha a sua para ver primeiro os avisos e eventos dela.</p>
+  <div class="list">${l.map(c => `<button class="pick-row" data-com="${c.id}"><span class="grow"><b>${esc(c.name)}</b>
+    ${c.id===minha?.id?' <span class="chip">★ Minha comunidade</span>':''}
+    <span class="small muted" style="display:block">${[c.patron && 'Padroeiro: '+c.patron, c.address].filter(Boolean).map(esc).join(' · ')}</span></span><span class="muted" aria-hidden="true">›</span></button>`).join('')}</div>`;
+}
+function comunidadePubHTML(){
+  const c = comunidadesAtivas().find(x => x.id === S.comVendo);
+  if (!c) return comunidadesPubHTML();
+  const minha = minhaComunidade()?.id === c.id;
+  const evs = eventosPublicos().filter(e => e.community_id === c.id);
+  const avs = S.avisos.filter(a => a.categoria!=='igreja' && escopoAviso(a)==='community' && a.communityId===c.id).sort((a,b)=>b.ts-a.ts);
+  return `<button class="crumb" data-pub="comunidades">‹ Comunidades</button>
+  <div class="block">
+    ${c.photo_url && /^https:\/\//i.test(c.photo_url) ? `<img class="ev-img" src="${esc(c.photo_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+    <h2 style="margin:0 0 4px">${esc(c.name)}</h2>
+    ${c.patron?`<div class="small muted">Padroeiro: ${esc(c.patron)}</div>`:''}
+    ${c.description?`<p style="margin:10px 0 0;white-space:pre-line">${esc(c.description)}</p>`:''}
+    ${c.address?`<p class="small" style="margin:10px 0 0">📍 ${esc(c.address)} · <a href="${mapaLink(c.address)}" target="_blank" rel="noopener">Ver no mapa</a></p>`:''}
+    ${c.phone?`<p class="small" style="margin:4px 0 0">📞 <a href="${telLink(c.phone)}">${esc(c.phone)}</a></p>`:''}
+  </div>
+  ${c.mass_schedule?`<h2>Horários de celebração</h2><div class="block"><p style="margin:0;white-space:pre-line">${esc(c.mass_schedule)}</p></div>`:''}
+  ${minha ? `<div class="small muted" style="text-align:center;margin:10px 0">★ Esta é a sua comunidade · <button class="link-btn" style="color:var(--lit);padding:0" id="comDeixar">deixar de ser</button></div>`
+          : `<button class="btn ghost block-w" id="comMinha" style="margin:10px 0">★ Tornar esta minha comunidade</button>`}
+  <h2>Próximos eventos</h2>${evs.length ? evs.map(e => eventoCard(e)).join('') : '<div class="empty">Nenhum evento marcado nesta comunidade.</div>'}
+  ${avs.length ? `<h2>Avisos da comunidade</h2>${avs.map(avisoCard).join('')}` : ''}`;
+}
+function bindComunidadesPub(root){
+  root.querySelectorAll('[data-com]').forEach(b => b.onclick = () => { S.comVendo = b.dataset.com; S.pubTab = 'comunidade'; save(); render(); scrollTo(0,0); });
+  root.querySelector('#comMinha')?.addEventListener('click', () => { S.minhaCom = S.comVendo; save(); render(); toast('Agora esta é a sua comunidade'); });
+  root.querySelector('#comDeixar')?.addEventListener('click', () => { S.minhaCom = null; save(); render(); });
+  bindEventos(root);
+}
+
+/* =========================================================
    PÁGINA PÚBLICA — o que o fiel vê
    ========================================================= */
 function avisosPubHTML(){
-  const l = S.avisos.filter(a=>a.categoria!=='igreja').sort((a,b)=>b.ts-a.ts);
+  const l = S.avisos.filter(a=>a.categoria!=='igreja').sort((a,b)=>b.ts-a.ts), minha = minhaComunidade();
+  const geral = l.filter(a => escopoAviso(a)==='parish'); // avisos de toda a paróquia sempre aparecem
+  const daMinha = minha ? l.filter(a => escopoAviso(a)==='community' && a.communityId===minha.id) : [];
+  const outras = l.filter(a => escopoAviso(a)==='community' && a.communityId!==minha?.id).length;
   return `<button class="block" id="goVela" style="width:100%;display:flex;gap:12px;align-items:center;text-align:left;cursor:pointer">
     <span style="font-size:1.6rem" aria-hidden="true">🕯️</span><span class="grow"><b>Acender uma vela virtual</b><span class="small muted" style="display:block">${velasHoje()} acesa${velasHoje()===1?'':'s'} nas últimas 24 horas</span></span><span class="muted">›</span></button>
-  <h2>Avisos da paróquia</h2>${l.length ? l.map(a=>`<article class="notice"><div class="small muted">${ago(a.ts)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
-    ${a.evento?`<div class="when"><span class="chip gold">${esc(a.evento.quando)}</span>${a.evento.onde?`<span class="chip">${esc(a.evento.onde)}</span>`:''}</div>`:''}</article>`).join('') : '<div class="empty">Nenhum aviso no momento.</div>'}
+  ${daMinha.length ? `<h2>Da minha comunidade</h2>${daMinha.map(avisoCard).join('')}` : ''}
+  <h2>Avisos da paróquia</h2>${geral.length ? geral.map(avisoCard).join('') : '<div class="empty">Nenhum aviso no momento.</div>'}
+  ${outras ? `<p class="small muted" style="margin:0 4px 12px">Há ${outras} aviso${outras===1?'':'s'} de outras comunidades. <button class="link-btn" style="color:var(--lit);padding:0" data-pub="comunidades">Ver comunidades</button></p>` : ''}
   ${contatoBtn()}`;
 }
+let agFiltro = 'todos';
 function agendaPubHTML(){
   const linhas = S.cfg.missas.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const i=l.indexOf(':'); return i>0?[l.slice(0,i),l.slice(i+1).trim()]:['',l]; });
-  const evs = S.avisos.filter(a=>a.evento).sort((a,b)=>b.ts-a.ts);
-  if (!linhas.length) return `<h2>Horário de missas</h2><div class="block"><p style="margin:0 0 10px">Os horários ainda não foram publicados nesta página. Confirme com a secretaria.</p>${contatoBtn()}</div>
-  ${intencaoFormHTML()}
-  <h2>Eventos</h2>${evs.length ? `<div class="list">${evs.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : '<div class="empty">Nenhum evento marcado.</div>'}`;
-  return `<h2>Horário de missas</h2><div class="list">${linhas.map(([d,h])=>{ const p = proximaPrimeira(d);
-    return `<div class="row"><div class="grow"><b>${esc(d)}</b>${p?`<div class="small muted">Próxima: ${DIAS[p.getDay()]}, ${pad(p.getDate())}/${pad(p.getMonth()+1)}</div>`:''}</div><span>${esc(h)}</span></div>`; }).join('')}</div>
-  ${intencaoFormHTML()}
-  <h2>Eventos</h2>${evs.length ? `<div class="list">${evs.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : '<div class="empty">Nenhum evento marcado.</div>'}`;
+  const minha = minhaComunidade(), todos = eventosPublicos();
+  const evs = agFiltro === 'minha' && minha ? todos.filter(e => !e.community_id || e.community_id === minha.id) : todos;
+  const antigos = S.avisos.filter(a => a.evento && !a.eventId).sort((a,b)=>b.ts-a.ts); // eventos que vieram só de avisos (antes da agenda)
+  return `<h2>Agenda da paróquia</h2>
+  ${minha && todos.length ? `<div class="filtros" role="group" aria-label="Quais eventos"><button data-agf="todos" aria-pressed="${agFiltro!=='minha'}">Todos</button><button data-agf="minha" aria-pressed="${agFiltro==='minha'}">Paróquia + ${esc(minha.name)}</button></div>` : ''}
+  ${evs.length ? evs.map(e => eventoCard(e)).join('') : '<div class="empty">Nenhum evento marcado por enquanto.</div>'}
+  ${antigos.length ? `<h2>Também nos avisos</h2><div class="list">${antigos.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : ''}
+  <h2>Horário de missas</h2>${linhas.length ? `<div class="list">${linhas.map(([d,h])=>{ const p = proximaPrimeira(d);
+    return `<div class="row"><div class="grow"><b>${esc(d)}</b>${p?`<div class="small muted">Próxima: ${DIAS[p.getDay()]}, ${pad(p.getDate())}/${pad(p.getMonth()+1)}</div>`:''}</div><span>${esc(h)}</span></div>`; }).join('')}</div>`
+    : `<div class="block"><p style="margin:0 0 10px">Os horários ainda não foram publicados nesta página. Confirme com a secretaria.</p>${contatoBtn()}</div>`}
+  ${comunidadesAtivas().some(c => c.mass_schedule) ? `<p class="small muted" style="margin:0 4px 12px">Horários das comunidades: <button class="link-btn" style="color:var(--lit);padding:0" data-pub="comunidades">ver em Comunidades</button></p>` : ''}
+  ${intencaoFormHTML()}`;
+}
+function bindAgendaPub(root){
+  bindIntencaoForm(root); bindEventos(root);
+  root.querySelectorAll('[data-agf]').forEach(b => b.onclick = () => { agFiltro = b.dataset.agf; render(); });
 }
 const REDE = [{"nome":"Imaculado Coração de Maria","bairro":"","cidade":"","forania":"Nossa Senhora da Paz","end":"Rua Fides, 287","cep":"","tel":"(31) 3425-5828","email":"paroquiaicm@yahoo.com.br","resp":"Pároco: Pe. José Geraldo Lisboa","tipo":"paroquia"},{"nome":"Nossa Senhora da Paz","bairro":"Cachoeirinha","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Cônego Santana, 545","cep":"31130-450","tel":"(31) 3422-1424","email":"senhoradapazbh@gmail.com","resp":"Pároco: Pe. Antônio Moacir Rocha","tipo":"paroquia"},{"nome":"Nossa Senhora do Santíssimo Sacramento","bairro":"Santa Cruz","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Francisco Alevato, 125","cep":"31155-220","tel":"(31) 3317-9177","email":"pnsssmosacramento125@yahoo.com.br","resp":"Pároco: Mons. Raimundo Nonato de Oliveira","tipo":"paroquia"},{"nome":"Santa Inês","bairro":"Ermelinda","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Av. Pinheiros, 1040","cep":"31250-330","tel":"(31) 3428-3079","email":"santaines2015@gmail.com","resp":"Pároco: Pe. Carlos Roberto Cremonezi","tipo":"paroquia"},{"nome":"Senhor Bom Jesus","bairro":"Senhor Bom Jesus","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Praça Senhor Bom Jesus, 15","cep":"31230-620","tel":"(31) 3442-2375","email":"santuariosenhorbomjesus@yahoo.com.br","resp":"Administrador Paroquial: Pe. Marco Túlio Andrade Martins","tipo":"paroquia"},{"nome":"São Cristóvão","bairro":"São Cristóvão","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Praça São Cristóvão, s/nº","cep":"31210-750","tel":"(31) 97222-7160","email":"ps.cristovao@hotmail.com","resp":"Pároco: Pe. Felipe Lemos de Queirós","tipo":"paroquia"},{"nome":"São Lucas","bairro":"Palmares","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Nicolina Pacheco, 255","cep":"31155-680","tel":"(31) 3426-8974","email":"paroquiasaolucasbh@gmail.com","resp":"Pároco: Pe. Wanderley Martins da Cunha","tipo":"paroquia"},{"nome":"São Pio X","bairro":"Santa Cruz","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Ester de Lima, 251","cep":"31155-170","tel":"(31) 3424-2098","email":"paroquiapiox@yahoo.com.br","resp":"","tipo":"paroquia"},{"nome":"Divina Misericórdia e São João Paulo II","bairro":"Céu Azul","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua Maria Vieira Magalhães, 45 - 3271-6888/97249-2841","cep":"31585-240","tel":"","email":"secretaria@dmisericordiasaojoaop2.com","resp":"Pároco: Pe. José Adilson Pontes","tipo":"paroquia"},{"nome":"Jesus de Nazaré","bairro":"Pedra Branca","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Francisco Joaquim Coelho, 59","cep":"33925-140","tel":"(31) 3455-7438","email":"paroquiajnazar@yahoo.com.br","resp":"Pároco: Pe. Pedro Custódio da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora da Piedade","bairro":"Justinópolis","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Praça da Igreja, s/nº","cep":"33900-760","tel":"(31) 3638-1500","email":"paroquiapiedade@hotmail.com","resp":"Pároco: Pe. Fernando Geraldo da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora de Guadalupe","bairro":"Céu Azul","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua Maria Gertrudes Santos, 23","cep":"31578-300","tel":"(31) 3496-3924","email":"pnsguadalupeceuazul@gmail.com -","resp":"Pároco: Pe. Mário Lúcio Fernandes da Silva","tipo":"paroquia"},{"nome":"Sagrada Família","bairro":"Areias","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Praça Nossa Senhora de Santana, s/nº","cep":"33920-030","tel":"(31) 3632-5936","email":"paroquiasfrneves@gmail.com","resp":"Pároco: Frei Jaime Eduardo Ribeiro, OFM","tipo":"paroquia"},{"nome":"Santo Inácio de Loyola e São Judas Tadeu","bairro":"Maria Helena","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Santo Inácio de Loyola, 376","cep":"33930-460","tel":"(31) 3456-8103","email":"santoinacioesaojudas@hotmail.com","resp":"Pároco: Pe. Roberto Rubens da Silva","tipo":"paroquia"},{"nome":"Santíssimo Sacramento","bairro":"Justinópolis/Botafogo II","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Av. Paquetá, s/n","cep":"33902-390","tel":"(31) 3638-3041","email":"pssmosacramento@outlook.com","resp":"Pároco: Pe. Paulo César da Silva","tipo":"paroquia"},{"nome":"São Gaspar Bertoni","bairro":"Lagoa","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua José Sabino Maciel, 15","cep":"31578-060","tel":"(31) 3456-4810","email":"gasparbertonibh@gmail.com","resp":"Pároco: Pe. Josemar Oliveira Novais, CSS","tipo":"paroquia"},{"nome":"São José","bairro":"Justinópolis/São José","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Visconde do Rio Branco, 140","cep":"33935-210","tel":"(31) 99065-9597","email":"paroquiasaojose230@hotmail.com","resp":"Pároco: Pe. Ricardo Henrique de Oliveira","tipo":"paroquia"},{"nome":"São João Batista","bairro":"São João de Deus","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Monte Carlo, 87","cep":"33943-290","tel":"(31) 3191-4917","email":"paroquiasjbatista2015@gmail.com","resp":"Pároco: Pe. Gerard Joseph Ferreira","tipo":"paroquia"},{"nome":"Nossa Senhora da Conceição","bairro":"Centro","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Praça Francisco Viana, 26","cep":"33600-000","tel":"(31) 3661-3241","email":"pnsraconceicao@gmail.com","resp":"Administrador Paroquial: Pe. Vanderlan Gomes da Paz,","tipo":"paroquia"},{"nome":"Nossa Senhora das Graças","bairro":"Santos Dumont","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Nossa Senhora das Graças, 230","cep":"33400-000","tel":"(31) 3681-5203","email":"pnsradasgracas84@gmail.com","resp":"Pároco: Pe. Ronaldo Teixeira Brito","tipo":"paroquia"},{"nome":"Rainha dos Mártires","bairro":"Vargem do Lobo/ Newton Pinto Alves","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Av. Moacir Fernandes Afonso. 240","cep":"33239-018","tel":"","email":"","resp":"Administrador Pastoral: Pe. Dênis de Oliveira","tipo":"area"},{"nome":"Santo Antônio","bairro":"Lagoa de Sto. Antônio","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Praça José dos Anjos Silva, s/nº","cep":"33600-000","tel":"(31) 3661-3113","email":"paroquiasantoantoniopl@gmail.com","resp":"Administrador Paroquial: Pe. Ângelo Márcio de Paula","tipo":"paroquia"},{"nome":"Santuário Arquidiocesano Nossa Senhora da Saúde","bairro":"Centro","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Praça Dr. Lund, 160","cep":"33230-076","tel":"(31) 3681-1510","email":"pnsrasaude@gmail.com","resp":"Reitor: Pe. Ednei Almeida Costa","tipo":"santuario"},{"nome":"São José","bairro":"Centro","cidade":"Confins","forania":"Nossa Senhora da Saúde","end":"Rua São José, 721","cep":"33500-000","tel":"(31) 3665-4655","email":"paroquiasaojosedeconfins@gmail.com","resp":"Pároco: Pe. José Genildo Bezerra da Silva","tipo":"paroquia"},{"nome":"São Paulo Missionário","bairro":"Vila Maria","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Joana Fernandes Afonso,85","cep":"33400-000","tel":"(31) 3687-2049","email":"paroquiasaopaulomissionario@gmail.com","resp":"Pároco: Pe. Luís Gustavo de Oliveira","tipo":"paroquia"},{"nome":"São Sebastião","bairro":"Centro","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Rua Comendador Antônio Alves, 1426","cep":"33600-000","tel":"(31) 3661-1148","email":"p.ssebastiaopl@hotmail.com","resp":"Pároco: Pe. Tadeu Oliveira Santos Pôrto","tipo":"paroquia"},{"nome":"São Sebastião","bairro":"Várzea","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Melo Viana, 492","cep":"33400-000","tel":"(31) 3681-0664","email":"pssebastiaols@hotmail.com","resp":"Pároco: Pe. Robson Fernando Reis","tipo":"paroquia"},{"nome":"Nossa Senhora da Conceição Aparecida","bairro":"Conj. Liberdade","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Av. E, nº 825","cep":"33822-850","tel":"(31) 99500-6065","email":"panscarneves@gmail.com","resp":"Pároco: Paulo Bastos de Araújo, CCVE","tipo":"paroquia"},{"nome":"Nossa Senhora das Neves","bairro":"Centro","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Etelvina Maria de Souza, 5","cep":"33805-030","tel":"(31) 3625-0495","email":"paroquiadeneves@gmail.com","resp":"Pároco: Pe. Eribaldo Pereira Santos","tipo":"paroquia"},{"nome":"Nossa Senhora das Vitórias e Santo Antônio","bairro":"Sevilha B","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Araçuaí, 82","cep":"33840-650","tel":"(31) 99303-6981","email":"paroquiavitoriaeantonio@gmail.com","resp":"Pároco: Pe. João Paulo Ponciano de Farias","tipo":"paroquia"},{"nome":"Nossa Senhora do Rosário","bairro":"Santa Martinha","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Coletor José Lago,357","cep":"33860-560","tel":"(31) 3624-2882","email":"pnossasenhoradorosario@yahoo.com","resp":"Administrador Paroquial: Pe. Rafael Rosário Pinto dos","tipo":"paroquia"},{"nome":"Sagrada Família de Nazaré","bairro":"Sevilha A","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Moacir Menezes, 2250","cep":"33855-180","tel":"(31) 98956-8304","email":"paroquiasagradafamiliadenazare@gmail.com","resp":"Pároco: Pe. Jorge Paulo Ponciano de Farias","tipo":"paroquia"},{"nome":"São Francisco de Assis","bairro":"Veneza","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua São Francisco de Assis, 988","cep":"33820-120","tel":"(31) 3625-2087","email":"saofranciscoveneza@hotmail.com","resp":"Pároco: Pe. Jaciel Dias de Andrade, CR","tipo":"paroquia"},{"nome":"São Judas Tadeu","bairro":"San Genaro","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Av. Ruth Brandão Azevedo,1407","cep":"33825-362","tel":"(31) 97149-3572","email":"saojudastadeuneves@yahoo.com.br","resp":"Pároco: Pe. Antônio Carlos Ferreira de Souza","tipo":"paroquia"},{"nome":"Cristo Rei","bairro":"Bom Sucesso","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Av. B, 120","cep":"33200-000","tel":"(31) 3453-7248","email":"","resp":"Pároco: Pe. Reinaldo Alves de Freitas","tipo":"paroquia"},{"nome":"Espírito Santo Consolador","bairro":"Jardim Encantado","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua João Cataldo Pinto,260","cep":"33200-000","tel":"(31) 3621-3386","email":"pesc.vespasiano@gmail.com","resp":"Pároco: Pe. Márcio Antônio da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Morro Alto","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua H, nº 167","cep":"33200-000","tel":"(31) 3621-7013","email":"paroquiasenhoraaparecida@outlook.com","resp":"Pároco: Pe. Luiz Antônio Maciel, SM","tipo":"paroquia"},{"nome":"Nossa Senhora de Lourdes","bairro":"Lourdes","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Praça Professora Júlia Chalita, 64","cep":"33200-000","tel":"(31) 3621-1583","email":"contato@nslourdes.com.br","resp":"Pároco: Pe. Lauro Elias de Oliveira","tipo":"paroquia"},{"nome":"São José","bairro":"Jardim da Glória","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua Nilo Peçanha, 905","cep":"33200-000","tel":"(31) 3621-5938","email":"matrizdesaojose@gmail.com","resp":"Pároco: Pe. Marcelino de Sousa Santos, INJ","tipo":"paroquia"},{"nome":"São José","bairro":"Centro","cidade":"São José da Lapa","forania":"Nossa Senhora de Lourdes","end":"Praça Vereador Dumas Chalita, s/nº","cep":"33350-000","tel":"(31) 3623-1497","email":"paroquiasaojosedalapa@arquidiocesebh.org.br","resp":"Párocos Solidários: Pe. Adilson Gomes Máximo","tipo":"paroquia"},{"nome":"Bom Jesus e Nossa Senhora Aparecida","bairro":"Bom Jesus","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Praça Joaquim Tibúrcio Henriques, 20","cep":"33015-450","tel":"(31) 99895-5957","email":"pbjnsa@gmail.com","resp":"","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Bom Destino","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua das Palmeiras, nº 370","cep":"33060-070","tel":"(31) 3691-2741","email":"paroquiansa.83@gmail.com","resp":"Administrador Paroquial: Pe. Lucas Henrique Aguiar","tipo":"paroquia"},{"nome":"Santa Teresinha do Menino Jesus","bairro":"Baronesa","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua Alemanha, 219","cep":"33115-300","tel":"(31) 3636-3417","email":"pstmeninojesus@yahoo.com.br","resp":"Pároco: Pe. Cláudio José da Silva","tipo":"paroquia"},{"nome":"Santíssima Trindade","bairro":"Conjunto Cristina","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Av. Antônio de Pinho Tavares, 397","cep":"33145-160","tel":"(31) 98490-8038","email":"parsantri@yahoo.com.br","resp":"Pároco: Pe. Carlos Miguel de Brum Lopes, SJ","tipo":"paroquia"},{"nome":"São Benedito","bairro":"São Benedito","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua Pará de Minas, 871","cep":"33120-530","tel":"(31) 3637-1236","email":"paroquiasaobeneditosantaluzia@gmail.com","resp":"Pároco: Pe. Nelson Severino de Souza","tipo":"paroquia"},{"nome":"São João Batista","bairro":"São João Batista","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Praça São João Batista, 120","cep":"33030-790","tel":"(31) 3641-1684","email":"paroq.saojoao@hotmail.com","resp":"Párocos Solidários: Pe. Marcos Antônio Gomes","tipo":"paroquia"},{"nome":"São Raimundo Nonato","bairro":"São Benedito/Asteca","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua São Geraldo, 602","cep":"33120-150","tel":"(31) 3637-6484","email":"paroquiasaoraimundononato@yahoo.com.br","resp":"Pároco: Pe. João Francisco de Lucena","tipo":"paroquia"},{"nome":"Cristo Operário","bairro":"Planalto","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Prof. Tristão da Cunha, 103","cep":"31720-520","tel":"(31) 3494-1444","email":"paroquiacristooperario@hotmail.com","resp":"Pároco: Pe. Antônio Marcos Monteiro","tipo":"paroquia"},{"nome":"Nossa Senhora da Divina Providência","bairro":"","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Av. Exp. Benvindo Belém de Lima, 1038","cep":"","tel":"(31) 3047-1332","email":"nsdivinaprovidencia@gmail.com","resp":"Pároco: Pe. Geraldo Dionízio Bazílio, FDP","tipo":"paroquia"},{"nome":"Nossa Senhora da Misericórdia","bairro":"Planalto","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Nilo Aparecida Pinto, 341","cep":"31720-100","tel":"(31) 3495-4511","email":"secretaria@paroquiansm.com.br","resp":"Administrador Paroquial: Pe. Geovani Antônio Dias, MI","tipo":"paroquia"},{"nome":"Nossa Senhora do Belo Ramo","bairro":"Jaqueline","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Senhora do Belo Ramo,26","cep":"31748-143","tel":"(31) 3454-2519","email":"nossasenhoradobeloramo@gmail.com","resp":"Pároco: Pe. José Geraldo de Souza","tipo":"paroquia"},{"nome":"Santa Catarina Labouré","bairro":"Dona Clara","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Praça Santa Catarina Labouré, s/nº","cep":"31260-220","tel":"(31) 3491-9824","email":"paroquiascl@yahoo.com","resp":"Pároco: Pe. José Antônio Pereira das Neves","tipo":"paroquia"},{"nome":"Santo Antônio","bairro":"Jaraguá","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Praça Santo Antônio, 2","cep":"31270-860","tel":"(31) 3427-2866","email":"santoantoniopampulha@yahoo.com.br","resp":"Pároco: Pe. Antônio Roberto de Oliveira Fernandes","tipo":"paroquia"},{"nome":"Santos Pastorinhos Francisco e Jacinta Marto","bairro":"Etelvina Carneiro","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Lírios do Campo, 700","cep":"31746-120","tel":"(31) 3454-5841","email":"pfjmarto@hotmail.com","resp":"Pároco: Pe. Jorge Antônio de Castro","tipo":"paroquia"},{"nome":"Santuário Arquidiocesano São Francisco de Assis","bairro":"São Luiz/Pampulha","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Av. Dr. Otacílio Negrão de Lima, 3000","cep":"31365-450","tel":"(31) 98876-3047","email":"","resp":"Reitor: Pe. Gladstone Elias de Souza","tipo":"santuario"},{"nome":"São Bernardo","bairro":"São Bernardo","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Cecília Pinto, 95","cep":"31741-310","tel":"(31) 3494-6035","email":"paroquiasaobernardo@yahoo.com.br","resp":"Pároco: Pe. Antônio Carlos Canuto de Melo, SDN","tipo":"paroquia"},{"nome":"São Francisco de Assis","bairro":"São Francisco","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Pe. Leopoldo Mertens, 1121","cep":"31255-200","tel":"(31) 3441-1198","email":"psfa1959@gmail.com","resp":"Pároco: Pe. Rogério Eustáquio Fernandes","tipo":"paroquia"},{"nome":"Imaculado Coração de Maria e Santo Antônio","bairro":"São João Batista/Venda Nova","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Desembargador Onofre Mendes Júnior, 10","cep":"31535-510","tel":"(31) 3452-4645","email":"picmasa7@yahoo.com.br","resp":"Pároco: Pe. Carlos Roberto Costa","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Mantiqueira","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Praça Manoel Batista Baia, 22","cep":"31660-190","tel":"(31) 3450-4955","email":"paroquiansa@yahoo.com.br","resp":"Pároco: Pe. Francisco Fernandes de Oliveira","tipo":"paroquia"},{"nome":"Nossa Senhora de Fátima e São Miguel","bairro":"Rio Branco","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Comendador Artur Viana, 405","cep":"31530-550","tel":"(31) 3450-8219","email":"paroquiansfsm@hotmail.com","resp":"Pároco: Pe. Eloísio Vieira da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora do Sagrado Coração","bairro":"Santa Branca","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Marcos Lopes de Almeida, 70","cep":"31565-020","tel":"(31) 3441-1185","email":"","resp":"Pároco: Pe. Antônio Francisco da Silva","tipo":"paroquia"},{"nome":"Santa Cecília","bairro":"Jardim Europa","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Dresde, 37","cep":"31620-170","tel":"(31) 3453-6262","email":"paroquia@paroquiasantacecilia.org","resp":"Pároco: Frei Fábio Soares da Silva, OFMConv","tipo":"paroquia"},{"nome":"Santa Mônica","bairro":"Santa Mônica","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Dorival Machado, 420","cep":"31525-150","tel":"(31) 3452-3405","email":"snt.monica.bh@gmail.com","resp":"Pároco: Pe. Rubens Sérgio Nascimento de Araújo","tipo":"paroquia"},{"nome":"Santo Antônio","bairro":"Venda Nova","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua da Matriz, 27","cep":"31515-020","tel":"(31) 3457-4684","email":"santoantoniovendanova@gmail.com","resp":"Párocos Solidários: Pe. Célio Silva Diniz","tipo":"paroquia"},{"nome":"São Geraldo","bairro":"Piratininga","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Pedra de Anil, 118","cep":"31570-610","tel":"(31) 3453-2421","email":"psaogeraldo@yahoo.com.br","resp":"Pároco: Pe. João Evangelista Sobrinho","tipo":"paroquia"},{"nome":"São Sebastião e Santa Edwiges","bairro":"Minas Caixa","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Capitão Sérgio Pires, 171","cep":"31615-640","tel":"(31) 3451-4938","email":"saosebastiaoesantaedwiges@hotmail.com","resp":"Pároco: Pe. José Haroldo Corrêa Pinto","tipo":"paroquia"},{"nome":"São Sebastião e São Vicente","bairro":"Santa Amélia","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Joaquim Raimundo Braga, 117","cep":"31555-380","tel":"(31) 2127-4871","email":"sec.sebastiao@psssv.org","resp":"Administrador Paroquial: Pe. Higo Dias de Oliveira","tipo":"paroquia"},{"nome":"Nossa Senhora da Anunciação","bairro":"São Gabriel","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Cabedelo, 15","cep":"31980-500","tel":"(31) 3493-3033","email":"pnsanunciacao@hotmail.com","resp":"Pároco: Pe. Filipe Silva Pereira Gouvêa","tipo":"paroquia"},{"nome":"Nossa Senhora da Paz","bairro":"Guarani","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Aniry, 94","cep":"31840-170","tel":"(31) 3433-0476","email":"pnspaz@hotmail.com","resp":"Pároco: Pe. Francisco Esteves Pimenta","tipo":"paroquia"},{"nome":"Pai Misericordioso","bairro":"Paulo VI","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Cana Caiana, 48","cep":"31995-270","tel":"(31) 3435-6699","email":"paroquiapaimisericordioso@hotmail.com","resp":"Pároco: Pe. Gentil José Soares da Silva, CM","tipo":"paroquia"},{"nome":"Santa Maria de Nazaré","bairro":"Nazaré","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Diógenes, 640","cep":"31990-210","tel":"(31) 3434-3109","email":"paroquiasantamariadenazare@hotmail.com","resp":"Pároco: Pe. Glayson Dias dos Santos","tipo":"paroquia"},{"nome":"São Domingos","bairro":"Conjunto Ribeiro de Abreu","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Serra da Boa Esperança, 91","cep":"31872-310","tel":"(31) 3434-1418","email":"paroquiasaodomingosbh@gmail.com","resp":"Pároco: Pe. Cícero Machado Ribeiro, MSC","tipo":"paroquia"},{"nome":"São Francisco Xavier","bairro":"Tupi","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua José Lins do Rego, 444","cep":"31842-350","tel":"(31) 3309-9677","email":"comunicacao@psfx.org.br","resp":"","tipo":"paroquia"},{"nome":"São José Operário","bairro":"Aarão Reis","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Oliveira Fortes, 25","cep":"31814-320","tel":"(31) 3445-2777","email":"saojoseo@yahoo.com","resp":"Pároco: Pe. Marco Antônio Gonçalves Porto","tipo":"paroquia"},{"nome":"Todos os Santos","bairro":"Providência","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Madre dos Anjos, 29","cep":"31814-030","tel":"(31) 3433-4759","email":"patosan@bol.com.br","resp":"Pároco: Pe. Carlos Antônio Vilela Mota","tipo":"paroquia"},{"nome":"Cristo Crucificado","bairro":"Goiânia","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Maria da Conceição Bonfim, 351","cep":"31950-540","tel":"(31) 3432-7179","email":"pxtoc@hotmail.com","resp":"Pároco: Pe. André de Souza, CRSP","tipo":"paroquia"},{"nome":"Maria, Mãe do Senhor","bairro":"Nossa Senhora de Fátima","cidade":"Sabará","forania":"São Paulo Apóstolo","end":"Rua Cláudio, 414","cep":"34600-380","tel":"(31) 3673-2792","email":"pmm.senhor@yahoo.com.br","resp":"Administrador Paroquial: Pe. Cleber Brito Santos","tipo":"paroquia"},{"nome":"Nossa Senhora das Vitórias","bairro":"Jardim Vitória","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua José de Lima Géo, 85","cep":"31970-300","tel":"(31) 3493-3232","email":"paroquianossasenhoradasvitorias@yahoo.com.br","resp":"Pároco: Pe. Ricardo Barbosa Corrêa","tipo":"paroquia"},{"nome":"Santa Maria, Mãe de Deus","bairro":"União","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Francisca Leão Corrêa, 47","cep":"31170-450","tel":"(31) 3486-7719","email":"santamariamaededeus@arquidiocesebh.org.br","resp":"Pároco: Pe Edecildo José Antônio Prado da Silva","tipo":"paroquia"},{"nome":"São Marcos","bairro":"São Marcos","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Edson Luis de Miranda, 119","cep":"31910-400","tel":"(31) 3432-1080","email":"paroquiasaomarcos2@gmail.com","resp":"","tipo":"paroquia"},{"nome":"São Paulo Apóstolo","bairro":"São Paulo","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Angola, 271","cep":"31910-060","tel":"(31) 3432-1280","email":"paroquiasp2020@gmail.com","resp":"Pároco: Pe. Guilherme do Carmo Neto","tipo":"paroquia"}];
 const telLink = t => 'tel:+55'+(digits(t).length<=9 ? '31'+digits(t) : digits(t));
@@ -1486,8 +1980,8 @@ function escolherHTML(){
 function bindEscolher(root){
   const b = root.querySelector('#buscaPar');
   b.addEventListener('input', () => { buscaPar = b.value; const pos = b.selectionStart; render(); const n = document.getElementById('buscaPar'); n.focus(); n.setSelectionRange(pos,pos); });
-  root.querySelectorAll('[data-pick]').forEach(x => x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab = 'avisos'; velaStep = 'inicio'; save(); render(); scrollTo(0,0); });
-  root.querySelector('#pickVoltar').onclick = () => { S.pubTab = 'avisos'; save(); render(); };
+  root.querySelectorAll('[data-pick]').forEach(x => x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab = 'igreja'; velaStep = 'inicio'; save(); render(); scrollTo(0,0); });
+  root.querySelector('#pickVoltar').onclick = () => { S.pubTab = 'igreja'; save(); render(); };
 }
 function minhaBtn(){
   return S.vendo===S.minha
@@ -1530,6 +2024,9 @@ function inativaContatoHTML(){
   const r = vendoRede(), irmas = REDE.filter(x => x.forania===r.forania && keyOf(x)!==keyOf(r));
   return `${inativaCard(r)}${minhaBtn()}${ativarHTML(r)}
   <h2>Forania ${esc(r.forania)}</h2><div class="list">${irmas.map(redeItem).join('')}</div>`;
+}
+function inativaComunidadesHTML(){
+  return `${inativaCard(vendoRede())}<div class="empty">Esta paróquia ainda não publica as comunidades por aqui.</div>${minhaBtn()}`;
 }
 function bindInativa(root){
   bindMinha(root);
@@ -1594,19 +2091,23 @@ function render(){
     const v = document.getElementById('view'); v.innerHTML = acessoHTML(); bindAcesso(v);
     return;
   }
-  if (!tabsFor().some(([k]) => k === (S.mode==='painel'?S.tab:S.pubTab)) && !(S.mode==='publico' && S.pubTab==='escolher')) { if (S.mode==='painel') S.tab='comunicar'; else S.pubTab='avisos'; }
+  const validas = tabsFor().map(([k]) => k).concat(S.mode==='publico' ? Object.keys(SUBTELAS_PUB) : []);
+  if (!validas.includes(S.mode==='painel'?S.tab:S.pubTab)) { if (S.mode==='painel') S.tab='comunicar'; else S.pubTab='igreja'; }
   if (S.mode==='publico' && !vendoAtiva() && !vendoRede()) S.vendo = ATIVA;
   renderTabs();
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
-    comunicar:[comunicarHTML,bindComunicar], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
-    uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
-  } : { avisos:[avisosPubHTML, r => r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }], igreja:[igrejaPubHTML, r => { bindVela(r); carregarNoticias(); }], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindIntencaoForm], contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
+    comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
+    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
+  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, r => { bindVela(r); carregarNoticias(); }], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
+    comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
+    contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
-    const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='avisos'; save(); render(); scrollTo(0,0); }; });
+    const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='igreja'; save(); render(); scrollTo(0,0); }; });
     map.escolher = [escolherHTML, bindEscolher];
-    if (!vendoAtiva()){ map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; }
+    if (!vendoAtiva()){ map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
     const [h,b] = map[S.pubTab]; v.innerHTML = h(); b(v); pickBind(v);
+    v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; save(); render(); scrollTo(0,0); }; });
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
     return;
   }
