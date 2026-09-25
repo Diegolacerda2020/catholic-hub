@@ -430,7 +430,9 @@ function marcar(estado){
   el.textContent = {salvando:'Salvando…', ok:'Salvo ✓', offline:'Sem internet: salvo só aqui', erro:'Erro ao salvar'}[estado] || '';
 }
 const digitando = () => { const a = document.activeElement; return !!(a && a.closest?.('#view') && (a.matches('input,textarea,select') || a.isContentEditable)); };
-function renderSeguro(){ if (digitando()) { NUVEM.renderPendente = true; return; } NUVEM.renderPendente = false; render(); }
+// Formulário do painel aberto (agenda, comunidade, dizimista): a sincronização espera ele fechar para não apagar o que foi digitado.
+const editando = () => S.mode==="painel" && !!(comEdit || evEdit || dzEdit);
+function renderSeguro(){ if (digitando() || editando()) { NUVEM.renderPendente = true; return; } NUVEM.renderPendente = false; render(); }
 document.addEventListener('focusout', () => setTimeout(() => { if (NUVEM.renderPendente && !digitando()) renderSeguro(); }, 250));
 
 function nuvemAgendar(){
