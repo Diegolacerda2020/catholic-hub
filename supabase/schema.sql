@@ -28,12 +28,15 @@ create table if not exists parish_state (
 );
 
 -- Mantém updated_at correto sem depender do front-end
-create or replace function touch_parish_state() returns trigger as $$
+create or replace function touch_parish_state() returns trigger
+language plpgsql
+set search_path = public
+as $$
 begin
   new.updated_at = now();
   return new;
 end;
-$$ language plpgsql;
+$$;
 
 drop trigger if exists trg_touch_parish_state on parish_state;
 create trigger trg_touch_parish_state
@@ -50,6 +53,15 @@ create trigger trg_touch_parish_state
 alter table parishes enable row level security;
 alter table parish_users enable row level security;
 alter table parish_state enable row level security;
+
+-- Visitante sem login não tem nenhum acesso direto às tabelas
+-- (só pelas funções get_public_parish e public_submit abaixo).
+revoke all on parishes, parish_users, parish_state from anon;
+-- Usuário logado só lê/atualiza; criar e apagar paróquias, vínculos e
+-- estados é feito pelo SQL Editor (dono do projeto).
+revoke all on parishes, parish_users, parish_state from authenticated;
+grant select on parishes, parish_users to authenticated;
+grant select, update (data) on parish_state to authenticated;
 
 drop policy if exists "membro ve sua paroquia" on parishes;
 create policy "membro ve sua paroquia" on parishes
@@ -100,7 +112,77 @@ as $$
   where p.slug = p_slug and p.active = true;
 $$;
 
+revoke all on function get_public_parish(text) from public;
 grant execute on function get_public_parish(text) to anon, authenticated;
+
+-- ---------- Envio público (fiel sem login) ----------
+-- A página pública deixa o fiel pedir intenção de missa e acender vela.
+-- Esta função é o ÚNICO caminho de escrita sem login: acrescenta um item
+-- validado (campos fixos, tamanho limitado) à lista da paróquia. O visitante
+-- não consegue ler nem alterar nada além disso.
+create or replace function public_submit(p_slug text, p_kind text, p_item jsonb)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_pid uuid;
+  v_key text;
+  v_cap int;
+  v_item jsonb;
+  v_ts bigint := floor(extract(epoch from clock_timestamp()) * 1000);
+  v_id bigint := floor(extract(epoch from clock_timestamp()) * 1000) * 1000 + floor(random() * 1000);
+begin
+  select id into v_pid from parishes where slug = p_slug and active = true;
+  if v_pid is null or p_item is null or jsonb_typeof(p_item) <> 'object' then
+    return false;
+  end if;
+
+  if p_kind = 'intencao' then
+    if coalesce(p_item->>'tipo','') not in ('gracas','falecidos','saude','aniversario','outra')
+       or coalesce(p_item->>'data','') !~ '^\d{4}-\d{2}-\d{2}$'
+       or length(trim(coalesce(p_item->>'por',''))) = 0
+       or length(trim(coalesce(p_item->>'nome',''))) = 0 then
+      return false;
+    end if;
+    v_key := 'intencoes'; v_cap := 1000;
+    v_item := jsonb_build_object(
+      'id', v_id, 'ts', v_ts,
+      'tipo', p_item->>'tipo',
+      'por', left(trim(p_item->>'por'), 200),
+      'data', p_item->>'data',
+      'hora', left(trim(coalesce(p_item->>'hora','')), 10),
+      'nome', left(trim(p_item->>'nome'), 100),
+      'whats', left(regexp_replace(coalesce(p_item->>'whats',''), '\D', '', 'g'), 15),
+      'status', 'nova');
+  elsif p_kind = 'vela' then
+    if coalesce(p_item->>'para','') not in ('mim','alguem','almas','gracas') then
+      return false;
+    end if;
+    v_key := 'velas'; v_cap := 2000;
+    v_item := jsonb_build_object(
+      'id', v_id, 'ts', v_ts,
+      'para', p_item->>'para',
+      'por', left(trim(coalesce(p_item->>'por','')), 100),
+      'pedido', left(trim(coalesce(p_item->>'pedido','')), 500),
+      'nome', left(trim(coalesce(p_item->>'nome','')), 100),
+      'rezar', coalesce((p_item->>'rezar')::boolean, false));
+  else
+    return false;
+  end if;
+
+  update parish_state
+     set data = jsonb_set(data, array[v_key], coalesce(data->v_key, '[]'::jsonb) || jsonb_build_array(v_item))
+   where parish_id = v_pid
+     and jsonb_array_length(coalesce(data->v_key, '[]'::jsonb)) < v_cap
+     and pg_column_size(data) < 5000000;
+  return found;
+end;
+$$;
+
+revoke all on function public_submit(text, text, jsonb) from public;
+grant execute on function public_submit(text, text, jsonb) to anon, authenticated;
 
 -- ---------- Paróquia piloto ----------
 insert into parishes (slug, name, active)
@@ -111,8 +193,20 @@ insert into parish_state (parish_id, data)
 select id, '{}'::jsonb from parishes where slug = 'santo-antonio-jaragua'
 on conflict (parish_id) do nothing;
 
--- Depois de criar os usuários (padre, secretaria) em Authentication > Users,
--- vincule cada um à paróquia com algo como:
+-- O conteúdo inicial (dados da paróquia, horários de missa, modelos de
+-- mensagem) é gravado pelo próprio sistema no primeiro login da equipe.
+
+-- Depois de criar os usuários em Authentication > Users, vincule cada um
+-- à paróquia pelo e-mail (troque os e-mails pelos reais):
 --
 -- insert into parish_users (user_id, parish_id, role)
--- select '<uuid-do-usuario>', id, 'secretaria' from parishes where slug = 'santo-antonio-jaragua';
+-- select u.id, p.id, v.role
+-- from (values
+--   ('padre@exemplo.com',      'padre'),
+--   ('secretaria@exemplo.com', 'secretaria'),
+--   ('pascom@exemplo.com',     'pascom')
+-- ) as v(email, role)
+-- join auth.users u on lower(u.email) = lower(v.email)
+-- cross join parishes p
+-- where p.slug = 'santo-antonio-jaragua'
+-- on conflict (user_id, parish_id) do update set role = excluded.role;
