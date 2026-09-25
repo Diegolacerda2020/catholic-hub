@@ -182,6 +182,10 @@ details.fold .inner{padding:0 16px 14px}
 .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .video .play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:0;background:linear-gradient(135deg,#1F5B3F,#0f1512);color:#fff;font-weight:700}
 .video .play span.tri{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.4rem}
+.watch{background:linear-gradient(135deg,#1F5B3F,#0f1512);border-radius:12px;padding:16px;margin:10px 0 0;display:flex;flex-direction:column;gap:10px}
+.watch .btn.live{background:#fff;color:#1F5B3F;min-height:48px;font-size:1.05rem}
+.watch .btn.yt{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.65)}
+.canal-acoes{display:flex;gap:8px;flex-wrap:wrap;flex-basis:100%}
 </style>
 </head>
 <body>
@@ -998,7 +1002,7 @@ function ajustesHTML(){
     </div>
     <div class="field"><label for="c-mis">Horários de missa</label><textarea id="c-mis" name="missas">${esc(c.missas)}</textarea><div class="hint">Uma linha por dia, no formato "Domingo: 7h, 10h e 19h". Os horários aparecem na página e no pedido de intenção.</div></div>
     <div class="field"><label for="c-pix">Chave Pix para ofertas</label><input type="text" id="c-pix" name="pix" placeholder="Opcional" value="${esc(c.pix||'')}"><div class="hint">Aparece como oferta opcional na vela virtual. O dinheiro vai direto para a conta da paróquia.</div></div>
-    <div class="field"><label for="c-yt">Canal da paróquia no YouTube</label><input type="text" id="c-yt" name="youtube" inputmode="url" placeholder="Cole o link do canal" value="${esc(c.youtube)}"><div class="hint">Com o link no formato youtube.com/channel/…, a transmissão abre dentro da página.</div></div>
+    <div class="field"><label for="c-yt">Canal da paróquia no YouTube</label><input type="text" id="c-yt" name="youtube" inputmode="url" placeholder="Cole o link do canal" value="${esc(c.youtube)}"><div class="hint">Com o link do canal (youtube.com/channel/…), a página mostra os botões para assistir no YouTube. Com o link de um vídeo ou transmissão específica, o vídeo abre dentro da página.</div></div>
     <div class="field"><label>Orações ao vivo na aba Assistir</label>${CANAIS.map(v=>`<label class="check" style="margin-bottom:6px"><input type="checkbox" name="rec-${v.k}" ${c.rec?.[v.k]!==false?'checked':''}> ${v.nome}</label>`).join('')}</div>
     <div class="field"><label for="c-sec">Horário da secretaria</label><textarea id="c-sec" name="secretaria" style="min-height:60px">${esc(c.secretaria)}</textarea></div>
     <h3 style="margin:16px 0 8px">Jeito de escrever</h3>
@@ -1150,52 +1154,69 @@ function igrejaPubHTML(){
 }
 
 
-/* ---------- assistir: vídeos ao vivo dentro da página ---------- */
+/* ---------- assistir: transmissões e conteúdos católicos ----------
+   O antigo embed "ao vivo" por canal (sem ID de vídeo) deixou de funcionar e mostrava
+   "Este vídeo não está disponível". Agora cada canal abre no YouTube (/live e página
+   do canal) e o player só é criado quando há um VIDEO_ID específico (campo "video"
+   do canal, ou link de vídeo no canal da paróquia em Ajustes). IDs conferidos em 25/09/2026. */
 const CANAIS = [
-  {k:'horizonte', nome:'TV Horizonte', autor:'TV da Arquidiocese de Belo Horizonte', canal:'UC_n4rC_MIZVtpKHmtIc_QbQ',
+  {k:'horizonte', nome:'TV Horizonte', autor:'TV da Arquidiocese de Belo Horizonte', canal:'UC_n4rC_MIZVtpKHmtIc_QbQ', video:'',
    desc:'Programação católica da Arquidiocese de BH, ao vivo. Canal aberto 30.1.'},
-  {k:'cancaonova', nome:'TV Canção Nova', autor:'Canção Nova', canal:'UC6V9mqiVuzd-v3ozUfCtZFA', desc:'Missas, terços e programação católica ao vivo.'},
-  {k:'aparecida', nome:'TV Aparecida', autor:'Santuário Nacional de Aparecida', canal:'UCfYrK5JU5EznsnK3wQE7iIg', desc:'Missas e orações direto do Santuário Nacional.'},
-  {k:'manzotti', nome:'Padre Reginaldo Manzotti', autor:'Evangelizar É Preciso', canal:'UCjWxeXfmtOnv1MndaSEWFew', desc:'Missas, terços e pregações ao vivo.'},
-  {k:'gilson', nome:'Santo Rosário da Madrugada', autor:'Frei Gilson / Som do Monte', canal:'UCbh6_TmFnAJLI56aAQeD3qw',
+  {k:'cancaonova', nome:'TV Canção Nova', autor:'Canção Nova', canal:'UC6V9mqiVuzd-v3ozUfCtZFA', video:'', desc:'Missas, terços e programação católica ao vivo.'},
+  {k:'aparecida', nome:'TV Aparecida', autor:'Santuário Nacional de Aparecida', canal:'UCfYrK5JU5EznsnK3wQE7iIg', video:'', desc:'Missas e orações direto do Santuário Nacional.'},
+  {k:'manzotti', nome:'Padre Reginaldo Manzotti', autor:'Evangelizar É Preciso', canal:'UCjWxeXfmtOnv1MndaSEWFew', video:'', desc:'Missas, terços e pregações ao vivo.'},
+  {k:'gilson', nome:'Santo Rosário da Madrugada', autor:'Frei Gilson / Som do Monte', canal:'UCbh6_TmFnAJLI56aAQeD3qw', video:'',
    desc:'Às sextas, às 4h. Na Quaresma e nos 40 dias com São Miguel (15/8 a 29/9), de segunda a sábado.', sm:'Nestes dias: de segunda a sábado'},
-  {k:'hesed', nome:'Instituto Hesed', autor:'Ir. Kelly Patrícia', canal:'UCm_nEAH7DCfjmXUbNkN6JFw',
+  {k:'hesed', nome:'Instituto Hesed', autor:'Ir. Kelly Patrícia', canal:'UCm_nEAH7DCfjmXUbNkN6JFw', video:'',
    desc:'Santo Terço, Terço da Misericórdia e o Exército de São Miguel.', sm:'Nestes dias: Quaresma de São Miguel'}
 ];
 const canalId = link => (String(link||'').match(/(UC[\w-]{22})/)||[])[1] || '';
-const iframeYT = id => `<iframe src="https://www.youtube.com/embed/live_stream?channel=${id}&autoplay=1&rel=0" title="Transmissão ao vivo" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+const videoValido = id => /^[\w-]{11}$/.test(id || '');
+const videoId = link => (String(link||'').match(/(?:youtu\.be\/|[?&]v=|\/(?:embed|live|shorts)\/)([\w-]{11})(?![\w-])/)||[])[1] || '';
+const ytCanal = id => 'https://www.youtube.com/channel/'+id;
+const ytAoVivo = id => ytCanal(id)+'/live';
+const iframeVideo = id => `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="Vídeo no YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+// Player só para vídeo específico; o iframe só é criado ao tocar.
 function videoHTML(id, titulo){
-  return `<div class="video" data-ch="${id}"><button class="play" aria-label="Assistir ${esc(titulo)} aqui"><span class="tri">▶</span>Assistir aqui</button></div>`;
+  if (!videoValido(id)) return '';
+  return `<div class="video" data-video="${id}"><button class="play" aria-label="Assistir ${esc(titulo)} aqui"><span class="tri">▶</span>Assistir aqui</button></div>`;
+}
+// No lugar do antigo player permanente: card que abre a transmissão no YouTube.
+function transmissaoCard(canal, titulo){
+  return `<div class="watch"><a class="btn block-w live" href="${ytAoVivo(canal)}" target="_blank" rel="noopener" aria-label="Assistir transmissão de ${esc(titulo)} no YouTube">▶ Assistir transmissão</a>
+    <a class="btn block-w yt" href="${ytCanal(canal)}" target="_blank" rel="noopener" aria-label="Abrir ${esc(titulo)} no YouTube">Abrir no YouTube</a></div>`;
 }
 let aberto = null;
 function assistirHTML(){
-  const c = S.cfg, id = canalId(c.youtube);
+  const c = S.cfg, id = canalId(c.youtube), vid = videoId(c.youtube);
   const devSM = devocoesAtivas().some(v => v.nome==='Quaresma de São Miguel');
   const ativos = CANAIS.filter(v => c.rec?.[v.k] !== false);
   const [dest, ...outros] = ativos;
-  let h = `<h2>Assistir</h2><p class="lead small">Transmissões católicas ao vivo sem sair da página da paróquia.</p>`;
+  let h = `<h2>Assistir</h2><p class="lead small">Transmissões e conteúdos católicos.</p>`;
   if (dest) h += `<div class="block"><span class="chip">Em destaque</span>
       <h3 style="font-family:var(--serif);font-size:1.25rem;margin-top:6px">${dest.nome}</h3>
       <p class="small muted" style="margin:2px 0 0">${dest.autor}. ${dest.desc}</p>
-      ${videoHTML(dest.canal, dest.nome)}
-      <a class="btn sm ghost" href="https://www.youtube.com/channel/${dest.canal}/streams" target="_blank" rel="noopener">Ver gravações no YouTube</a></div>`;
+      ${videoValido(dest.video) ? videoHTML(dest.video, dest.nome) : transmissaoCard(dest.canal, dest.nome)}</div>`;
   if (c.youtube && vendoAtiva()) h += `<div class="block"><h3 style="font-family:var(--serif);font-size:1.2rem">Missas da ${esc(c.nome)}</h3>
       <p class="small muted" style="margin:2px 0 0">Transmissão da paróquia no YouTube.</p>
-      ${id ? videoHTML(id, 'transmissão da paróquia') : ''}
-      <a class="btn sm ghost" href="${esc(/^https?:\/\//i.test(c.youtube)?c.youtube:'https://'+c.youtube)}" target="_blank" rel="noopener">Abrir no YouTube</a></div>`;
+      ${vid ? videoHTML(vid, 'transmissão da paróquia') : id ? transmissaoCard(id, c.nome) : ''}
+      ${vid || !id ? `<a class="btn sm ghost" href="${esc(/^https?:\/\//i.test(c.youtube)?c.youtube:'https://'+c.youtube)}" target="_blank" rel="noopener">Abrir no YouTube</a>` : ''}</div>`;
   if (outros.length) h += `<h2>Outros canais católicos</h2><div class="list">${outros.map(v => `
     <div class="row" style="flex-wrap:wrap"><div class="grow"><b>${v.nome}</b><div class="small muted">${v.autor}. ${v.desc}</div>
       ${devSM && v.sm ? `<span class="chip gold" style="margin-top:4px">${v.sm}</span>` : ''}</div>
-      <button class="btn sm ${aberto===v.k?'ghost':''}" data-open="${v.k}">${aberto===v.k?'Fechar':'Assistir'}</button>
-      ${aberto===v.k ? `<div style="flex-basis:100%"><div class="video">${iframeYT(v.canal)}</div>
-        <a class="small" href="https://www.youtube.com/channel/${v.canal}/streams" target="_blank" rel="noopener">Ver gravações no YouTube</a></div>` : ''}
+      <div class="canal-acoes">
+        ${videoValido(v.video) ? `<button class="btn sm ${aberto===v.k?'ghost':''}" data-open="${v.k}">${aberto===v.k?'Fechar':'Assistir aqui'}</button>` : ''}
+        <a class="btn sm" href="${ytAoVivo(v.canal)}" target="_blank" rel="noopener" aria-label="Assistir agora: ${esc(v.nome)} no YouTube">Assistir agora</a>
+        <a class="btn sm ghost" href="${ytCanal(v.canal)}" target="_blank" rel="noopener" aria-label="Abrir o canal ${esc(v.nome)} no YouTube">Abrir canal no YouTube</a>
+      </div>
+      ${aberto===v.k && videoValido(v.video) ? `<div style="flex-basis:100%"><div class="video">${iframeVideo(v.video)}</div></div>` : ''}
     </div>`).join('')}</div>
-    <p class="small muted" style="margin:0 4px">Fora do horário ao vivo, o player mostra a próxima transmissão ou fica indisponível.</p>`;
+    <p class="small muted" style="margin:0 4px">As transmissões abrem no YouTube. Se o canal não estiver ao vivo, o YouTube mostra a programação e os vídeos recentes.</p>`;
   if (!ativos.length && !c.youtube) h += '<div class="empty">Nenhuma transmissão configurada.</div>';
   return h;
 }
 function bindAssistir(root){
-  root.querySelectorAll('.video .play').forEach(b => b.onclick = () => { const box = b.parentElement; box.innerHTML = iframeYT(box.dataset.ch); });
+  root.querySelectorAll('.video .play').forEach(b => b.onclick = () => { const box = b.parentElement; if (videoValido(box.dataset.video)) box.innerHTML = iframeVideo(box.dataset.video); });
   root.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { aberto = aberto===b.dataset.open ? null : b.dataset.open; render(); });
 }
 
