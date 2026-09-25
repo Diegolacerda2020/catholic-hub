@@ -210,6 +210,7 @@ input[type=time],input[type=url]{width:100%;border:1.5px solid var(--line);backg
 .radio-row{display:flex;gap:6px 14px;flex-wrap:wrap}
 .radio-row label{display:flex;gap:8px;align-items:center;font-size:.95rem}
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.crumb + h2{margin-top:4px}
 .crumb{border:0;background:none;color:var(--lit);font-weight:700;padding:2px 4px;margin:0 0 2px}
 .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .row .acoes{margin-top:6px}
@@ -222,6 +223,7 @@ button.stat[aria-pressed="true"]{border-color:var(--lit);background:var(--lit-so
 .mais-item{width:100%;border:0;background:transparent;text-align:left;display:flex;gap:14px;align-items:center;padding:14px 16px;border-top:1px solid var(--line);color:inherit;position:relative}
 .list > .mais-item:first-child{border-top:0}
 .mais-item svg{width:24px;height:24px;color:var(--lit);flex-shrink:0}
+.mais-item .grow{flex:1;min-width:0}
 .mais-item .badge{position:static;margin-left:auto}
 /* home Igreja */
 .hoje{background:var(--lit);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden}
@@ -754,18 +756,27 @@ const I = {
 };
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 const tabsFor = () => S.mode==='painel'
-  ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
+  ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['intencoes','Intenções'],['mais','Mais']].filter(([k]) => pode(k))
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
 const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja'};
-const abaAtual = () => S.mode==='painel' ? S.tab : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
+// Painel: 4 tarefas do dia a dia na barra; o resto fica em "Mais" (nenhuma função some).
+const MAIS = [['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
+  ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
+const maisItens = () => MAIS.filter(([k]) => pode(k));
+const abaAtual = () => S.mode==='painel' ? (maisItens().some(([k]) => k===S.tab) ? 'mais' : S.tab) : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
+function maisHTML(){
+  const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
+  return `<h2>Mais</h2><div class="list">${maisItens().map(([k,l,d]) => `<button class="mais-item" data-mais="${k}">${icon(k)}<span class="grow"><b>${l}</b><span class="small muted" style="display:block">${d}</span></span>${k==='mensagens' && pend ? `<span class="badge">${pend}</span>` : '<span class="muted" aria-hidden="true">›</span>'}</button>`).join('')}</div>`;
+}
+const bindMais = root => root.querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { S.tab = b.dataset.mais; save(); render(); scrollTo(0,0); });
 function renderTabs(){
   const cur = abaAtual();
   const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
   document.getElementById('tabs').innerHTML = tabsFor().map(([k,l]) => {
     const ni = (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())).length;
     const nl = k==='dizimistas' ? rel('leads').filter(l => l.status==='new').length : 0;
-    const b = (k==='mensagens' && pend) ? `<span class="badge">${pend}</span>` : (k==='intencoes' && ni) ? `<span class="badge">${ni}</span>` : nl ? `<span class="badge">${nl}</span>` : '';
+    const b = (k==='mais' && pend) ? `<span class="badge">${pend}</span>` : (k==='intencoes' && ni) ? `<span class="badge">${ni}</span>` : nl ? `<span class="badge">${nl}</span>` : '';
     return `<button data-tab="${k}" ${cur===k?'aria-current="page"':''}>${icon(k)}${l}${b}</button>`;
   }).join('');
 }
@@ -2552,13 +2563,13 @@ function render(){
     const v = document.getElementById('view'); v.innerHTML = acessoHTML(); bindAcesso(v);
     return;
   }
-  const validas = tabsFor().map(([k]) => k).concat(S.mode==='publico' ? Object.keys(SUBTELAS_PUB) : []);
+  const validas = tabsFor().map(([k]) => k).concat(S.mode==='publico' ? Object.keys(SUBTELAS_PUB) : maisItens().map(([k]) => k));
   if (!validas.includes(S.mode==='painel'?S.tab:S.pubTab)) { if (S.mode==='painel') S.tab='comunicar'; else S.pubTab='igreja'; }
   if (S.mode==='publico' && !vendoAtiva() && !vendoRede()) S.vendo = ATIVA;
   renderTabs();
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
-    comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
+    comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
@@ -2572,8 +2583,9 @@ function render(){
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
     return;
   }
-  const [h,b] = map[S.tab];
-  v.innerHTML = h(); b(v);
+  const [h,b] = map[S.tab], noMais = maisItens().some(([k]) => k===S.tab);
+  v.innerHTML = (noMais ? '<button class="crumb" id="voltaMais">‹ Mais</button>' : '') + h(); b(v);
+  v.querySelector('#voltaMais')?.addEventListener('click', () => { S.tab = 'mais'; comEdit = null; save(); render(); scrollTo(0,0); });
 }
 if (NUVEM.ativo && location.hash === '#painel') S.mode = 'painel';
 S.pubTab = 'igreja'; // a página pública sempre abre na Home (Igreja)
