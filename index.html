@@ -403,6 +403,13 @@ async function empurrar(){
     if (NUVEM.deNovo || pendente()){ NUVEM.deNovo = false; if (NUVEM.estado !== 'erro' && NUVEM.estado !== 'offline') nuvemAgendar(); }
   }
 }
+// Grava já (sem esperar o debounce) e só retorna quando a gravação em andamento terminar.
+async function salvarAgora(){
+  if (!logado()) return;
+  clearTimeout(NUVEM.timer);
+  const esperar = async () => { while (NUVEM.salvando) await new Promise(r => setTimeout(r, 100)); };
+  await esperar(); await empurrar(); await esperar();
+}
 async function atualizarPublico(){
   const {data, error} = await NUVEM.sb.rpc('get_public_parish', {p_slug:NUVEM.slug});
   if (error || !data) return;
@@ -680,6 +687,7 @@ async function gerarCard(card){
 }
 
 let organizando = false, publicado = null; // publicado: aviso que acabou de sair (só nesta tela, não é salvo)
+let removendo = false, avisoStatus = null; // exclusão de aviso: só confirma depois do banco
 function comunicarHTML(){
   const d = S.draft, o = d.out;
   const ig = d.tipo==='igreja';
@@ -725,7 +733,7 @@ function comunicarHTML(){
     </div>`;
   }
   const recentes = S.avisos.slice().sort((a,b)=>b.ts-a.ts).slice(0,5);
-  h += `<h2>Publicados recentemente</h2>${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b><div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}">Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
+  h += `<h2>Publicados recentemente</h2>${avisoStatus ? `<div class="signal ${avisoStatus.tipo}" id="avisoStatus" role="status">${avisoStatus.tipo==='wait'?'<span class="spinner" style="display:inline-block;vertical-align:-3px;margin-right:8px"></span>':''}${esc(avisoStatus.texto)}</div>` : ''}${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b><div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}" ${removendo?'disabled':''}>Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
   return h;
 }
 function bindComunicar(root){
@@ -739,7 +747,7 @@ function bindComunicar(root){
   root.querySelector('#btnOrg').addEventListener('click', async () => {
     const texto = ta.value.trim();
     if (texto.length < 10){ toast('Escreva o aviso com um pouco mais de detalhe.'); ta.focus(); return; }
-    organizando = true; publicado = null; S.draft.out = null; S.draft.cardUrl = null; render();
+    organizando = true; publicado = null; avisoStatus = null; S.draft.out = null; S.draft.cardUrl = null; render();
     let out;
     try { if (!SAMPLE) throw {code:'unavailable'}; out = await organizarInteligente(texto); }
     catch(e){ out = organizarLocal(texto); }
@@ -748,6 +756,21 @@ function bindComunicar(root){
     render();
     S.draft.cardUrl = await gerarCard(out.card); save();
     if (S.mode==='painel' && S.tab==='comunicar') render();
+  });
+  root.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    if (removendo || !confirm('Remover este aviso da página?')) return;
+    const id = b.dataset.del, copia = clone(S.avisos.find(a => a.id == id));
+    removendo = true; publicado = null; avisoStatus = {tipo:'wait', texto:'Removendo…'};
+    S.avisos = S.avisos.filter(a => a.id != id); guardarLocal(); render();
+    await salvarAgora();
+    // Só confirma quando o banco já não tem o aviso (NUVEM.base = último estado confirmado pelo Supabase).
+    const ok = !logado() ? !NUVEM.ativo : !(NUVEM.base.avisos || []).some(a => a.id == id);
+    if (ok){ avisoStatus = {tipo:'green', texto:'✓ Aviso removido da página'}; if (!NUVEM.ativo) save(); }
+    else {
+      if (!S.avisos.some(a => a.id == id)) S.avisos.push(copia);
+      guardarLocal(); avisoStatus = {tipo:'red', texto:'Não foi possível remover. Tente novamente.'};
+    }
+    removendo = false; render(); toast(avisoStatus.texto);
   });
   if (!S.draft.out) return;
   const o = S.draft.out;
@@ -767,12 +790,8 @@ function bindComunicar(root){
     const agenda = root.querySelector('#addAgenda');
     S.avisos.push({id:novoId(), ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null});
     registrar('publicou', o.titulo);
-    publicado = {titulo:o.titulo, categoria:S.draft.tipo};
+    publicado = {titulo:o.titulo, categoria:S.draft.tipo}; avisoStatus = null;
     S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); scrollTo(0,0);
-  });
-  root.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
-    if (!confirm('Remover este aviso da página?')) return;
-    S.avisos = S.avisos.filter(a => a.id != b.dataset.del); save(); render(); toast('Aviso removido');
   });
 }
 
@@ -1470,7 +1489,7 @@ function bindAcesso(root){
 
 /* ---------- roteador ---------- */
 function render(){
-  if (!(S.mode==='painel' && S.tab==='comunicar')) publicado = null;
+  if (!(S.mode==='painel' && S.tab==='comunicar')) { publicado = null; if (!removendo) avisoStatus = null; }
   renderHeader();
   if (S.mode==='painel' && NUVEM.ativo && !logado()){
     document.getElementById('tabs').innerHTML = '';
