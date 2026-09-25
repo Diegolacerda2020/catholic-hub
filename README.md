@@ -18,7 +18,7 @@ Sistema simples para uma paróquia se comunicar com paroquianos e dizimistas: pa
 
 - **Comunicar:** escrever o aviso uma vez e sair com WhatsApp, card, legenda e página; escolher "Toda a paróquia" ou "Apenas uma comunidade".
 - **Agenda:** criar, editar, cancelar eventos; destacar na Home; criar também um aviso.
-- **Dizimistas:** cadastro pastoral (sem valores), aniversariantes, bodas, aniversário de dízimo, novos interessados (falar no WhatsApp, converter, encerrar).
+- **Dizimistas:** cadastro pastoral (sem valores), aniversariantes, bodas, aniversário de dízimo, novos interessados (falar no WhatsApp, converter, encerrar) e **Acompanhamento do dízimo**: em cada mês, quem já tem contribuição registrada e quem ainda não tem (registrar, corrigir, desfazer, histórico). Sem valores, sem cobrança e sem mensagens automáticas.
 - **Comunidades:** cadastrar, editar, desativar.
 - Mensagens, Pessoas, Intenções/velas, Uso e Ajustes continuam como no piloto.
 
@@ -123,12 +123,16 @@ A chave da IA fica só no servidor do Supabase, nunca no `config.js` nem no GitH
 - `docs/MVP2.md`: arquitetura desta versão.
 - `supabase/README.md`: passo a passo do banco e dos usuários.
 
+## Dados de demonstração
+
+`supabase/demo_seed.sql` cria 12 dizimistas fictícios (notes começando com `[DEMO]`), contribuições de demonstração e 4 eventos futuros (descrição terminando com `[Evento de demonstração]`). `supabase/demo_cleanup.sql` mostra o que será removido e apaga só esses registros. Os dois são rodados manualmente no SQL Editor.
+
 ## Privacidade
 
 Dados de dizimista e de contato são sensíveis (LGPD).
 
 - Pessoas, intenções, pedidos da vela e o log só são lidos por quem está logado e vinculado à paróquia.
-- Dizimistas e interessados só são lidos por padre e secretaria (a PASCOM não vê). Não há valores nem dados financeiros.
+- Dizimistas, interessados e o acompanhamento do dízimo só são lidos por padre e secretaria (a PASCOM não vê). Não há valores nem dados financeiros.
 - Mensagens só para quem autorizou; o formulário "Quero ser dizimista" exige autorização.
 - A página pública só recebe os dados da paróquia, os avisos, o número de velas acesas, as comunidades ativas e os eventos públicos. WhatsApp e observações nunca aparecem nela.
 - No navegador só existe a chave pública (Publishable/anon). Nenhuma chave secreta ou `service_role` no repositório.

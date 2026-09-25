@@ -30,6 +30,7 @@ parishes 1 ── n communities
          1 ── n events           (scope parish | community → community_id)
          1 ── n tither_profiles  (community_id opcional)
          1 ── n tither_leads     (community_id opcional, tither_id após conversão)
+         1 ── n tither_contributions (tither_id + reference_month; um por mês)
 ```
 
 - A comunidade referenciada precisa ser da mesma paróquia (FK composta `(community_id, parish_id)`).
@@ -76,6 +77,16 @@ Hoje na Igreja → Liturgia de hoje → Rezar (+ vela) → Próxima missa → Pr
 - **Liturgia**: calendário local (tempo, cor, festas) + link para a Liturgia Diária da CNBB. `/api/liturgia` acrescenta as referências quando houver uma fonte autorizada em `LITURGIA_URL`. Nunca copia o texto das leituras.
 - **Rezar**: orações tradicionais embutidas no app, guiadas e com contador; nada é salvo e nenhum serviço externo é usado. Mistérios: segunda e sábado Gozosos; terça e sexta Dolorosos; quarta e domingo Gloriosos; quinta Luminosos.
 - **Assistir**: botões do YouTube por canal (`/live` e página do canal). Player só com um ID de vídeo específico; o embed antigo `live_stream?channel=` não voltou.
+
+## Acompanhamento do dízimo
+
+Responde "quem já contribuiu neste mês e quem ainda não tem contribuição registrada?" sem cobrança:
+
+- `tither_contributions`: existir linha para (dizimista, mês) = contribuição registrada; não existir = ainda não registrada. Nada de "pendente" gravado todo mês. Sem valores.
+- Painel › Dizimistas › Acompanhamento do dízimo: troca de mês, cards (ativos, registradas, ainda não, % do mês), filtros, registrar (data e observação), corrigir/desfazer e histórico de 12 meses. Mês futuro pede confirmação.
+- Linguagem pastoral: nunca "inadimplente", "atrasado" ou "devedor"; mês sem registro aparece como "—", sem vermelho.
+- RLS pela mesma `can_access(…, 'dizimistas')`: padre e secretaria; PASCOM e visitante sem acesso; fora de `get_public_parish`.
+- O front-end detecta tabela por tabela: sem `tither_contributions` no banco, só essa seção pede a atualização; o cadastro de dizimistas segue normal.
 
 ## Fora desta versão
 

@@ -91,6 +91,10 @@ Cada aparelho salva cerca de 1 segundo depois da última alteração e busca nov
 (e sempre que a aba volta a ficar visível). Se dois aparelhos salvarem quase juntos, o segundo percebe
 e junta as alterações item a item. Assim, um aviso publicado num aparelho não é apagado pelo outro.
 
+## Dados de demonstração
+
+`demo_seed.sql` (pode rodar mais de uma vez) e `demo_cleanup.sql` (só apaga o que tem as marcas `[DEMO]` / `[Evento de demonstração]`). Veja os comentários no topo de cada arquivo.
+
 ## Tabelas do MVP 2
 
 | Tabela | Para quê | Observações |
@@ -98,6 +102,7 @@ e junta as alterações item a item. Assim, um aviso publicado num aparelho não
 | `communities` | Comunidades da paróquia | `unique(parish_id, slug)`; sem exclusão física (desativar com `active = false`) |
 | `events` | Agenda | `scope` = `parish` ou `community` (com `community_id` obrigatório); `cancelled` em vez de apagar; `image_url` e `google_event_id` prontos para o futuro |
 | `tither_profiles` | Dizimistas (relacionamento pastoral) | Sem valores, contribuições ou dados bancários; `notes` nunca é pública |
+| `tither_contributions` | Acompanhamento do dízimo | Uma linha = contribuição do mês registrada (sem valor). Sem linha = ainda não registrada. `reference_month` é sempre o dia 1; `unique(tither_id, reference_month)`; o dizimista precisa ser da mesma paróquia; excluir o dizimista apaga o histórico dele |
 | `tither_leads` | "Quero ser dizimista" | Entrada só pela função `public_tither_interest`; `status`: `new`, `contacted`, `converted`, `closed` |
 
 A comunidade de um evento, dizimista ou interessado precisa ser da mesma paróquia (chave estrangeira composta
@@ -124,7 +129,7 @@ A matriz fica num lugar só: `can_access()` no banco (e `pode()` no `index.html`
 |---|---|---|---|
 | Comunicar, Mensagens, Pessoas, Intenções, Uso, Ajustes (`parish_state`) | sim | sim | sim (como no piloto; restringir é o próximo passo) |
 | Agenda e Comunidades | sim | sim | sim |
-| Dizimistas e interessados | sim | sim | **não** |
+| Dizimistas, interessados e acompanhamento do dízimo | sim | sim | **não** |
 
 ## Regras de acesso (resumo)
 
