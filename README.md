@@ -33,6 +33,22 @@ Basta abrir o `index.html` no navegador. Com o `config.js` vazio, abre no modo d
 
 Extra: no aparelho C, peça uma intenção em Missas e acenda uma vela em Igreja. As duas aparecem para a secretaria na aba Intenções.
 
+## Notícias da Arquidiocese de BH (automáticas)
+
+Na aba Igreja → Notícias da Igreja, a página mostra as notícias do portal da Arquidiocese (https://arquidiocesebh.org.br/noticias/), separadas das notícias que a paróquia publica manualmente.
+
+- **Quem busca é o Worker do Cloudflare** (`worker/`), em `/api/noticias`. O navegador nunca acessa o portal direto.
+- **Fontes, nesta ordem:**
+  1. API REST do WordPress do portal (`/wp-json/wp/v2/noticias`): título, data, região/categoria e imagem;
+  2. RSS (`/noticias/feed/`): resumo curto, e reserva se a API falhar;
+  3. HTML da página de notícias: só se as duas anteriores falharem.
+- **O que é guardado:** título, data, rótulo (RENSC, Arquidiocese, outras regiões), resumo de até ~180 caracteres, imagem e link. A matéria completa nunca é copiada; o card leva à notícia original em nova aba.
+- **Ordem dos cards:** RENSC primeiro, depois as gerais da Arquidiocese, depois as demais regiões e categorias.
+- **Cache:** ~1 hora. Se o portal cair, o Worker devolve o último resultado válido. O cache fica na memória da instância e no Cache API do Cloudflare. Para um cache persistente entre instâncias, crie um KV e ligue-o como `NOTICIAS_CACHE` no `wrangler.jsonc`.
+- **Onde funciona:** só onde o Worker roda (Cloudflare). No GitHub Pages não há Worker; a seção mostra só o link para o site da Arquidiocese. Para usar um Worker a partir do Pages, defina `noticiasApi: 'https://<worker>/api/noticias'` no `config.js`.
+
+**Atenção, certificado do portal:** em 25/09/2026, o servidor de arquidiocesebh.org.br envia o certificado intermediário errado (envia "GlobalSign Organization Validation CA - SHA256 - G2", mas o certificado do site foi emitido por "GlobalSign RSA OV SSL CA 2018"). Navegadores contornam isso sozinhos, mas o runtime de Workers recusa a conexão, e a seção cai no link de reserva. A correção é a equipe do portal instalar a cadeia correta; depois disso, as notícias aparecem sem mudar nada aqui.
+
 ## Organizar aviso (IA)
 
 Hoje o botão "Organizar aviso" usa o **modo básico** (`organizarLocal()`), que roda no próprio navegador e funciona sempre.
@@ -49,6 +65,8 @@ A chave da IA fica só no servidor do Supabase, nunca no `config.js` nem no GitH
 
 - `index.html`: aplicação completa (painel e página pública).
 - `config.js`: endereço e chave pública do Supabase (vazio = demonstração).
+- `worker/`: Worker do Cloudflare (serve o site e o proxy `/api/noticias`).
+- `wrangler.jsonc` e `.assetsignore`: deploy no Cloudflare Workers (publica só `index.html` e `config.js`).
 - `supabase/schema.sql`: tabelas, regras de acesso (RLS) e funções da página pública.
 - `supabase/README.md`: passo a passo do banco e dos usuários.
 

@@ -1,10 +1,16 @@
-// Cloudflare Workers: site estático, sem código de servidor (Workers Static Assets).
-// Os arquivos publicados são controlados pelo .assetsignore (só index.html e config.js).
+// Cloudflare Workers: site estático (Workers Static Assets) + proxy de notícias em /api/noticias.
+// Os arquivos publicados são controlados pelo .assetsignore (só index.html e config.js);
+// o código do Worker (worker/) não é publicado como arquivo.
 {
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "central-paroquial",
+  "main": "worker/index.js",
   "compatibility_date": "2026-09-25",
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   }
+  // Opcional (cache persistente das notícias entre instâncias): crie um KV e descomente.
+  // "kv_namespaces": [{ "binding": "NOTICIAS_CACHE", "id": "<id do namespace>" }]
 }

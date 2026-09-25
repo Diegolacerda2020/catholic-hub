@@ -186,6 +186,20 @@ details.fold .inner{padding:0 16px 14px}
 .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .video .play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:0;background:linear-gradient(135deg,#1F5B3F,#0f1512);color:#fff;font-weight:700}
 .video .play span.tri{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:1.4rem}
+.news-sec{font-size:.95rem;color:var(--muted);margin:14px 4px 8px;font-weight:700}
+.notice.news{padding:0 0 14px;overflow:hidden}
+.notice.news > *:not(a:first-child){margin-left:16px;margin-right:16px}
+.news-img{width:100%;aspect-ratio:2/1;object-fit:cover;background:var(--line);margin-bottom:12px}
+.notice.news > .news-meta:first-child{margin-top:14px}
+.news-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip.neutro{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.notice.news h3{margin-top:8px}
+.notice.news h3 a{color:inherit;text-decoration:none}
+.notice.news h3 a:hover{text-decoration:underline}
+.notice.news p{margin-top:0;white-space:normal}
+.news-cta{display:inline-block;margin-top:10px;font-weight:700;text-decoration:none}
+.news-cta:hover{text-decoration:underline}
+.news-fonte{margin:4px 4px 12px}
 .watch{background:linear-gradient(135deg,#1F5B3F,#0f1512);border-radius:12px;padding:16px;margin:10px 0 0;display:flex;flex-direction:column;gap:10px}
 .watch .btn.live{background:#fff;color:#1F5B3F;min-height:48px;font-size:1.05rem}
 .watch .btn.yt{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.65)}
@@ -1153,8 +1167,47 @@ function igrejaPubHTML(){
   <h2>Próximas datas</h2>
   <div class="list">${prox.map(([d,tt])=>`<div class="row"><span class="time" style="min-width:70px">${pad(d.getDate())}/${pad(d.getMonth()+1)}</span><div class="grow">${esc(tt)}<div class="small muted">${falta(d)}</div></div></div>`).join('')}</div>
   <h2>Notícias da Igreja</h2>
-  ${noticias.length ? noticias.map(a=>`<article class="notice"><div class="small muted">${ago(a.ts)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
-    ${a.link?`<div class="when"><a href="${esc(/^https?:\/\//i.test(a.link)?a.link:'https://'+a.link)}" target="_blank" rel="noopener">Ler a notícia completa</a></div>`:''}</article>`).join('') : '<div class="empty">A paróquia ainda não compartilhou notícias.</div>'}`;
+  ${noticias.length ? `<h3 class="news-sec">Compartilhadas pela paróquia</h3>` + noticias.map(a=>`<article class="notice"><div class="small muted">${ago(a.ts)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
+    ${a.link?`<div class="when"><a href="${esc(/^https?:\/\//i.test(a.link)?a.link:'https://'+a.link)}" target="_blank" rel="noopener">Ler a notícia completa</a></div>`:''}</article>`).join('') : ''}
+  ${noticiasArquidioceseHTML()}`;
+}
+
+/* ---------- notícias automáticas da Arquidiocese de BH ----------
+   Buscadas pelo Worker (/api/noticias), nunca direto do navegador: ele consulta a API/RSS
+   do portal, guarda ~1 hora e, se a fonte cair, devolve o último resultado válido.
+   Separadas das notícias que a paróquia publica manualmente. Se falhar, a página segue
+   funcionando e mostra só o link para o site da Arquidiocese. */
+const ARQ_SITE = 'https://arquidiocesebh.org.br/noticias/';
+const NOTICIAS_API = CONF.noticiasApi || (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname) ? '' : '/api/noticias');
+let NOTICIAS = {estado:'inicial', dados:null, em:0};
+const linkArq = u => { try { const x = new URL(u); return x.origin === 'https://arquidiocesebh.org.br' ? x.href : ''; } catch(e){ return ''; } };
+async function carregarNoticias(){
+  if (!NOTICIAS_API || NOTICIAS.estado === 'carregando' || now() - NOTICIAS.em < 10*60e3) return;
+  NOTICIAS.estado = 'carregando';
+  let dados = null;
+  try {
+    const r = await fetch(NOTICIAS_API, {headers:{accept:'application/json'}});
+    const d = await r.json();
+    if (Array.isArray(d?.itens) && d.itens.length) dados = d;
+  } catch(e){}
+  NOTICIAS = {estado: dados ? 'ok' : 'erro', dados: dados || NOTICIAS.dados, em: now()};
+  if (S.mode === 'publico' && S.pubTab === 'igreja') renderSeguro();
+}
+function noticiasArquidioceseHTML(){
+  const itens = (NOTICIAS.dados?.itens || []).map(n => ({...n, url:linkArq(n.url), imagem:linkArq(n.imagem)})).filter(n => n.url && n.titulo);
+  const fonte = `<p class="small muted news-fonte">Fonte: Arquidiocese de Belo Horizonte · <a href="${ARQ_SITE}" target="_blank" rel="noopener">arquidiocesebh.org.br</a></p>`;
+  let h = `<h3 class="news-sec">Arquidiocese de Belo Horizonte</h3>`;
+  if (!itens.length){
+    if (NOTICIAS_API && NOTICIAS.estado !== 'erro') return h + `<div class="status" role="status"><span class="spinner"></span>Buscando notícias da Arquidiocese…</div>`;
+    return h + `<div class="block"><p style="margin:0 0 10px">As notícias da Arquidiocese não puderam ser carregadas agora.</p><a class="btn sm ghost" href="${ARQ_SITE}" target="_blank" rel="noopener">Ver notícias no site da Arquidiocese →</a></div>${fonte}`;
+  }
+  return h + itens.map(n => `<article class="notice news">
+    ${n.imagem ? `<a href="${esc(n.url)}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img class="news-img" src="${esc(n.imagem)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.remove()"></a>` : ''}
+    <div class="news-meta"><span class="chip ${n.prioridade===0?'':'neutro'}">${esc(n.rotulo)}</span><span class="small muted">${esc(n.dataTexto)}</span></div>
+    <h3><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.titulo)}</a></h3>
+    ${n.resumo ? `<p>${esc(n.resumo)}</p>` : ''}
+    <a class="news-cta" href="${esc(n.url)}" target="_blank" rel="noopener" aria-label="Ler no site da Arquidiocese: ${esc(n.titulo)}">Ler no site da Arquidiocese →</a>
+  </article>`).join('') + (NOTICIAS.dados?.desatualizado ? `<p class="small muted news-fonte">A fonte está fora do ar; mostrando as últimas notícias obtidas.</p>` : '') + fonte;
 }
 
 
@@ -1544,7 +1597,7 @@ function render(){
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
-  } : { avisos:[avisosPubHTML, r => r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }], igreja:[igrejaPubHTML,bindVela], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindIntencaoForm], contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
+  } : { avisos:[avisosPubHTML, r => r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }], igreja:[igrejaPubHTML, r => { bindVela(r); carregarNoticias(); }], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindIntencaoForm], contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
     const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='avisos'; save(); render(); scrollTo(0,0); }; });
     map.escolher = [escolherHTML, bindEscolher];
