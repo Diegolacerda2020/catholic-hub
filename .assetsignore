@@ -1,0 +1,5 @@
+# Cloudflare Workers Static Assets: publica SOMENTE os arquivos do site.
+# Tudo o mais (supabase/, READMEs, .git, backups, configs) fica de fora.
+*
+!index.html
+!config.js

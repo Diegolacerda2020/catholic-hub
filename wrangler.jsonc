@@ -1,0 +1,10 @@
+// Cloudflare Workers: site estático, sem código de servidor (Workers Static Assets).
+// Os arquivos publicados são controlados pelo .assetsignore (só index.html e config.js).
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "central-paroquial",
+  "compatibility_date": "2026-09-25",
+  "assets": {
+    "directory": "."
+  }
+}
