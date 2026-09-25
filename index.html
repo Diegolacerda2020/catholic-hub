@@ -47,6 +47,9 @@ header.top{background:var(--lit);color:#fff;padding:16px 18px 14px;position:stic
 .operator{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.88rem}
 .operator select{width:auto;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
 .operator select option{color:#18221D}
+#opUser{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.operator .op-sair{border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:8px;padding:3px 10px;font-size:.82rem;flex-shrink:0}
+.operator .sync{margin-left:auto;font-size:.8rem;opacity:.85;white-space:nowrap}
 
 main{flex:1;padding:14px 14px 110px}
 h2{font-family:var(--serif);font-size:1.3rem;margin:22px 4px 8px;font-weight:700}
@@ -74,7 +77,7 @@ h3{margin:0;font-size:1.05rem}
 .chip.gold{background:var(--gold-soft);color:var(--gold)}
 .link-btn{border:0;background:none;color:var(--danger);font-size:.85rem;padding:4px}
 
-input[type=text],input[type=tel],input[type=date],textarea,select{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+input[type=text],input[type=tel],input[type=date],input[type=email],input[type=password],textarea,select{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
 textarea{resize:vertical;min-height:90px}
 input:focus,textarea:focus,select:focus{border-color:var(--lit);outline:none}
 .field{margin-bottom:12px}
@@ -184,6 +187,7 @@ details.fold .inner{padding:0 16px 14px}
       </div>
     </div>
     <div class="operator" id="opRow">
+      <span id="opDemo" style="display:contents">
       <label for="op">Usando agora:</label>
       <select id="op">
         <option>Secretaria</option>
@@ -191,12 +195,17 @@ details.fold .inner{padding:0 16px 14px}
         <option>PASCOM</option>
         <option value="Suporte">Suporte (Diego)</option>
       </select>
+      </span>
+      <span id="opUser" hidden></span>
+      <button type="button" class="op-sair" id="btnSair" hidden>Sair</button>
+      <span class="sync" id="syncSt" role="status" hidden></span>
     </div>
   </header>
   <main id="view" tabindex="-1"></main>
   <nav class="tabs" id="tabs" aria-label="Seções"></nav>
 </div>
 
+<script src="config.js"></script>
 <script>
 /* =========================================================
    Central Paroquial — protótipo 0.1
@@ -211,6 +220,9 @@ const pad = n => String(n).padStart(2,'0');
 const mmdd = d => pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const plusDays = n => { const d = new Date(); d.setDate(d.getDate()+n); return d; };
 const isoDay = d => d.getFullYear()+'-'+mmdd(d);
+let seqId = 0;
+const novoId = () => now()*1000 + (seqId++ % 1000); // único entre aparelhos (S.nextId repetia)
+const MISSAS = 'Terça-feira: 19h30\nQuarta-feira: 19h30\nQuinta-feira: 19h30\nPrimeira sexta-feira do mês: 19h30\nSábado: 18h00\nDomingo: 07h30, 09h30 e 18h00';
 
 function seed(){
   const t0 = new Date();
@@ -219,17 +231,17 @@ function seed(){
     cfg:{
       nome:'Paróquia Santo Antônio – Jaraguá',
       padroeiro:'Santo Antônio',
-      endereco:'Praça Santo Antônio, 2, Jaraguá, Belo Horizonte, MG, 31270-860',
+      endereco:'Praça Santo Antônio, 2 – Jaraguá / Aeroporto – Belo Horizonte – MG, CEP 31270-860',
       telefone:'(31) 3427-2866',
       whats:'',
       email:'santoantoniopampulha@yahoo.com.br',
       paroco:'Pe. Antônio Roberto de Oliveira Fernandes',
       forania:'Santo Antônio (Pampulha)',
-      regiao:'Região Episcopal Nossa Senhora da Conceição (RENSC)',
+      regiao:'Região Episcopal Nossa Senhora da Conceição – RENSC',
       secretaria:'',
-      missas:'',
+      missas:MISSAS,
       tom:'acolhedor', emoji:true,
-      assinatura:'Paróquia Santo Antônio – Jaraguá. Deus abençoe!',
+      assinatura:'Santo Antônio da Pampulha. Deus abençoe!',
       youtube:'', rec:{}, pix:''
     },
     modelos:{
@@ -263,9 +275,209 @@ function seed(){
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch(e){ S = seed(); }
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
-S.draft.tipo ||= 'paroquia'; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
-if (S.enviadosHoje.dia !== isoDay(new Date())) { S.enviadosHoje = {dia:isoDay(new Date()), ids:[]}; save(); }
+const guardarLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+const save = () => { guardarLocal(); nuvemAgendar(); };
+
+/* ---------- banco compartilhado (Supabase) ----------
+   Sem config.js preenchido, tudo fica só neste aparelho (modo demonstração).
+   Com login, os dados da paróquia (COMPARTILHADO) vão para parish_state.data,
+   que é praticamente o objeto S. Estado de tela (aba, rascunho, filtros,
+   "minha paróquia") continua só no aparelho. */
+const CONF = window.CENTRAL_CONFIG || {};
+const COMPARTILHADO = ['cfg','modelos','pessoas','avisos','intencoes','velas','log','enviadosHoje'];
+const PAPEIS = {padre:'Padre', secretaria:'Secretaria', pascom:'PASCOM', admin:'Suporte'};
+const BASE_KEY = KEY+'-base';
+const NUVEM = {
+  ativo: !!(CONF.supabase?.url && CONF.supabase?.anonKey),
+  slug: CONF.parishSlug || 'santo-antonio-jaragua',
+  sb:null, sessao:null, parishId:null, papel:null, estado:'off',
+  base:null, baseTs:null, velasPub:null, timer:null, salvando:false, deNovo:false, renderPendente:false
+};
+if (NUVEM.ativo) NUVEM.estado = 'carregando';
+const clone = o => JSON.parse(JSON.stringify(o));
+const igual = (a,b) => JSON.stringify(a) === JSON.stringify(b);
+const compartilhado = () => Object.fromEntries(COMPARTILHADO.map(k => [k, S[k]]));
+const logado = () => !!(NUVEM.sessao && NUVEM.parishId && NUVEM.baseTs);
+const pendente = () => logado() && COMPARTILHADO.some(k => !igual(S[k], NUVEM.base[k]));
+
+/* Junta o que mudou neste aparelho (local) com o que mudou em outro (remoto),
+   a partir da última versão que os dois conheciam (base). Listas são juntadas
+   item a item pelo id: um aviso publicado lá não apaga um publicado aqui. */
+function juntar(base, local, remoto){
+  if (remoto === undefined || igual(remoto, base)) return local;
+  if (igual(local, base)) return remoto;
+  const obj = v => v && typeof v === 'object' && !Array.isArray(v);
+  if (Array.isArray(base) && Array.isArray(local) && Array.isArray(remoto)){
+    const k = x => (obj(x) && 'id' in x) ? 'id:'+x.id : 'j:'+JSON.stringify(x);
+    const B = new Map(base.map(x => [k(x), x])), L = new Map(local.map(x => [k(x), x])), R = new Set(remoto.map(k));
+    const out = remoto.filter(x => !(B.has(k(x)) && !L.has(k(x))))                                   // apagado aqui
+      .map(x => (B.has(k(x)) && L.has(k(x)) && !igual(L.get(k(x)), B.get(k(x)))) ? L.get(k(x)) : x); // alterado aqui
+    local.forEach(x => { if (!B.has(k(x)) && !R.has(k(x))) out.push(x); });                          // novo aqui
+    if (out.length && out.every(x => obj(x) && typeof x.ts === 'number')) out.sort((a,b) => a.ts-b.ts);
+    return out;
+  }
+  if (obj(base) && obj(local) && obj(remoto)){
+    const out = {};
+    new Set([...Object.keys(local), ...Object.keys(remoto)]).forEach(p => {
+      if (!(p in local) && (p in base)) return;
+      const v = juntar(base[p], local[p], remoto[p]);
+      if (v !== undefined) out[p] = v;
+    });
+    return out;
+  }
+  return local;
+}
+function inicialNuvem(){ const s = seed(); return {cfg:s.cfg, modelos:s.modelos, pessoas:[], avisos:[], intencoes:[], velas:[], log:[], enviadosHoje:s.enviadosHoje}; }
+function gravarBase(){ try { localStorage.setItem(BASE_KEY, JSON.stringify({parishId:NUVEM.parishId, ts:NUVEM.baseTs, data:NUVEM.base})); } catch(e){} }
+function lerBase(){ try { return JSON.parse(localStorage.getItem(BASE_KEY)); } catch(e){ return null; } }
+function marcar(estado){
+  NUVEM.estado = estado;
+  const el = document.getElementById('syncSt'); if (!el) return;
+  el.textContent = {salvando:'Salvando…', ok:'Salvo ✓', offline:'Sem internet: salvo só aqui', erro:'Erro ao salvar'}[estado] || '';
+}
+const digitando = () => { const a = document.activeElement; return !!(a && a.closest?.('#view') && (a.matches('input,textarea,select') || a.isContentEditable)); };
+function renderSeguro(){ if (digitando()) { NUVEM.renderPendente = true; return; } NUVEM.renderPendente = false; render(); }
+document.addEventListener('focusout', () => setTimeout(() => { if (NUVEM.renderPendente && !digitando()) renderSeguro(); }, 250));
+
+function nuvemAgendar(){
+  if (!logado()) return;
+  clearTimeout(NUVEM.timer);
+  NUVEM.timer = setTimeout(empurrar, 1200); // debounce: não salva a cada tecla
+}
+function aplicarRemoto(dados, ts){
+  const inicial = inicialNuvem(), base = NUVEM.base;
+  COMPARTILHADO.forEach(k => {
+    const r = dados[k] ?? inicial[k];
+    S[k] = base ? juntar(base[k], S[k], r) : clone(r); // sem base: descarta dados de demonstração do aparelho
+  });
+  NUVEM.base = clone(dados); NUVEM.baseTs = ts; gravarBase();
+  normalizar(); guardarLocal();
+}
+async function puxar(){
+  const {data, error} = await NUVEM.sb.from('parish_state').select('data, updated_at').eq('parish_id', NUVEM.parishId).single();
+  if (error) throw error;
+  if (NUVEM.base && data.updated_at === NUVEM.baseTs) return false;
+  if (!data.data?.cfg){ // paróquia ainda vazia no banco: grava o conteúdo inicial
+    const inicial = inicialNuvem();
+    COMPARTILHADO.forEach(k => S[k] = clone(inicial[k]));
+    NUVEM.base = data.data || {}; NUVEM.baseTs = data.updated_at; gravarBase();
+    normalizar(); guardarLocal(); nuvemAgendar();
+    return true;
+  }
+  aplicarRemoto(data.data, data.updated_at);
+  return true;
+}
+async function empurrar(){
+  if (!logado()) return;
+  if (NUVEM.salvando){ NUVEM.deNovo = true; return; }
+  if (!pendente()){ marcar('ok'); return; }
+  NUVEM.salvando = true; marcar('salvando');
+  try {
+    for (let tentativa = 0; tentativa < 4; tentativa++){
+      const dados = {...NUVEM.base, ...clone(compartilhado())};
+      // Só grava se ninguém salvou desde a última leitura (updated_at igual).
+      const {data, error} = await NUVEM.sb.from('parish_state').update({data:dados})
+        .eq('parish_id', NUVEM.parishId).eq('updated_at', NUVEM.baseTs).select('updated_at');
+      if (error) throw error;
+      if (data.length){ NUVEM.base = dados; NUVEM.baseTs = data[0].updated_at; gravarBase(); marcar(pendente() ? 'salvando' : 'ok'); return; }
+      if (!await puxar()) throw new Error('Sem permissão para salvar nesta paróquia');
+      renderSeguro();
+    }
+    throw new Error('Muitas alterações ao mesmo tempo');
+  } catch(e){
+    console.warn('Central Paroquial: falha ao salvar', e);
+    marcar(navigator.onLine === false ? 'offline' : 'erro');
+  } finally {
+    NUVEM.salvando = false;
+    if (NUVEM.deNovo || pendente()){ NUVEM.deNovo = false; if (NUVEM.estado !== 'erro' && NUVEM.estado !== 'offline') nuvemAgendar(); }
+  }
+}
+async function atualizarPublico(){
+  const {data, error} = await NUVEM.sb.rpc('get_public_parish', {p_slug:NUVEM.slug});
+  if (error || !data) return;
+  const antes = JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub]);
+  if (data.cfg && Object.keys(data.cfg).length) S.cfg = {...S.cfg, ...data.cfg};
+  S.avisos = data.avisos || [];
+  NUVEM.velasPub = data.velasHoje ?? 0;
+  normalizar(); guardarLocal();
+  if (antes !== JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub])) renderSeguro();
+}
+async function atualizar(){
+  if (!NUVEM.sb || document.hidden) return;
+  try {
+    if (logado()){
+      if (NUVEM.salvando) return;
+      if (await puxar()) renderSeguro();
+      if (pendente()) nuvemAgendar();
+      else if (NUVEM.estado === 'offline' || NUVEM.estado === 'erro') marcar('ok');
+    } else if (!NUVEM.sessao) await atualizarPublico();
+  } catch(e){ if (logado()) marcar(navigator.onLine === false ? 'offline' : 'erro'); }
+}
+async function entrarComSessao(sessao){
+  NUVEM.sessao = sessao || null; NUVEM.parishId = null; NUVEM.papel = null; NUVEM.base = null; NUVEM.baseTs = null;
+  if (!sessao){
+    NUVEM.estado = 'publico';
+    if (S.mode === 'painel' && location.hash !== '#painel') S.mode = 'publico';
+    render(); await atualizarPublico(); return;
+  }
+  NUVEM.estado = 'carregando'; render();
+  const {data:v, error} = await NUVEM.sb.from('parish_users').select('parish_id, role, parishes(slug)').eq('user_id', sessao.user.id);
+  if (error) throw error;
+  const vinc = v.find(x => x.parishes?.slug === NUVEM.slug) || v[0];
+  if (!vinc){ NUVEM.estado = 'semVinculo'; render(); return; }
+  NUVEM.parishId = vinc.parish_id; NUVEM.papel = vinc.role;
+  S.operador = PAPEIS[vinc.role] || 'Secretaria';
+  const b = lerBase(); // se houver alterações feitas sem internet, elas são juntadas ao que está no banco
+  if (b && b.parishId === vinc.parish_id && b.ts){ NUVEM.base = b.data; NUVEM.baseTs = b.ts; }
+  await puxar();
+  marcar(pendente() ? 'salvando' : 'ok'); render();
+  if (pendente()) nuvemAgendar();
+}
+async function enviarPublico(tipo, item){
+  if (!NUVEM.sb) return false;
+  try { const {data, error} = await NUVEM.sb.rpc('public_submit', {p_slug:NUVEM.slug, p_kind:tipo, p_item:item}); return !error && data === true; }
+  catch(e){ return false; }
+}
+function carregarScript(src){
+  return new Promise((ok, falha) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = falha; document.head.appendChild(s); });
+}
+async function iniciarNuvem(){
+  if (!NUVEM.ativo) return;
+  try {
+    if (!window.supabase?.createClient) await carregarScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js');
+    NUVEM.sb = window.supabase.createClient(CONF.supabase.url, CONF.supabase.anonKey);
+    const {data:{session}} = await NUVEM.sb.auth.getSession();
+    await entrarComSessao(session);
+  } catch(e){
+    console.warn('Central Paroquial: sem conexão com o banco', e);
+    NUVEM.estado = 'semConexao'; render(); return;
+  }
+  setInterval(atualizar, 15000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) atualizar(); });
+  window.addEventListener('online', atualizar);
+}
+async function entrar(email, senha){
+  const {data, error} = await NUVEM.sb.auth.signInWithPassword({email, password:senha});
+  if (error) throw error;
+  S.mode = 'painel';
+  await entrarComSessao(data.session);
+}
+async function sair(){
+  if (pendente()){
+    await empurrar();
+    if (pendente() && !confirm('Há alterações que ainda não foram salvas no banco. Sair mesmo assim?')) return;
+  }
+  try { await NUVEM.sb.auth.signOut(); } catch(e){}
+  try { localStorage.removeItem(KEY); localStorage.removeItem(BASE_KEY); } catch(e){} // não deixa dados de paroquianos no aparelho
+  location.hash = ''; location.reload();
+}
+
+function normalizar(){
+  S.draft.tipo ||= 'paroquia'; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
+  S.cfg.missas ||= MISSAS; S.log ??= []; S.pessoas ??= []; S.avisos ??= [];
+  if (S.enviadosHoje?.dia !== isoDay(new Date())) { S.enviadosHoje = {dia:isoDay(new Date()), ids:[]}; save(); }
+}
+normalizar();
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(msg){ document.querySelectorAll('.toast').forEach(t=>t.remove()); const t=document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
@@ -315,9 +527,14 @@ function renderHeader(){
     : `Forania ${vendoAtiva() ? S.cfg.forania : (r?.forania||'')} · RENSC${S.vendo===S.minha?' · Minha paróquia':''}`;
   document.getElementById('mPainel').setAttribute('aria-pressed', S.mode==='painel');
   document.getElementById('mPublico').setAttribute('aria-pressed', S.mode==='publico');
-  document.getElementById('opRow').hidden = S.mode!=='painel';
+  document.getElementById('opRow').hidden = S.mode!=='painel' || (NUVEM.ativo && !logado());
   document.getElementById('op').value = S.operador;
+  // Com login real, "Usando agora" some: quem fez cada ação vem do usuário logado.
+  document.getElementById('opDemo').hidden = NUVEM.ativo;
+  ['opUser','btnSair','syncSt'].forEach(id => document.getElementById(id).hidden = !logado());
+  if (logado()){ document.getElementById('opUser').textContent = `${PAPEIS[NUVEM.papel]||NUVEM.papel} · ${NUVEM.sessao.user.email}`; marcar(NUVEM.estado); }
 }
+document.getElementById('btnSair').onclick = () => sair();
 document.getElementById('mPainel').onclick = () => { S.mode='painel'; save(); render(); scrollTo(0,0); };
 document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = S.minha; save(); render(); scrollTo(0,0); };
 document.getElementById('hdrName').onclick = () => { if (S.mode!=='publico') return; S.pubTab='escolher'; buscaPar=''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); };
@@ -532,7 +749,7 @@ function bindComunicar(root){
   });
   root.querySelector('#btnPub')?.addEventListener('click', () => {
     const agenda = root.querySelector('#addAgenda');
-    S.avisos.push({id:S.nextId++, ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null});
+    S.avisos.push({id:novoId(), ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null});
     registrar('publicou', o.titulo);
     S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); scrollTo(0,0);
     toast('Publicado na página da paróquia');
@@ -662,7 +879,7 @@ function bindPessoas(root){
   root.querySelector('#addP').addEventListener('submit', e => {
     e.preventDefault(); const f = e.target;
     if (digits(f.whats.value).length < 10){ toast('Confira o WhatsApp com DDD.'); f.whats.focus(); return; }
-    S.pessoas.push({id:S.nextId++, nome:f.nome.value.trim(), whats:digits(f.whats.value), aniv:f.aniv.value?f.aniv.value.slice(5):'', casamento:f.cas.value||'', grupo:f.grupo.value, consent:true});
+    S.pessoas.push({id:novoId(), nome:f.nome.value.trim(), whats:digits(f.whats.value), aniv:f.aniv.value?f.aniv.value.slice(5):'', casamento:f.cas.value||'', grupo:f.grupo.value, consent:true});
     registrar('cadastrou-pessoa'); save(); render(); toast('Pessoa adicionada');
   });
   root.querySelector('#btnImp').onclick = () => {
@@ -674,7 +891,7 @@ function bindPessoas(root){
       if (!nome || digits(whats).length < 10){ erro++; return; }
       const m = (aniv||'').match(/(\d{1,2})\/(\d{1,2})/);
       const g = /diz/i.test(grupo) ? 'dizimista' : /past/i.test(grupo) ? 'pastoral' : 'geral';
-      S.pessoas.push({id:S.nextId++, nome, whats:digits(whats), aniv:m?pad(m[2])+'-'+pad(m[1]):'', casamento:'', grupo:g, consent:true}); ok++;
+      S.pessoas.push({id:novoId(), nome, whats:digits(whats), aniv:m?pad(m[2])+'-'+pad(m[1]):'', casamento:'', grupo:g, consent:true}); ok++;
     });
     registrar('importou', ok+' pessoas'); save(); render();
     toast(`${ok} importada${ok===1?'':'s'}${erro?`, ${erro} linha${erro===1?'':'s'} com erro`:''}`);
@@ -713,7 +930,7 @@ function usoHTML(){
   else if (diasUso <= 1 && (now() - S.log[S.log.length-1].ts) > 5*86400e3) sinal = `<div class="signal red">Sinal vermelho: ninguém usa há mais de 5 dias.</div>`;
   else sinal = `<div class="signal wait">Em observação: uso em ${diasUso} dia${diasUso===1?'':'s'} desta semana, ${pct}% sem suporte.</div>`;
   return `<h2>Uso da Central</h2>
-  <p class="lead small">Padre, secretaria e PASCOM veem o mesmo painel e podem fazer tudo. A escolha "Usando agora" serve só para registrar quem fez cada ação. O que vale aqui é a paróquia usar sozinha.</p>
+  <p class="lead small">Padre, secretaria e PASCOM veem o mesmo painel e podem fazer tudo. ${NUVEM.ativo ? 'Cada ação fica registrada com o papel de quem estava logado.' : 'A escolha "Usando agora" serve só para registrar quem fez cada ação.'} O que vale aqui é a paróquia usar sozinha.</p>
   ${sinal}
   <div class="stats">
     <div class="stat"><b>${pubs}</b><span>avisos publicados em 7 dias</span></div>
@@ -755,8 +972,8 @@ function ajustesHTML(){
     <div class="field"><label for="c-ass">Assinatura das mensagens</label><input type="text" id="c-ass" name="assinatura" value="${esc(c.assinatura)}"></div>
     <button class="btn block-w">Salvar ajustes</button>
   </form>
-  <h2>Demonstração</h2>
-  <div class="block"><p class="small muted" style="margin-top:0">Apaga tudo o que foi feito neste aparelho e volta aos dados de exemplo.</p><button class="btn sm ghost" id="reset">Recomeçar do zero</button></div>`;
+  ${NUVEM.ativo ? '' : `<h2>Demonstração</h2>
+  <div class="block"><p class="small muted" style="margin-top:0">Apaga tudo o que foi feito neste aparelho e volta aos dados de exemplo.</p><button class="btn sm ghost" id="reset">Recomeçar do zero</button></div>`}`;
 }
 function bindAjustes(root){
   root.querySelector('#cfgF').addEventListener('submit', e => {
@@ -764,7 +981,7 @@ function bindAjustes(root){
     ['nome','paroco','email','padroeiro','endereco','telefone','whats','missas','secretaria','tom','assinatura','youtube','pix'].forEach(k => S.cfg[k] = f[k].value.trim());
     S.cfg.emoji = f.emoji.checked; S.cfg.rec = Object.fromEntries(CANAIS.map(v => [v.k, f['rec-'+v.k].checked])); save(); render(); toast('Ajustes salvos');
   });
-  root.querySelector('#reset').onclick = () => { if (!confirm('Apagar tudo e recomeçar?')) return; S = seed(); save(); render(); scrollTo(0,0); toast('Demonstração reiniciada'); };
+  const rs = root.querySelector('#reset'); if (rs) rs.onclick = () => { if (!confirm('Apagar tudo e recomeçar?')) return; S = seed(); save(); render(); scrollTo(0,0); toast('Demonstração reiniciada'); };
 }
 
 /* =========================================================
@@ -784,7 +1001,8 @@ function agendaPubHTML(){
   if (!linhas.length) return `<h2>Horário de missas</h2><div class="block"><p style="margin:0 0 10px">Os horários ainda não foram publicados nesta página. Confirme com a secretaria.</p>${contatoBtn()}</div>
   ${intencaoFormHTML()}
   <h2>Eventos</h2>${evs.length ? `<div class="list">${evs.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : '<div class="empty">Nenhum evento marcado.</div>'}`;
-  return `<h2>Horário de missas</h2><div class="list">${linhas.map(([d,h])=>`<div class="row"><div class="grow"><b>${esc(d)}</b></div><span>${esc(h)}</span></div>`).join('')}</div>
+  return `<h2>Horário de missas</h2><div class="list">${linhas.map(([d,h])=>{ const p = proximaPrimeira(d);
+    return `<div class="row"><div class="grow"><b>${esc(d)}</b>${p?`<div class="small muted">Próxima: ${DIAS[p.getDay()]}, ${pad(p.getDate())}/${pad(p.getMonth()+1)}</div>`:''}</div><span>${esc(h)}</span></div>`; }).join('')}</div>
   ${intencaoFormHTML()}
   <h2>Eventos</h2>${evs.length ? `<div class="list">${evs.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : '<div class="empty">Nenhum evento marcado.</div>'}`;
 }
@@ -949,10 +1167,18 @@ function bindAssistir(root){
 /* ---------- intenções de missa ---------- */
 const TIPOS_INT = {gracas:'Ação de graças', falecidos:'Pelos falecidos', saude:'Pela saúde', aniversario:'Aniversário', outra:'Outras intenções'};
 const NOMES_DIA = [['domingo',0],['segunda',1],['terça',2],['terca',2],['quarta',3],['quinta',4],['sexta',5],['sábado',6],['sabado',6]];
-function horariosDoDia(dow){
-  const r = [];
+const soPrimeira = rot => /primeir|1ª/.test(rot.toLowerCase()); // "Primeira sexta-feira do mês"
+function proximaPrimeira(rot){
+  if (!soPrimeira(rot)) return null;
+  const n = NOMES_DIA.find(([k]) => rot.toLowerCase().includes(k)); if (!n) return null;
+  for (let i = 0; i < 40; i++){ const d = plusDays(i); if (d.getDay()===n[1] && d.getDate()<=7) return d; }
+  return null;
+}
+function horariosDoDia(dia){
+  const dow = dia.getDay(), r = [];
   S.cfg.missas.split('\n').forEach(l => {
     const [rot, resto] = l.includes(':') ? [l.slice(0,l.indexOf(':')), l.slice(l.indexOf(':')+1)] : ['', l];
+    if (soPrimeira(rot) && dia.getDate() > 7) return;
     const low = rot.toLowerCase(), dias = new Set();
     const faixa = low.match(/(domingo|segunda|terça|terca|quarta|quinta|sexta|sábado|sabado)\S*\s+a\s+(domingo|segunda|terça|terca|quarta|quinta|sexta|sábado|sabado)/);
     if (faixa){ const a = NOMES_DIA.find(n=>n[0]===faixa[1])[1], b = NOMES_DIA.find(n=>n[0]===faixa[2])[1]; for (let d=a; d!==(b+1)%7; d=(d+1)%7) dias.add(d); }
@@ -966,7 +1192,7 @@ let intData = '';
 function intencaoFormHTML(){
   const hojeIso = isoDay(new Date());
   if (!intData) { const d = plusDays(1); intData = isoDay(d); }
-  const [y,m,d] = intData.split('-').map(Number), hs = horariosDoDia(new Date(y,m-1,d).getDay());
+  const [y,m,d] = intData.split('-').map(Number), hs = horariosDoDia(new Date(y,m-1,d));
   return `<h2>Pedir intenção de missa</h2>
   <form class="block" id="intF">
     <div class="field"><label for="i-tipo">Intenção</label><select id="i-tipo" name="tipo">${Object.entries(TIPOS_INT).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></div>
@@ -986,10 +1212,14 @@ function bindIntencaoForm(root){
   const f = root.querySelector('#intF'); if (!f) return;
   f.data.onchange = () => { intData = f.data.value; const keep = {tipo:f.tipo.value, por:f.por.value, nome:f.nome.value, whats:f.whats.value}; render();
     const n = document.getElementById('intF'); Object.entries(keep).forEach(([k,v]) => n[k].value = v); n.data.focus(); };
-  f.addEventListener('submit', e => {
+  f.addEventListener('submit', async e => {
     e.preventDefault();
-    S.intencoes.push({id:S.nextId++, ts:now(), tipo:f.tipo.value, por:f.por.value.trim(), data:f.data.value, hora:f.hora.value.trim(), nome:f.nome.value.trim(), whats:digits(f.whats.value), status:'nova'});
-    save(); intData=''; render(); toast('Intenção enviada. A secretaria vai confirmar.');
+    const item = {tipo:f.tipo.value, por:f.por.value.trim(), data:f.data.value, hora:f.hora.value.trim(), nome:f.nome.value.trim(), whats:digits(f.whats.value)};
+    if (NUVEM.ativo && !logado()){ // fiel sem login: envia direto para a paróquia
+      const btn = f.querySelector('button:not([type=button])'); btn.disabled = true;
+      if (!await enviarPublico('intencao', item)){ btn.disabled = false; toast('Não foi possível enviar agora. Tente de novo ou fale com a secretaria.'); return; }
+    } else { S.intencoes.push({id:novoId(), ts:now(), ...item, status:'nova'}); save(); }
+    intData=''; render(); toast('Intenção enviada. A secretaria vai confirmar.');
   });
 }
 function intencoesHTML(){
@@ -1038,7 +1268,7 @@ const ORACAO_VELA = {
   gracas:'Obrigado, Senhor, por tudo o que recebi. Que esta luz seja o meu louvor e a minha gratidão. Amém.'
 };
 let velaStep = 'inicio', velaUlt = null;
-const velasHoje = () => S.velas.filter(v => v.ts > now() - DAY).length;
+const velasHoje = () => (NUVEM.ativo && !logado() && NUVEM.velasPub != null) ? NUVEM.velasPub : S.velas.filter(v => v.ts > now() - DAY).length;
 const candle = big => `<div class="candle ${big?'big':''}" aria-hidden="true"><div class="flame"></div><div class="wick"></div><div class="wax"></div></div>`;
 function velaHTML(){
   if (!vendoAtiva()) return `<div class="vela-hero">${candle(false)}<h3>Vela virtual</h3><p class="small">Disponível quando esta paróquia ativar a página.</p></div>`;
@@ -1077,10 +1307,15 @@ function bindVela(root){
   root.querySelector('#velaVoltar')?.addEventListener('click', () => { velaStep='inicio'; render(); });
   root.querySelector('#velaNova')?.addEventListener('click', () => { velaStep='form'; render(); });
   root.querySelector('#copyPix')?.addEventListener('click', () => { copiar(S.cfg.pix); });
-  root.querySelector('#velaF')?.addEventListener('submit', e => {
+  root.querySelector('#velaF')?.addEventListener('submit', async e => {
     e.preventDefault(); const f = e.target;
-    velaUlt = {id:S.nextId++, ts:now(), para:f.para.value, por:f.por.value.trim(), pedido:f.pedido.value.trim(), nome:f.nome.value.trim(), rezar:f.rezar.checked};
-    S.velas.push(velaUlt); save(); velaStep='acesa'; render(); scrollTo(0,0);
+    velaUlt = {id:novoId(), ts:now(), para:f.para.value, por:f.por.value.trim(), pedido:f.pedido.value.trim(), nome:f.nome.value.trim(), rezar:f.rezar.checked};
+    if (NUVEM.ativo && !logado()){ // fiel sem login: o pedido vai direto para a equipe da paróquia
+      const btn = f.querySelector('button.gold:not([type=button])'); if (btn) btn.disabled = true;
+      if (!await enviarPublico('vela', velaUlt)){ if (btn) btn.disabled = false; toast('Não foi possível acender agora. Tente de novo em instantes.'); return; }
+      NUVEM.velasPub = (NUVEM.velasPub || 0) + 1;
+    } else { S.velas.push(velaUlt); save(); }
+    velaStep='acesa'; render(); scrollTo(0,0);
   });
 }
 function velasPainelHTML(){
@@ -1184,9 +1419,47 @@ function bindInativa(root){
   root.querySelector('#pedirAtiv')?.addEventListener('click', () => { S.pedidosAtivacao.push(S.vendo); save(); render(); toast('Pedido de ativação registrado'); });
 }
 
+/* ---------- acesso ao painel (login) ---------- */
+function acessoHTML(){
+  if (NUVEM.estado === 'carregando') return `<div class="status" role="status" style="margin-top:20px"><span class="spinner"></span>Conectando ao painel da paróquia…</div>`;
+  if (NUVEM.estado === 'semConexao') return `<h2>Sem conexão</h2><div class="block"><p style="margin:0 0 10px">Não foi possível conectar ao banco da paróquia. Confira a internet e tente de novo.</p><button class="btn" id="acTentar">Tentar de novo</button></div>`;
+  if (NUVEM.estado === 'semVinculo') return `<h2>Acesso ainda não liberado</h2><div class="block"><p style="margin:0 0 10px">O usuário <b>${esc(NUVEM.sessao?.user?.email)}</b> entrou, mas ainda não está vinculado a nenhuma paróquia. Peça ao responsável pelo sistema para liberar o acesso.</p><button class="btn ghost" id="acSair">Sair</button></div>`;
+  return `<h2>Entrar no painel</h2>
+  <p class="lead small">Acesso da equipe da paróquia: padre, secretaria e PASCOM. Os fiéis usam a página da paróquia, sem login.</p>
+  <form class="block" id="loginF">
+    <div class="field"><label for="l-em">E-mail</label><input type="email" id="l-em" name="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-pw">Senha</label><input type="password" id="l-pw" name="senha" autocomplete="current-password" required></div>
+    <button class="btn block-w" id="l-btn">Entrar</button>
+    <p class="small" id="l-err" role="alert" style="color:var(--danger);margin:8px 0 0"></p>
+  </form>
+  <button class="btn ghost block-w" id="acPub">Ver a página da paróquia</button>`;
+}
+function bindAcesso(root){
+  root.querySelector('#acTentar')?.addEventListener('click', () => location.reload());
+  root.querySelector('#acSair')?.addEventListener('click', () => sair());
+  root.querySelector('#acPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=S.minha; save(); render(); scrollTo(0,0); });
+  const f = root.querySelector('#loginF'); if (!f) return;
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = f.querySelector('#l-btn'), err = f.querySelector('#l-err');
+    btn.disabled = true; btn.textContent = 'Entrando…'; err.textContent = '';
+    try { await entrar(f.email.value.trim(), f.senha.value); }
+    catch(x){
+      btn.disabled = false; btn.textContent = 'Entrar';
+      err.textContent = /invalid/i.test(x?.message||'') ? 'E-mail ou senha incorretos.' : 'Não foi possível entrar agora. Confira a internet e tente de novo.';
+      if (NUVEM.sessao && !NUVEM.parishId && NUVEM.estado === 'carregando'){ NUVEM.estado = 'semConexao'; render(); }
+    }
+  });
+}
+
 /* ---------- roteador ---------- */
 function render(){
   renderHeader();
+  if (S.mode==='painel' && NUVEM.ativo && !logado()){
+    document.getElementById('tabs').innerHTML = '';
+    const v = document.getElementById('view'); v.innerHTML = acessoHTML(); bindAcesso(v);
+    return;
+  }
   if (!tabsFor().some(([k]) => k === (S.mode==='painel'?S.tab:S.pubTab)) && !(S.mode==='publico' && S.pubTab==='escolher')) { if (S.mode==='painel') S.tab='comunicar'; else S.pubTab='avisos'; }
   if (S.mode==='publico' && !vendoAtiva() && !vendoRede()) S.vendo = ATIVA;
   renderTabs();
@@ -1206,7 +1479,9 @@ function render(){
   const [h,b] = map[S.tab];
   v.innerHTML = h(); b(v);
 }
+if (NUVEM.ativo && location.hash === '#painel') S.mode = 'painel';
 render();
+iniciarNuvem();
 </script>
 </body>
 </html>
