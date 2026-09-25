@@ -756,7 +756,7 @@ const tabsFor = () => S.mode==='painel'
   ? [['comunicar','Comunicar'],['agenda','Agenda'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja'};
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja'};
 const abaAtual = () => S.mode==='painel' ? S.tab : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
 function renderTabs(){
   const cur = abaAtual();
@@ -1701,11 +1701,143 @@ function liturgiaHTML(t, festa){
   return `<div class="block">
     <h3 style="font-family:var(--serif);font-size:1.3rem">Liturgia de hoje</h3>
     <div class="small muted" style="margin-top:2px">${esc(festa || t.nome)} · cor ${t.cor}</div>
+    ${leiturasHTML()}
     <a class="btn block-w" style="margin-top:12px" href="${CNBB_LITURGIA}" target="_blank" rel="noopener">Ver Liturgia de hoje</a>
     <div class="small muted" style="margin-top:6px;text-align:center">Leituras e Evangelho no site oficial da Edições CNBB</div>
   </div>`;
 }
 const CNBB_LITURGIA = 'https://liturgiadiaria.edicoescnbb.com.br/';
+/* Liturgia do dia estruturada (celebração e referências bíblicas, nunca o texto das leituras),
+   vinda do Worker /api/liturgia quando houver fonte autorizada configurada. Sem ela, fica o
+   calendário local e o link para a CNBB: a Home nunca depende disso para funcionar. */
+const LITURGIA_API = CONF.liturgiaApi ?? (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname) ? '' : '/api/liturgia');
+let LITURGIA = {estado:'inicial', dados:null};
+async function carregarLiturgia(){
+  if (!LITURGIA_API || LITURGIA.estado !== 'inicial') return;
+  LITURGIA.estado = 'carregando';
+  try {
+    const r = await fetch(LITURGIA_API + '?data=' + isoDay(new Date()), {headers:{accept:'application/json'}});
+    const d = r.ok ? await r.json() : null;
+    LITURGIA = {estado:'ok', dados: d?.disponivel && Array.isArray(d.leituras) && d.leituras.length ? d : null};
+  } catch(e){ LITURGIA = {estado:'erro', dados:null}; }
+  if (LITURGIA.dados && S.mode === 'publico' && S.pubTab === 'igreja') renderSeguro();
+}
+function leiturasHTML(){
+  const L = LITURGIA.dados; if (!L) return '';
+  return `${L.celebracao ? `<div style="margin-top:8px;font-weight:700">${esc(L.celebracao)}</div>` : ''}
+    <dl class="leituras">${L.leituras.map(x => `<dt>${esc(x.tipo)}</dt><dd>${esc(x.ref)}</dd>`).join('')}</dl>`;
+}
+
+/* ---------- REZAR: orações guiadas, dentro do app, sem guardar nada ---------- */
+const TXT = {
+  sinal:'Em nome do Pai, e do Filho, e do Espírito Santo. Amém.',
+  creio:'Creio em Deus Pai todo-poderoso, criador do céu e da terra; e em Jesus Cristo, seu único Filho, nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado; desceu à mansão dos mortos; ressuscitou ao terceiro dia; subiu aos céus; está sentado à direita de Deus Pai todo-poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo, na santa Igreja Católica, na comunhão dos santos, na remissão dos pecados, na ressurreição da carne, na vida eterna. Amém.',
+  pai:'Pai nosso que estais nos céus, santificado seja o vosso nome; venha a nós o vosso reino; seja feita a vossa vontade, assim na terra como no céu. O pão nosso de cada dia nos dai hoje; perdoai-nos as nossas ofensas, assim como nós perdoamos a quem nos tem ofendido; e não nos deixeis cair em tentação, mas livrai-nos do mal. Amém.',
+  ave:'Ave Maria, cheia de graça, o Senhor é convosco; bendita sois vós entre as mulheres e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora da nossa morte. Amém.',
+  gloria:'Glória ao Pai, e ao Filho, e ao Espírito Santo. Como era no princípio, agora e sempre. Amém.',
+  fatima:'Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno; levai as almas todas para o céu e socorrei principalmente as que mais precisarem.',
+  salve:'Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e, depois deste desterro, mostrai-nos Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria.\nV. Rogai por nós, santa Mãe de Deus.\nR. Para que sejamos dignos das promessas de Cristo. Amém.',
+  eternoPai:'Eterno Pai, eu vos ofereço o Corpo e o Sangue, a Alma e a Divindade de vosso diletíssimo Filho, Nosso Senhor Jesus Cristo, em expiação dos nossos pecados e dos do mundo inteiro.',
+  paixao:'Pela sua dolorosa Paixão, tende misericórdia de nós e do mundo inteiro.',
+  deusSanto:'Deus Santo, Deus Forte, Deus Imortal, tende piedade de nós e do mundo inteiro.',
+  jesusConfio:'Jesus, eu confio em vós!',
+  angelus:'V. O Anjo do Senhor anunciou a Maria.\nR. E ela concebeu do Espírito Santo.\nAve Maria…\n\nV. Eis aqui a serva do Senhor.\nR. Faça-se em mim segundo a vossa palavra.\nAve Maria…\n\nV. E o Verbo se fez carne.\nR. E habitou entre nós.\nAve Maria…\n\nV. Rogai por nós, santa Mãe de Deus.\nR. Para que sejamos dignos das promessas de Cristo.',
+  angelusOremos:'Infundi, Senhor, como vos pedimos, a vossa graça em nossas almas, para que nós, que pela anunciação do Anjo conhecemos a encarnação de Jesus Cristo, vosso Filho, por sua paixão e cruz sejamos conduzidos à glória da ressurreição. Pelo mesmo Cristo, Senhor nosso. Amém.',
+  regina:'Rainha do Céu, alegrai-vos, aleluia!\nPorque quem merecestes trazer em vosso seio, aleluia!\nRessuscitou como disse, aleluia!\nRogai a Deus por nós, aleluia!\n\nV. Exultai e alegrai-vos, ó Virgem Maria, aleluia!\nR. Porque o Senhor ressuscitou verdadeiramente, aleluia!',
+  reginaOremos:'Ó Deus, que vos dignastes alegrar o mundo com a ressurreição de vosso Filho, Nosso Senhor Jesus Cristo, concedei-nos, vos suplicamos, que, por sua Mãe, a Virgem Maria, alcancemos as alegrias da vida eterna. Por Cristo, Senhor nosso. Amém.',
+  oferecimento:'Ofereço-vos, ó meu Deus, em união com o Santíssimo Coração de Jesus, por meio do Coração Imaculado de Maria, as orações, obras, alegrias e sofrimentos deste dia, em reparação de nossas ofensas e por todas as intenções pelas quais o mesmo Divino Coração está continuamente intercedendo em nosso favor. Amém.',
+  anjo:'Santo Anjo do Senhor, meu zeloso guardador, se a ti me confiou a piedade divina, sempre me rege, me guarda, me governa e me ilumina. Amém.',
+  manha:'Senhor, obrigado por este novo dia. Abençoai minha família, meu trabalho e todas as pessoas que eu encontrar. Que eu saiba ouvir, servir e perdoar, e que tudo o que eu fizer hoje seja para a vossa glória. Amém.',
+  exame:'Faça um momento de silêncio. Lembre-se do seu dia: agradeça a Deus pelo que foi bom, peça perdão pelo que não foi e confie a Ele o dia de amanhã.',
+  contricao:'Meu Deus, eu me arrependo de todo o coração de vos ter ofendido, porque sois infinitamente bom e amável. Prometo, com a vossa graça, esforçar-me para ser bom e não mais pecar. Meu Jesus, misericórdia!',
+  noite:'Senhor, ficai conosco, porque a noite vem chegando. Guardai-me durante este descanso, protegei minha família e todos os que amo. Em vossas mãos, Senhor, entrego o meu espírito. Amém.',
+  santoAntonio:'Glorioso Santo Antônio, padroeiro da nossa paróquia, amigo dos pobres e dos que sofrem, vós que tivestes a graça de acolher em vossos braços o Menino Jesus, intercedei por nós junto de Deus.\n\nAlcançai-nos a graça que humildemente pedimos (faça em silêncio o seu pedido), se for para a glória de Deus e o bem da nossa alma.\n\nProtegei nossas famílias, nossa comunidade e todos os que buscam a vossa intercessão. Santo Antônio, rogai por nós. Amém.'
+};
+const MISTERIOS = {
+  gozosos:{nome:'Mistérios Gozosos', adj:'Gozoso', itens:['A anunciação do Anjo a Maria','A visitação de Maria a Isabel','O nascimento de Jesus em Belém','A apresentação de Jesus no Templo','A perda e o encontro de Jesus no Templo']},
+  dolorosos:{nome:'Mistérios Dolorosos', adj:'Doloroso', itens:['A agonia de Jesus no Horto das Oliveiras','A flagelação de Jesus','A coroação de espinhos','Jesus carrega a cruz até o Calvário','A crucifixão e a morte de Jesus']},
+  gloriosos:{nome:'Mistérios Gloriosos', adj:'Glorioso', itens:['A ressurreição de Jesus','A ascensão de Jesus ao céu','A vinda do Espírito Santo','A assunção de Maria ao céu','A coroação de Maria, Rainha do céu e da terra']},
+  luminosos:{nome:'Mistérios Luminosos', adj:'Luminoso', itens:['O batismo de Jesus no rio Jordão','A autorrevelação de Jesus nas bodas de Caná','O anúncio do Reino de Deus e o convite à conversão','A transfiguração de Jesus','A instituição da Eucaristia']}
+};
+// domingo e quarta: Gloriosos; segunda e sábado: Gozosos; terça e sexta: Dolorosos; quinta: Luminosos
+const MISTERIO_DIA = ['gloriosos','gozosos','dolorosos','gloriosos','luminosos','dolorosos','gozosos'];
+const pascal = () => tempoLiturgico(new Date()).nome === 'Tempo Pascal';
+const REZAR = [
+  {k:'terco', nome:'Santo Terço', ic:'📿', sub:() => MISTERIOS[MISTERIO_DIA[new Date().getDay()]].nome},
+  {k:'misericordia', nome:'Terço da Misericórdia', ic:'✝️', sub:() => 'Às 15h, a hora da misericórdia'},
+  {k:'angelus', nome:() => pascal() ? 'Rainha do Céu' : 'Angelus', ic:'🔔', sub:() => pascal() ? 'No Tempo Pascal' : '6h, meio-dia e 18h'},
+  {k:'manha', nome:'Oração da Manhã', ic:'🌅', sub:() => 'Para começar o dia'},
+  {k:'noite', nome:'Oração da Noite', ic:'🌙', sub:() => 'Para terminar o dia'},
+  {k:'antonio', nome:'Oração a Santo Antônio', ic:'🙏', sub:() => 'Nosso padroeiro'}
+];
+const val = v => typeof v === 'function' ? v() : v;
+let reza = {k:null, passo:0, conta:0, misterios:null};
+function oracaoGuiada(k){
+  if (k === 'terco'){
+    const M = MISTERIOS[reza.misterios || MISTERIO_DIA[new Date().getDay()]];
+    return {titulo:'Santo Terço', passos:[
+      {titulo:'Mistérios de hoje', sub:M.nome, escolherMisterio:true, lista:['Sinal da Cruz','Creio','Pai-Nosso','Três Ave-Marias','Glória'], fechado:true,
+       textos:[['Sinal da Cruz',TXT.sinal],['Creio',TXT.creio],['Pai-Nosso',TXT.pai],['Três Ave-Marias (pela fé, pela esperança e pela caridade)',TXT.ave],['Glória',TXT.gloria]], botao:'Começar o Terço'},
+      ...M.itens.map((t, i) => ({titulo:`${i+1}º Mistério ${M.adj}`, sub:t, fechado:true, textos:[['Pai-Nosso',TXT.pai]],
+        contador:{n:10, rotulo:'Ave-Maria', plural:'Ave-Marias', texto:TXT.ave}, depois:[['Glória',TXT.gloria],['Ó meu Jesus',TXT.fatima]], botao:i < 4 ? 'Próximo mistério' : 'Terminar o Terço'})),
+      {titulo:'Agradecimento', textos:[['Salve Rainha',TXT.salve],['Sinal da Cruz',TXT.sinal]], botao:'Amém'}]};
+  }
+  if (k === 'misericordia') return {titulo:'Terço da Misericórdia', passos:[
+    {titulo:'Início', lista:['Sinal da Cruz','Pai-Nosso','Ave-Maria','Creio'], fechado:true, textos:[['Sinal da Cruz',TXT.sinal],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Creio',TXT.creio]], botao:'Começar'},
+    ...[1,2,3,4,5].map(i => ({titulo:`${i}ª dezena`, textos:[['Na conta grande',TXT.eternoPai]], contador:{n:10, rotulo:'invocação', plural:'invocações', texto:TXT.paixao}, botao:i < 5 ? 'Próxima dezena' : 'Terminar'})),
+    {titulo:'Para terminar', textos:[['Três vezes',TXT.deusSanto],['',TXT.jesusConfio],['Sinal da Cruz',TXT.sinal]], botao:'Amém'}]};
+  if (k === 'angelus') return pascal()
+    ? {titulo:'Rainha do Céu', passos:[{titulo:'Rainha do Céu', sub:'No Tempo Pascal, reza-se no lugar do Angelus.', textos:[['',TXT.regina],['Oremos',TXT.reginaOremos]], botao:'Amém'}]}
+    : {titulo:'Angelus', passos:[{titulo:'Angelus', sub:'Tradicionalmente rezado às 6h, ao meio-dia e às 18h.', textos:[['',TXT.angelus],['Ave-Maria',TXT.ave],['Oremos',TXT.angelusOremos],['Glória (3 vezes)',TXT.gloria]], botao:'Amém'}]};
+  if (k === 'manha') return {titulo:'Oração da Manhã', passos:[{titulo:'Oração da Manhã', textos:[['Sinal da Cruz',TXT.sinal],['Oferecimento do dia',TXT.oferecimento],['',TXT.manha],['Ao Anjo da Guarda',TXT.anjo],['Pai-Nosso',TXT.pai]], botao:'Amém'}]};
+  if (k === 'noite') return {titulo:'Oração da Noite', passos:[{titulo:'Oração da Noite', textos:[['Sinal da Cruz',TXT.sinal],['Exame do dia',TXT.exame],['Ato de contrição',TXT.contricao],['',TXT.noite],['Ave-Maria',TXT.ave],['Ao Anjo da Guarda',TXT.anjo]], botao:'Amém'}]};
+  return {titulo:'Oração a Santo Antônio', passos:[{titulo:'Oração a Santo Antônio', textos:[['Sinal da Cruz',TXT.sinal],['',TXT.santoAntonio],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
+}
+function rezarGridHTML(){
+  const n = velasHoje();
+  return `<h2>Rezar</h2><div class="rezar-grid">
+    ${vendoAtiva() ? `<button class="rz vela" id="rzVela" style="grid-column:1/-1"><span class="ic" aria-hidden="true">🕯️</span><b>Acender uma vela</b><span class="small">${n ? `${n} vela${n===1?' acesa':'s acesas'} nas últimas 24 horas` : 'Seja o primeiro a acender uma vela hoje'}</span></button>` : ''}
+    ${REZAR.map(r => `<button class="rz" data-rezar="${r.k}"><span class="ic" aria-hidden="true">${r.ic}</span><b>${esc(val(r.nome))}</b><span class="small">${esc(r.sub())}</span></button>`).join('')}
+  </div>`;
+}
+const contasHTML = c => `<div class="contas" aria-hidden="true">${Array.from({length:c.n}, (_, i) => `<i class="${i < reza.conta ? 'on' : ''}"></i>`).join('')}</div>`;
+const rotuloConta = c => reza.conta < c.n ? `Rezei a ${reza.conta + 1}ª ${c.rotulo}` : `✓ ${c.n} ${c.plural} rezadas`;
+function rezaHTML(){
+  if (!reza.k) return '';
+  const o = oracaoGuiada(reza.k), p = o.passos[reza.passo], total = o.passos.length;
+  const txt = ([r, t]) => p.fechado ? `<details class="txt"><summary>${esc(r)}</summary><p class="oracao">${esc(t)}</p></details>`
+    : `${r ? `<h3 style="margin-top:14px">${esc(r)}</h3>` : ''}<p class="oracao">${esc(t)}</p>`;
+  return `<button class="crumb" data-pub="igreja">‹ Igreja</button>
+  <div class="block">
+    <div class="progresso">${esc(o.titulo)}${total > 1 ? ` · ${reza.passo + 1} de ${total}` : ''}</div>
+    <h2 style="margin:4px 0 0">${esc(p.titulo)}</h2>
+    ${p.sub ? `<p class="oracao" style="font-style:italic;margin-top:4px">${esc(p.sub)}</p>` : ''}
+    ${p.escolherMisterio ? `<div class="filtros" role="group" aria-label="Trocar os mistérios" style="margin-top:10px">${Object.entries(MISTERIOS).map(([k, m]) => `<button data-mist="${k}" aria-pressed="${(reza.misterios || MISTERIO_DIA[new Date().getDay()]) === k}">${m.nome.replace('Mistérios ','')}</button>`).join('')}</div>` : ''}
+    ${p.lista ? `<ol class="passos">${p.lista.map(x => `<li>${esc(x)}</li>`).join('')}</ol><p class="small muted" style="margin:6px 0 0">Toque em cada oração abaixo para ver o texto.</p>` : ''}
+    ${p.textos.map(txt).join('')}
+    ${p.contador ? `<div class="contador">${contasHTML(p.contador)}
+      <button class="btn" id="rzConta" aria-live="polite">${esc(rotuloConta(p.contador))}</button>
+      <details class="txt" style="align-self:stretch"><summary>Texto: ${esc(p.contador.rotulo)}</summary><p class="oracao">${esc(p.contador.texto)}</p></details></div>` : ''}
+    ${(p.depois || []).map(([r, t]) => `<details class="txt"><summary>${esc(r)}</summary><p class="oracao">${esc(t)}</p></details>`).join('')}
+    <div class="acoes" style="margin-top:16px">${reza.passo > 0 ? '<button class="btn ghost" id="rzVolta">Voltar</button>' : ''}<button class="btn" id="rzProx" style="flex:1">${esc(p.botao || 'Continuar')}</button></div>
+  </div>`;
+}
+function bindRezar(root){
+  root.querySelectorAll('[data-rezar]').forEach(b => b.onclick = () => { reza = {k:b.dataset.rezar, passo:0, conta:0, misterios:null}; S.pubTab = 'rezar'; render(); scrollTo(0,0); });
+  root.querySelector('#rzVela')?.addEventListener('click', () => { velaStep = 'form'; render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-mist]').forEach(b => b.onclick = () => { reza.misterios = b.dataset.mist; render(); });
+  root.querySelector('#rzConta')?.addEventListener('click', e => { // só atualiza o contador, sem redesenhar a tela
+    const c = oracaoGuiada(reza.k).passos[reza.passo].contador;
+    if (reza.conta < c.n) reza.conta++;
+    e.currentTarget.textContent = rotuloConta(c);
+    root.querySelector('.contas').outerHTML = contasHTML(c);
+  });
+  root.querySelector('#rzVolta')?.addEventListener('click', () => { reza.passo--; reza.conta = 0; render(); scrollTo(0,0); });
+  root.querySelector('#rzProx')?.addEventListener('click', () => {
+    if (reza.passo >= oracaoGuiada(reza.k).passos.length - 1){ reza = {k:null, passo:0, conta:0, misterios:null}; S.pubTab = 'igreja'; render(); scrollTo(0,0); toast('Deus te abençoe! 🙏'); return; }
+    reza.passo++; reza.conta = 0; render(); scrollTo(0,0);
+  });
+}
 function igrejaPubHTML(){
   if (velaStep === 'form') return velaHTML();
   const hoje = new Date(), t = tempoLiturgico(hoje), festa = festaDoDia(hoje), ativa = vendoAtiva();
@@ -1718,6 +1850,7 @@ function igrejaPubHTML(){
     ${festa ? `<div class="festa">${esc(festa)}</div>` : ''}
   </section>
   ${liturgiaHTML(t, festa)}
+  ${rezarGridHTML()}
   ${ativa ? missaHTML() : ''}
   ${evs.length ? `<h2>${evs.length > 1 ? 'Próximos eventos' : 'Próximo evento'}</h2>${evs.map(e => eventoCard(e)).join('')}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver Agenda</button>` : ''}
   ${ativa ? minhaComunidadeHTML() : ''}
@@ -1729,7 +1862,7 @@ function igrejaPubHTML(){
   ${calendarioHTML()}`;
 }
 function bindIgreja(root){
-  bindVela(root); bindEventos(root); carregarNoticias();
+  bindVela(root); bindEventos(root); bindRezar(root); carregarNoticias(); carregarLiturgia();
   root.querySelectorAll('[data-com]').forEach(b => b.onclick = () => { S.comVendo = b.dataset.com; S.pubTab = 'comunidade'; save(); render(); scrollTo(0,0); });
   root.querySelector('#homeCom')?.addEventListener('change', e => { if (!e.target.value) return; S.minhaCom = e.target.value; save(); render(); toast('Agora esta é a sua comunidade'); });
   root.querySelector('#homeTrocar')?.addEventListener('click', () => { S.minhaCom = null; save(); render(); document.getElementById('homeCom')?.focus(); });
@@ -2182,7 +2315,7 @@ function render(){
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
-  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
+  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
