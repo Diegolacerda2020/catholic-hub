@@ -12,6 +12,7 @@
 :root{
   --bg:#F3F5F4; --surface:#FFFFFF; --ink:#18221D; --muted:#5B6A62; --line:#DCE3DF;
   --lit:#1F5B3F; --lit-soft:#E3EEE8; --gold:#A87A1C; --gold-soft:#F6EDD8; --danger:#A33A2B; --wa:#1E7D4F;
+  --cta:#8A5F0E; --cta-ink:#FFFFFF;
   --serif:"Alegreya", Georgia, "Times New Roman", serif;
   --sans:"Alegreya Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   box-sizing:border-box;
@@ -21,11 +22,13 @@
   :root:not([data-theme="light"]){
     --bg:#101613; --surface:#18201C; --ink:#E8EEEA; --muted:#9DAEA5; --line:#2B3731;
     --lit:#5FB189; --lit-soft:#1F3229; --gold:#D9AE55; --gold-soft:#332A17; --danger:#E0806F; --wa:#5FB189;
+    --cta:#E3B95C; --cta-ink:#1A1407;
   }
 }
 :root[data-theme="dark"]{
   --bg:#101613; --surface:#18201C; --ink:#E8EEEA; --muted:#9DAEA5; --line:#2B3731;
   --lit:#5FB189; --lit-soft:#1F3229; --gold:#D9AE55; --gold-soft:#332A17; --danger:#E0806F; --wa:#5FB189;
+    --cta:#E3B95C; --cta-ink:#1A1407;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -105,7 +108,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--lit);outline:none}
 .out-foot{display:flex;gap:8px;padding:0 14px 12px;flex-wrap:wrap}
 .card-prev{padding:12px 14px}
 .card-prev img{border-radius:8px;border:1px solid var(--line);width:100%}
-.publish-bar{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.publish-bar{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:18px 16px 16px;margin:18px 0 14px}
+.btn.cta{background:var(--cta);color:var(--cta-ink);min-height:56px;padding:15px 20px;font-size:1.15rem;font-weight:700;letter-spacing:.01em;border-radius:12px;gap:10px;box-shadow:0 2px 0 rgba(0,0,0,.2),0 6px 16px rgba(120,85,15,.28)}
+.btn.cta svg{width:22px;height:22px;flex-shrink:0}
+.btn.cta:hover{filter:brightness(1.07)}
+@media (prefers-reduced-motion:no-preference){.btn.cta:active{transform:translateY(1px)}}
+.published{margin:4px 0 12px}
+.published .t{font-size:1.1rem;font-weight:700}
+.published .btn{margin-top:10px}
 
 /* aviso público */
 .notice{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
@@ -669,11 +679,14 @@ async function gerarCard(card){
   return cv.toDataURL('image/png');
 }
 
-let organizando = false;
+let organizando = false, publicado = null; // publicado: aviso que acabou de sair (só nesta tela, não é salvo)
 function comunicarHTML(){
   const d = S.draft, o = d.out;
   const ig = d.tipo==='igreja';
-  let h = (!S.cfg.missas.trim() ? `<div class="signal wait" style="margin-top:4px">Falta preencher os horários de missa da paróquia. <button class="link-btn" style="color:inherit;text-decoration:underline;padding:0" id="goAjustes">Preencher em Ajustes</button></div>` : '') + `<h2>O que a paróquia precisa comunicar?</h2>
+  let h = (publicado ? `<div class="signal green published" role="status">
+    <div class="t">✓ Aviso publicado na página da paróquia</div>
+    <div class="small" style="color:var(--ink);font-weight:500;margin-top:2px">${esc(publicado.titulo)}</div>
+    <button class="btn" id="verPub">Ver página pública ›</button></div>` : '') + (!S.cfg.missas.trim() ? `<div class="signal wait" style="margin-top:4px">Falta preencher os horários de missa da paróquia. <button class="link-btn" style="color:inherit;text-decoration:underline;padding:0" id="goAjustes">Preencher em Ajustes</button></div>` : '') + `<h2>O que a paróquia precisa comunicar?</h2>
   <p class="lead small">Escreva do seu jeito, como falaria na missa. O sistema prepara a mensagem de WhatsApp, a legenda do Instagram, o card e a publicação da página.</p>
   <div class="block composer">
     <div class="radio-row" role="radiogroup" aria-label="Tipo de publicação" style="margin-bottom:10px">
@@ -707,7 +720,7 @@ function comunicarHTML(){
       ${o.evento?`<div class="out-foot"><label class="check" style="margin:0"><input type="checkbox" id="addAgenda" checked> Colocar na agenda: <b>${esc(o.evento.quando)}</b>${o.evento.onde?', '+esc(o.evento.onde):''}</label></div>`:''}
     </div>
     <div class="publish-bar">
-      <button class="btn gold block-w" id="btnPub">${ig?'Publicar em Notícias da Igreja':'Publicar nos avisos da paróquia'}</button>
+      <button class="btn cta block-w" id="btnPub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>${ig?'Publicar em Notícias da Igreja':'Publicar nos avisos da paróquia'}</button>
       <p class="small muted" style="margin:8px 0 0">O WhatsApp e o card você usa quando quiser. Publicar coloca o aviso na página que os fiéis acessam.</p>
     </div>`;
   }
@@ -719,13 +732,14 @@ function bindComunicar(root){
   root.querySelector('#goAjustes')?.addEventListener('click', () => { S.tab='ajustes'; save(); render(); scrollTo(0,0); document.getElementById('c-mis')?.focus(); });
   const ta = root.querySelector('#txt');
   ta.addEventListener('input', () => { S.draft.texto = ta.value; save(); });
+  root.querySelector('#verPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=S.minha; S.pubTab = publicado.categoria==='igreja' ? 'igreja' : 'avisos'; publicado = null; save(); render(); scrollTo(0,0); });
   root.querySelectorAll('input[name=tipo]').forEach(r => r.onchange = () => { S.draft.tipo = r.value; S.draft.out = null; S.draft.cardUrl = null; save(); render(); });
   const lnk = root.querySelector('#lnk'); lnk?.addEventListener('input', () => { S.draft.link = lnk.value.trim(); save(); });
   root.querySelector('#btnLimpar')?.addEventListener('click', () => { S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); });
   root.querySelector('#btnOrg').addEventListener('click', async () => {
     const texto = ta.value.trim();
     if (texto.length < 10){ toast('Escreva o aviso com um pouco mais de detalhe.'); ta.focus(); return; }
-    organizando = true; S.draft.out = null; S.draft.cardUrl = null; render();
+    organizando = true; publicado = null; S.draft.out = null; S.draft.cardUrl = null; render();
     let out;
     try { if (!SAMPLE) throw {code:'unavailable'}; out = await organizarInteligente(texto); }
     catch(e){ out = organizarLocal(texto); }
@@ -753,8 +767,8 @@ function bindComunicar(root){
     const agenda = root.querySelector('#addAgenda');
     S.avisos.push({id:novoId(), ts:now(), categoria:S.draft.tipo, link:S.draft.tipo==='igreja'?S.draft.link:'', titulo:o.titulo, texto:o.pagina, evento:(o.evento && (!agenda || agenda.checked)) ? {titulo:o.evento.titulo||o.titulo, quando:o.evento.quando, onde:o.evento.onde||''} : null});
     registrar('publicou', o.titulo);
+    publicado = {titulo:o.titulo, categoria:S.draft.tipo};
     S.draft = {texto:'',out:null,cardUrl:null,tipo:S.draft.tipo,link:''}; save(); render(); scrollTo(0,0);
-    toast('Publicado na página da paróquia');
   });
   root.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
     if (!confirm('Remover este aviso da página?')) return;
@@ -1456,6 +1470,7 @@ function bindAcesso(root){
 
 /* ---------- roteador ---------- */
 function render(){
+  if (!(S.mode==='painel' && S.tab==='comunicar')) publicado = null;
   renderHeader();
   if (S.mode==='painel' && NUVEM.ativo && !logado()){
     document.getElementById('tabs').innerHTML = '';
