@@ -10,8 +10,8 @@
    NUNCA coloque aqui a chave "service_role" / "secret". */
 window.CENTRAL_CONFIG = {
   supabase: {
-    url: '',
-    anonKey: ''
+    url: 'https://jstxktdvfflxgbruajpg.supabase.co',
+    anonKey: 'sb_publishable_43THHdwdV9hXKZ1oH5NYsw_U3kV0EoD'
   },
   parishSlug: 'santo-antonio-jaragua'
 };
