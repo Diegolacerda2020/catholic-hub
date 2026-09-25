@@ -45,9 +45,18 @@ Na aba Igreja → Notícias da Igreja, a página mostra as notícias do portal d
 - **O que é guardado:** título, data, rótulo (RENSC, Arquidiocese, outras regiões), resumo de até ~180 caracteres, imagem e link. A matéria completa nunca é copiada; o card leva à notícia original em nova aba.
 - **Ordem dos cards:** RENSC primeiro, depois as gerais da Arquidiocese, depois as demais regiões e categorias.
 - **Cache:** ~1 hora. Se o portal cair, o Worker devolve o último resultado válido. O cache fica na memória da instância e no Cache API do Cloudflare. Para um cache persistente entre instâncias, crie um KV e ligue-o como `NOTICIAS_CACHE` no `wrangler.jsonc`.
-- **Onde funciona:** só onde o Worker roda (Cloudflare). No GitHub Pages não há Worker; a seção mostra só o link para o site da Arquidiocese. Para usar um Worker a partir do Pages, defina `noticiasApi: 'https://<worker>/api/noticias'` no `config.js`.
+- **Espelho de hora em hora (GitHub Actions):** o workflow `.github/workflows/noticias.yml` roda `scripts/atualizar-noticias.mjs` (mesma extração do Worker) e grava `noticias.json` no branch `dados`. Esse branch é separado para as atualizações não dispararem novos deploys do site. Só há commit quando as notícias mudam. Se o portal cair, o arquivo anterior é mantido e a execução mostra um aviso.
+- **Onde funciona:**
+  - No Cloudflare, o Worker tenta o portal e, se falhar, usa o espelho.
+  - No GitHub Pages (sem Worker), a página lê o espelho direto de `raw.githubusercontent.com`.
+  - Se tudo falhar, a seção mostra só o link para o site da Arquidiocese.
+  - Dá para trocar as fontes no `config.js` com `noticiasApi` e `noticiasEspelho`.
 
-**Atenção, certificado do portal:** em 25/09/2026, o servidor de arquidiocesebh.org.br envia o certificado intermediário errado (envia "GlobalSign Organization Validation CA - SHA256 - G2", mas o certificado do site foi emitido por "GlobalSign RSA OV SSL CA 2018"). Navegadores contornam isso sozinhos, mas o runtime de Workers recusa a conexão, e a seção cai no link de reserva. A correção é a equipe do portal instalar a cadeia correta; depois disso, as notícias aparecem sem mudar nada aqui.
+**Atenção, certificado do portal:** em 25/09/2026, o servidor de arquidiocesebh.org.br envia o certificado intermediário errado (envia "GlobalSign Organization Validation CA - SHA256 - G2", mas o certificado do site foi emitido por "GlobalSign RSA OV SSL CA 2018"). Navegadores contornam isso sozinhos, mas o runtime de Workers e o Node recusam a conexão.
+
+- **Como contornamos:** o workflow entrega ao Node o intermediário correto, que é público, fica em `scripts/certs/` e vale até 21/11/2028. A verificação TLS continua ligada.
+- **Correção definitiva:** a equipe do portal instalar a cadeia correta. Depois disso, o Worker volta a buscar direto, sem mudar nada aqui.
+- **Se trocarem o certificado por outro emissor:** o espelho para de atualizar (a execução mostra o aviso) e o site segue com as últimas notícias válidas. Aí é preciso atualizar o arquivo em `scripts/certs/`.
 
 ## Organizar aviso (IA)
 
@@ -66,6 +75,7 @@ A chave da IA fica só no servidor do Supabase, nunca no `config.js` nem no GitH
 - `index.html`: aplicação completa (painel e página pública).
 - `config.js`: endereço e chave pública do Supabase (vazio = demonstração).
 - `worker/`: Worker do Cloudflare (serve o site e o proxy `/api/noticias`).
+- `scripts/atualizar-noticias.mjs`, `scripts/certs/` e `.github/workflows/noticias.yml`: espelho de hora em hora das notícias (branch `dados`).
 - `wrangler.jsonc` e `.assetsignore`: deploy no Cloudflare Workers (publica só `index.html` e `config.js`).
 - `supabase/schema.sql`: tabelas, regras de acesso (RLS) e funções da página pública.
 - `supabase/README.md`: passo a passo do banco e dos usuários.

@@ -1175,21 +1175,25 @@ function igrejaPubHTML(){
 /* ---------- notícias automáticas da Arquidiocese de BH ----------
    Buscadas pelo Worker (/api/noticias), nunca direto do navegador: ele consulta a API/RSS
    do portal, guarda ~1 hora e, se a fonte cair, devolve o último resultado válido.
-   Separadas das notícias que a paróquia publica manualmente. Se falhar, a página segue
-   funcionando e mostra só o link para o site da Arquidiocese. */
+   Separadas das notícias que a paróquia publica manualmente. Onde não há Worker (GitHub Pages)
+   ou se ele falhar, usa o espelho noticias.json que o GitHub Actions atualiza de hora em hora
+   (branch "dados"). Se tudo falhar, a página segue funcionando e mostra só o link para o site. */
 const ARQ_SITE = 'https://arquidiocesebh.org.br/noticias/';
 const NOTICIAS_API = CONF.noticiasApi || (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname) ? '' : '/api/noticias');
+const NOTICIAS_ESPELHO = CONF.noticiasEspelho || 'https://raw.githubusercontent.com/Diegolacerda2020/catholic-hub/dados/noticias.json';
 let NOTICIAS = {estado:'inicial', dados:null, em:0};
 const linkArq = u => { try { const x = new URL(u); return x.origin === 'https://arquidiocesebh.org.br' ? x.href : ''; } catch(e){ return ''; } };
 async function carregarNoticias(){
-  if (!NOTICIAS_API || NOTICIAS.estado === 'carregando' || now() - NOTICIAS.em < 10*60e3) return;
+  if (NOTICIAS.estado === 'carregando' || now() - NOTICIAS.em < 10*60e3) return;
   NOTICIAS.estado = 'carregando';
   let dados = null;
-  try {
-    const r = await fetch(NOTICIAS_API, {headers:{accept:'application/json'}});
-    const d = await r.json();
-    if (Array.isArray(d?.itens) && d.itens.length) dados = d;
-  } catch(e){}
+  for (const fonte of [NOTICIAS_API, NOTICIAS_ESPELHO].filter(Boolean)){
+    try {
+      const r = await fetch(fonte, {headers:{accept:'application/json'}});
+      const d = await r.json();
+      if (Array.isArray(d?.itens) && d.itens.length){ dados = d; break; }
+    } catch(e){}
+  }
   NOTICIAS = {estado: dados ? 'ok' : 'erro', dados: dados || NOTICIAS.dados, em: now()};
   if (S.mode === 'publico' && S.pubTab === 'igreja') renderSeguro();
 }
@@ -1198,7 +1202,7 @@ function noticiasArquidioceseHTML(){
   const fonte = `<p class="small muted news-fonte">Fonte: Arquidiocese de Belo Horizonte · <a href="${ARQ_SITE}" target="_blank" rel="noopener">arquidiocesebh.org.br</a></p>`;
   let h = `<h3 class="news-sec">Arquidiocese de Belo Horizonte</h3>`;
   if (!itens.length){
-    if (NOTICIAS_API && NOTICIAS.estado !== 'erro') return h + `<div class="status" role="status"><span class="spinner"></span>Buscando notícias da Arquidiocese…</div>`;
+    if (NOTICIAS.estado !== 'erro') return h + `<div class="status" role="status"><span class="spinner"></span>Buscando notícias da Arquidiocese…</div>`;
     return h + `<div class="block"><p style="margin:0 0 10px">As notícias da Arquidiocese não puderam ser carregadas agora.</p><a class="btn sm ghost" href="${ARQ_SITE}" target="_blank" rel="noopener">Ver notícias no site da Arquidiocese →</a></div>${fonte}`;
   }
   return h + itens.map(n => `<article class="notice news">
