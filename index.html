@@ -266,6 +266,11 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
 .notice.evento .news-meta{margin-bottom:6px}
 .ev-img{width:100%;border-radius:10px;margin:0 0 10px;border:1px solid var(--line)}
 .cancelado{text-decoration:line-through;color:var(--muted)}
+.stats.quatro{grid-template-columns:1fr 1fr}
+.stats.quatro b{font-variant-numeric:lining-nums}
+.mesnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+.mesnav b{font-family:var(--serif);font-size:1.2rem;text-align:center}
+.mesnav .btn{font-size:.8rem;padding:6px 8px}
 </style>
 </head>
 <body>
@@ -432,7 +437,7 @@ function marcar(estado){
 }
 const digitando = () => { const a = document.activeElement; return !!(a && a.closest?.('#view') && (a.matches('input,textarea,select') || a.isContentEditable)); };
 // Formulário do painel aberto (agenda, comunidade, dizimista): a sincronização espera ele fechar para não apagar o que foi digitado.
-const editando = () => S.mode==="painel" && !!(comEdit || evEdit || dzEdit);
+const editando = () => S.mode==="painel" && !!(comEdit || evEdit || dzEdit || acReg);
 function renderSeguro(){ if (digitando() || editando()) { NUVEM.renderPendente = true; return; } NUVEM.renderPendente = false; render(); }
 document.addEventListener('focusout', () => setTimeout(() => { if (NUVEM.renderPendente && !digitando()) renderSeguro(); }, 250));
 
@@ -553,9 +558,11 @@ async function enviarPublico(tipo, item){
    Com login: lidos e gravados direto nas tabelas (e relidos a cada 15 s, como o resto).
    Página pública sem login: comunidades e eventos vêm de get_public_parish (S.pubRel).
    Modo demonstração: ficam em S.rel, só neste aparelho.
-   Se o schema.sql novo ainda não foi rodado, REL.faltando avisa a equipe e nada quebra. */
-const TABELA = {communities:'communities', events:'events', tithers:'tither_profiles', leads:'tither_leads'};
-const REL = {communities:[], events:[], tithers:[], leads:[], faltando:false};
+   Se o schema.sql novo ainda não foi rodado, REL.faltam diz quais tabelas faltam: só a tela que
+   depende delas mostra o aviso de atualização, e o resto continua funcionando. */
+const TABELA = {communities:'communities', events:'events', tithers:'tither_profiles', leads:'tither_leads', contribs:'tither_contributions'};
+const REL = {communities:[], events:[], tithers:[], leads:[], contribs:[], faltam:new Set()};
+const falta = k => NUVEM.ativo && REL.faltam.has(k);
 const uuid = () => crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x' ? r : (r&3|8)).toString(16); });
 const rel = k => NUVEM.ativo ? REL[k] : (S.rel[k] ||= []);
 const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(e?.code) || /does not exist|schema cache/i.test(e?.message||'');
@@ -564,23 +571,25 @@ const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(
 const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes'], pascom:['avisos','agenda','comunidades','noticias']};
 const AREAS_ABERTAS = ['comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
 const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
-const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas'};
+const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas', contribs:'dizimistas'};
+// Contribuições: só os últimos 24 meses (o suficiente para a tela e o histórico).
+const consulta = k => { const q = NUVEM.sb.from(TABELA[k]).select('*').eq('parish_id', NUVEM.parishId); return k === 'contribs' ? q.gte('reference_month', mesSoma(mesDe(new Date()), -24)) : q; };
 async function relCarregar(){
   if (!logado()) return false;
   const ks = Object.keys(TABELA).filter(k => pode(AREA_TABELA[k]));
-  const res = await Promise.all(ks.map(k => NUVEM.sb.from(TABELA[k]).select('*').eq('parish_id', NUVEM.parishId)));
-  let mudou = false, faltando = false;
+  const res = await Promise.all(ks.map(consulta));
+  let mudou = false; const faltam = new Set();
   res.forEach(({data, error}, i) => {
-    if (error){ if (tabelaFaltando(error)) faltando = true; else console.warn('Central Paroquial: falha ao ler '+ks[i], error); return; }
+    if (error){ if (tabelaFaltando(error)) faltam.add(ks[i]); else console.warn('Central Paroquial: falha ao ler '+ks[i], error); return; }
     if (!igual(REL[ks[i]], data)){ REL[ks[i]] = data; mudou = true; }
   });
-  if (REL.faltando !== faltando){ REL.faltando = faltando; mudou = true; }
+  if (!igual([...REL.faltam], [...faltam])){ REL.faltam = faltam; mudou = true; }
   return mudou;
 }
 const semInternos = ({id, parish_id, created_at, updated_at, created_by, ...r}) => r;
-function erroGravar(e){
+function erroGravar(e, k){
   console.warn('Central Paroquial: falha ao gravar', e);
-  if (tabelaFaltando(e)){ REL.faltando = true; return 'O banco ainda não foi atualizado para esta versão. Peça ao responsável para rodar o schema.sql.'; }
+  if (tabelaFaltando(e)){ if (k) REL.faltam.add(k); return 'O banco ainda não foi atualizado para esta versão. Peça ao responsável para rodar o schema.sql.'; }
   if (e?.code === '42501') return 'Seu usuário não tem permissão para esta ação.';
   if (e?.code === '23505') return 'Já existe um cadastro com esse nome.';
   return navigator.onLine === false ? 'Sem internet. Tente de novo quando a conexão voltar.' : 'Não foi possível salvar. Tente de novo.';
@@ -597,7 +606,7 @@ async function relGravar(k, obj){
   if (!logado()) return null;
   const q = NUVEM.sb.from(TABELA[k]);
   const {data, error} = await (obj.id ? q.update(semInternos(obj)).eq('id', obj.id) : q.insert({...semInternos(obj), parish_id:NUVEM.parishId})).select().single();
-  if (error){ toast(erroGravar(error)); return null; }
+  if (error){ toast(erroGravar(error, k)); return null; }
   const l = REL[k], i = l.findIndex(x => x.id === data.id);
   if (i >= 0) l[i] = data; else l.push(data);
   return data;
@@ -605,7 +614,7 @@ async function relGravar(k, obj){
 async function relExcluir(k, id){
   if (!NUVEM.ativo){ S.rel[k] = rel(k).filter(x => x.id !== id); save(); return true; }
   const {error} = await NUVEM.sb.from(TABELA[k]).delete().eq('id', id);
-  if (error){ toast(erroGravar(error)); return false; }
+  if (error){ toast(erroGravar(error, k)); return false; }
   REL[k] = REL[k].filter(x => x.id !== id); return true;
 }
 function migracaoHTML(){
@@ -667,7 +676,7 @@ function relSeed(){ // só no modo demonstração (sem banco): nomes de exemplo,
       {id:uuid(), parish_id:'demo', community_id:null, scope:'parish', title:'Adoração ao Santíssimo', description:'Hora santa pelas famílias da paróquia.', starts_at:em(3,'20:00'), ends_at:em(3,'21:00'), location:'Matriz', public:true, highlight_home:false, image_url:null, google_event_id:null, cancelled:false, created_at:t, updated_at:t}],
     tithers:[
       {id:uuid(), parish_id:'demo', community_id:sj, name:'Maria das Graças Silva', whatsapp:'31988887771', birth_date:'1968-'+mmdd(new Date()), marriage_date:null, joined_on:(new Date().getFullYear()-5)+'-'+mmdd(new Date()), status:'active', consent:true, notes:'', created_at:t, updated_at:t}],
-    leads:[]
+    leads:[], contribs:[]
   };
 }
 function normalizar(){
@@ -786,7 +795,7 @@ function renderTabs(){
 document.getElementById('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if(!b) return;
   if (S.mode==='painel') S.tab = b.dataset.tab; else S.pubTab = b.dataset.tab;
-  comEdit = evEdit = dzEdit = null; dzPubEnviado = false; // formulário aberto não segue para outra aba
+  comEdit = evEdit = dzEdit = acReg = acHist = null; dzPubEnviado = false; // formulário aberto não segue para outra aba
   save(); render(); scrollTo(0,0);
 });
 
@@ -1169,7 +1178,8 @@ const ACOES = {
   'criou-evento':'Criou evento na agenda','editou-evento':'Editou evento','cancelou-evento':'Cancelou evento','excluiu-evento':'Excluiu evento',
   'cadastrou-dizimista':'Cadastrou dizimista','editou-dizimista':'Editou dizimista','excluiu-dizimista':'Excluiu cadastro de dizimista',
   'contatou-interessado':'Falou com interessado no dízimo','converteu-interessado':'Converteu interessado em dizimista','encerrou-interessado':'Encerrou interessado',
-  'mensagem-dizimista':'Enviou mensagem a dizimista'
+  'mensagem-dizimista':'Enviou mensagem a dizimista',
+  'registrou-contribuicao':'Registrou contribuição do mês','corrigiu-contribuicao':'Corrigiu registro de contribuição','removeu-contribuicao':'Removeu registro de contribuição'
 };
 function usoHTML(){
   const semana = now() - 7*86400e3;
@@ -1247,7 +1257,7 @@ function bindAjustes(root){
    ========================================================= */
 let comEdit = null; // null = lista; {} = nova; objeto = editando
 function comunidadesAdmHTML(){
-  if (NUVEM.ativo && REL.faltando) return `<h2>Comunidades</h2>${migracaoHTML()}`;
+  if (falta('communities')) return `<h2>Comunidades</h2>${migracaoHTML()}`;
   if (comEdit) return comunidadeFormHTML(comEdit);
   const l = rel('communities').slice().sort((a,b) => (b.active!==false) - (a.active!==false) || porNome(a,b));
   return `<h2>Comunidades da paróquia</h2>
@@ -1399,7 +1409,7 @@ function avisoCard(a){
 /* painel: lista, criar, editar, cancelar */
 let evEdit = null, evFiltro = 'proximos';
 function agendaAdmHTML(){
-  if (NUVEM.ativo && REL.faltando) return `<h2>Agenda</h2>${migracaoHTML()}`;
+  if (falta('events')) return `<h2>Agenda</h2>${migracaoHTML()}`;
   if (evEdit) return eventoFormHTML(evEdit);
   const lim = now() - 6*3600e3, evs = rel('events').slice().sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
   const prox = evs.filter(e => Date.parse(e.ends_at || e.starts_at) >= lim), pass = evs.filter(e => !prox.includes(e)).reverse();
@@ -1533,8 +1543,10 @@ function dizimistasHoje(){
 const rotuloHoje = x => x.tipo === 'aniversario' ? 'Faz aniversário hoje' : x.tipo === 'bodas' ? `${x.anos} ano${x.anos===1?'':'s'} de casamento`
   : `Hoje ${primeiroNome(x.p.nome)} completa ${x.anos} ano${x.anos===1?'':'s'} como dizimista da paróquia`;
 function dizimistasHTML(){
-  if (NUVEM.ativo && REL.faltando) return `<h2>Dizimistas</h2>${migracaoHTML()}`;
+  if (falta('tithers')) return `<h2>Dizimistas</h2>${migracaoHTML()}`;
   if (dzEdit) return dizimistaFormHTML(dzEdit);
+  const vistas = `<div class="filtros" role="group" aria-label="Dizimistas" style="margin-top:4px"><button data-dzv="cadastro" aria-pressed="${dzVista==='cadastro'}">Cadastro e contatos</button><button data-dzv="acomp" aria-pressed="${dzVista==='acomp'}">Acompanhamento do dízimo</button></div>`;
+  if (dzVista === 'acomp') return (acReg || acHist ? '' : `<h2>Dizimistas</h2>${vistas}`) + acompanhamentoHTML();
   const T = rel('tithers'), ativos = T.filter(t => t.status === 'active'), mes = pad(new Date().getMonth()+1);
   const cont = {ativos:ativos.length, aniv:ativos.filter(t => t.birth_date?.slice(5,7) === mes).length, bodas:ativos.filter(t => t.marriage_date?.slice(5,7) === mes).length,
     novos:ativos.filter(t => t.joined_on && Date.parse(t.joined_on) >= now() - 30*DAY).length};
@@ -1551,7 +1563,7 @@ function dizimistasHTML(){
   }).sort(dzFiltro === 'aniv' ? (a,b) => a.birth_date.slice(8).localeCompare(b.birth_date.slice(8)) : porNome);
   const hoje = dizimistasHoje(), coms = comunidadesAtivas();
   const stat = (k, n, rot) => `<button class="stat" data-dzf="${k}" aria-pressed="${dzFiltro===k}"><b>${n}</b><span>${rot}</span></button>`;
-  return `<h2>Dizimistas</h2>
+  return `<h2>Dizimistas</h2>${vistas}
   <p class="lead small">Relacionamento pastoral com quem sustenta a paróquia: datas especiais, agradecimentos e acolhida de novos dizimistas. Sem valores nem dados financeiros.</p>
   <div class="stats cinco">
     ${stat('ativos', cont.ativos, 'ativos')}${stat('aniv', cont.aniv, 'aniversariantes do mês')}${stat('bodas', cont.bodas, 'bodas no mês')}${stat('novos', cont.novos, 'novos (30 dias)')}
@@ -1572,7 +1584,7 @@ function dizimistasHTML(){
     return `<div class="row" style="align-items:flex-start"><div class="grow"><b>${esc(t.name)}</b>
       <div class="tagline">${c ? `<span class="chip">${esc(c.name)}</span>` : ''}${t.status === 'inactive' ? '<span class="chip neutro">Inativo</span>' : ''}${!t.consent ? '<span class="chip gold">Sem autorização para mensagens</span>' : ''}</div>
       <div class="small muted">${[t.joined_on && 'Dizimista desde ' + dataCurta(t.joined_on).slice(3), t.birth_date && 'aniv. ' + dataCurta(t.birth_date).slice(0,5), t.whatsapp && fmtTel(t.whatsapp)].filter(Boolean).join(' · ')}</div>
-      <div class="acoes"><button class="btn sm ghost" data-dz-edit="${t.id}">Editar</button>
+      <div class="acoes"><button class="btn sm ghost" data-dz-edit="${t.id}">Editar</button><button class="btn sm ghost" data-dz-hist="${t.id}">Histórico</button>
         ${t.consent && t.whatsapp && t.status === 'active' ? `<a class="btn sm wa" href="${waLink(t.whatsapp, fill(S.modelos.dizimista, {nome:t.name}))}" target="_blank" rel="noopener" data-dz-msg="${t.id}">Agradecer</a>` : ''}</div></div></div>`; }).join('')}</div>`
     : `<div class="empty">${T.length ? 'Ninguém encontrado com esse filtro.' : 'Nenhum dizimista cadastrado ainda.'}</div>`}
   <div class="block small"><b>Privacidade (LGPD).</b> Estes dados são vistos só por padre e secretaria, nunca aparecem na página pública e servem apenas para o cuidado pastoral. Mensagens só para quem autorizou. A pessoa pode pedir para sair a qualquer momento: use “Excluir cadastro”.</div>`;
@@ -1599,7 +1611,9 @@ function dizimistaFormHTML(t){
   </form>`;
 }
 function bindDizimistas(root){
-  bindInteressados(root);
+  bindInteressados(root); bindAcompanhamento(root);
+  root.querySelectorAll('[data-dzv]').forEach(b => b.onclick = () => { dzVista = b.dataset.dzv; acReg = acHist = null; render(); });
+  root.querySelectorAll('[data-dz-hist]').forEach(b => b.onclick = () => { dzVista = 'acomp'; acHist = b.dataset.dzHist; render(); scrollTo(0,0); });
   root.querySelectorAll('[data-dzf]').forEach(b => b.onclick = () => { dzFiltro = dzFiltro === b.dataset.dzf && b.classList.contains('stat') ? 'todos' : b.dataset.dzf; render(); });
   root.querySelector('[data-ir]')?.addEventListener('click', () => document.getElementById('interessados')?.scrollIntoView({behavior:'smooth'}));
   root.querySelector('#dzCom')?.addEventListener('change', e => { dzCom = e.target.value; render(); });
@@ -1632,6 +1646,106 @@ function bindDizimistas(root){
     if (!r){ btn.disabled = false; btn.textContent = 'Salvar'; return; }
     registrar(dzEdit.id ? 'editou-dizimista' : 'cadastrou-dizimista');
     dzEdit = null; render(); scrollTo(0,0); toast('Dizimista salvo');
+  });
+}
+
+/* ---------- Acompanhamento mensal do dízimo ----------
+   Um registro em tither_contributions = "contribuição do mês registrada" (sem valor em dinheiro).
+   Sem registro = "ainda não registrada". Nada de cobrança, nada enviado sozinho. */
+let dzVista = 'cadastro', acMes = null, acFiltro = 'todos', acReg = null, acHist = null;
+const mesDe = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-01`;
+const mesSoma = (m, n) => { const [y, mm] = m.split('-').map(Number); return mesDe(new Date(y, mm - 1 + n, 1)); };
+const rotuloMes = m => cap(MESES[+m.slice(5,7) - 1]) + ' ' + m.slice(0,4);
+const mesBarra = m => MESES[+m.slice(5,7) - 1] + '/' + m.slice(0,4);
+const fimMes = m => isoDay(new Date(+m.slice(0,4), +m.slice(5,7), 0));
+const contribDe = (tid, m) => rel('contribs').find(c => c.tither_id === tid && c.reference_month === m);
+const dataContrib = c => c.received_at ? dataCurta(diaSP(c.received_at)) : '';
+// Ativos que já eram dizimistas naquele mês.
+const ativosNoMes = m => rel('tithers').filter(t => t.status === 'active' && (!t.joined_on || t.joined_on <= fimMes(m))).sort(porNome);
+function acompanhamentoHTML(){
+  if (falta('contribs')) return `<h2>Acompanhamento do dízimo</h2>${migracaoHTML()}`;
+  if (acReg) return contribFormHTML();
+  if (acHist) return historicoHTML();
+  const m = acMes ||= mesDe(new Date()), atual = mesDe(new Date());
+  const ativos = ativosNoMes(m), reg = ativos.filter(t => contribDe(t.id, m)), nao = ativos.filter(t => !contribDe(t.id, m));
+  const pct = ativos.length ? Math.round(reg.length / ativos.length * 100) : 0;
+  const lista = acFiltro === 'registrados' ? reg : acFiltro === 'nao' ? nao : ativos;
+  return `<h2>Acompanhamento do dízimo</h2>
+  <div class="mesnav"><button class="btn sm ghost" data-acmes="-1" aria-label="Mês anterior: ${rotuloMes(mesSoma(m,-1))}">‹ ${rotuloMes(mesSoma(m,-1))}</button>
+    <b aria-live="polite">${rotuloMes(m)}</b>
+    <button class="btn sm ghost" data-acmes="1" aria-label="Próximo mês: ${rotuloMes(mesSoma(m,1))}">${rotuloMes(mesSoma(m,1))} ›</button></div>
+  ${m !== atual ? `<p class="small muted" style="margin:-4px 4px 10px;text-align:center">${m > atual ? 'Este mês ainda não começou.' : 'Mês anterior.'} <button class="link-btn" style="color:var(--lit);padding:0" data-acmes="0">Voltar para ${rotuloMes(atual)}</button></p>` : ''}
+  <div class="stats quatro">
+    <div class="stat"><b>${ativos.length}</b><span>dizimistas ativos</span></div>
+    <div class="stat"><b>${reg.length}</b><span>contribuições registradas</span></div>
+    <div class="stat"><b>${nao.length}</b><span>ainda não registradas</span></div>
+    <div class="stat"><b>${pct}%</b><span>registrado no mês</span></div>
+  </div>
+  <div class="filtros" role="group" aria-label="Filtrar">
+    ${[['todos','Todos'],['registrados','Registrados'],['nao','Ainda não registrados']].map(([k,l]) => `<button data-acf="${k}" aria-pressed="${acFiltro===k}">${l}</button>`).join('')}</div>
+  ${lista.length ? `<div class="list">${lista.map(t => { const c = contribDe(t.id, m), com = comunidadeDe(t.community_id);
+    return `<div class="row" style="align-items:flex-start"><div class="grow"><b>${esc(t.name)}</b><div class="small muted">${esc(com?.name || 'Matriz')}</div>
+      ${c ? `<div style="margin-top:6px">✅ Contribuição registrada${dataContrib(c) ? ` <span class="small muted">· ${dataContrib(c)}</span>` : ''}</div>${c.notes ? `<div class="small muted">${esc(c.notes)}</div>` : ''}`
+           : '<div class="muted" style="margin-top:6px">○ Contribuição ainda não registrada</div>'}
+      <div class="acoes">${c ? `<button class="btn sm ghost" data-ac-corr="${t.id}">Corrigir</button>` : `<button class="btn sm" data-ac-reg="${t.id}">Marcar como registrada</button>`}
+        <button class="btn sm ghost" data-ac-hist="${t.id}">Ver histórico</button></div></div></div>`; }).join('')}</div>`
+    : `<div class="empty">${!ativos.length ? 'Nenhum dizimista ativo neste mês.' : acFiltro === 'nao' ? 'Todas as contribuições do mês estão registradas.' : 'Nenhuma contribuição registrada neste mês ainda.'}</div>`}
+  <p class="small muted" style="margin:10px 4px">Registro simples, sem valores, só para o acompanhamento pastoral. Nenhuma mensagem é enviada a partir desta tela.</p>`;
+}
+function contribFormHTML(){
+  const t = rel('tithers').find(x => x.id === acReg.tither_id), c = acReg.id ? rel('contribs').find(x => x.id === acReg.id) : null, m = acReg.mes;
+  const hoje = isoDay(new Date()), padrao = c?.received_at ? diaSP(c.received_at) : (hoje >= m && hoje <= fimMes(m) ? hoje : m < hoje ? fimMes(m) : m);
+  return `<h2>${c ? 'Corrigir registro' : 'Registrar contribuição'}</h2>
+  <form class="block" id="acF">
+    <p style="margin:0 0 12px">${c ? 'Contribuição' : 'Registrar contribuição'} de <b>${mesBarra(m)}</b> para:<br><b style="font-family:var(--serif);font-size:1.2rem">${esc(t?.name || '')}</b></p>
+    <div class="field"><label for="ac-data">Data</label><input type="date" id="ac-data" name="data" required value="${padrao}"></div>
+    <div class="field"><label for="ac-obs">Observação</label><input type="text" id="ac-obs" name="obs" maxlength="500" placeholder="Opcional" value="${esc(c?.notes || '')}"><div class="hint">Não anote valores.</div></div>
+    <div style="display:flex;gap:8px"><button type="button" class="btn ghost" id="acCancelar">Cancelar</button><button class="btn" style="flex:1" id="acSalvar">${c ? 'Salvar' : 'Registrar'}</button></div>
+    ${c ? '<div style="text-align:center;margin-top:12px"><button type="button" class="link-btn" id="acDesfazer">Desfazer este registro</button></div>' : ''}
+  </form>`;
+}
+function historicoHTML(){
+  const t = rel('tithers').find(x => x.id === acHist); if (!t) { acHist = null; return acompanhamentoHTML(); }
+  const atual = mesDe(new Date()), inicio = t.joined_on ? mesDe(new Date(+t.joined_on.slice(0,4), +t.joined_on.slice(5,7) - 1, 1)) : null;
+  const meses = Array.from({length:12}, (_, i) => mesSoma(atual, -i)).filter(m => !inicio || m >= inicio);
+  const anos = {}; meses.forEach(m => (anos[m.slice(0,4)] ||= []).push(m));
+  return `<button class="crumb" id="acVoltaHist">‹ Acompanhamento</button>
+  <h2>Histórico</h2>
+  <div class="block"><b style="font-family:var(--serif);font-size:1.2rem">${esc(t.name)}</b>${t.joined_on ? `<div class="small muted">Dizimista desde ${dataCurta(t.joined_on).slice(3)}</div>` : ''}</div>
+  ${Object.keys(anos).sort().reverse().map(a => `<h3 style="margin:14px 4px 6px">${a}</h3><div class="list">${anos[a].map(m => { const c = contribDe(t.id, m);
+    return `<div class="row"><div class="grow">${cap(MESES[+m.slice(5,7) - 1])}</div><span>${c ? `✅ <span class="small muted">${dataContrib(c)}</span>` : '<span class="muted" aria-label="não há contribuição registrada">—</span>'}</span></div>`; }).join('')}</div>`).join('')}
+  <p class="small muted" style="margin:10px 4px">✅ contribuição registrada · — não há contribuição registrada</p>`;
+}
+function bindAcompanhamento(root){
+  root.querySelectorAll('[data-acmes]').forEach(b => b.onclick = () => { acMes = b.dataset.acmes === '0' ? mesDe(new Date()) : mesSoma(acMes, +b.dataset.acmes); render(); });
+  root.querySelectorAll('[data-acf]').forEach(b => b.onclick = () => { acFiltro = b.dataset.acf; render(); });
+  root.querySelectorAll('[data-ac-reg]').forEach(b => b.onclick = () => {
+    if (acMes > mesDe(new Date()) && !confirm(`${rotuloMes(acMes)} ainda não começou. Registrar mesmo assim?`)) return;
+    acReg = {tither_id:b.dataset.acReg, mes:acMes}; render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-ac-corr]').forEach(b => b.onclick = () => { const c = contribDe(b.dataset.acCorr, acMes); if (c){ acReg = {tither_id:c.tither_id, mes:acMes, id:c.id}; render(); scrollTo(0,0); } });
+  root.querySelectorAll('[data-ac-hist]').forEach(b => b.onclick = () => { acHist = b.dataset.acHist; render(); scrollTo(0,0); });
+  root.querySelector('#acVoltaHist')?.addEventListener('click', () => { acHist = null; render(); });
+  root.querySelector('#acCancelar')?.addEventListener('click', () => { acReg = null; render(); });
+  root.querySelector('#acDesfazer')?.addEventListener('click', async () => {
+    if (!confirm(`Remover o registro de contribuição de ${mesBarra(acReg.mes)}?`)) return;
+    if (await relExcluir('contribs', acReg.id)){ registrar('removeu-contribuicao', mesBarra(acReg.mes)); toast('Registro removido. O cadastro do dizimista continua.'); }
+    acReg = null; render();
+  });
+  root.querySelector('#acF')?.addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target;
+    if (!f.data.value){ toast('Informe a data.'); return; }
+    const o = {received_at:isoSP(f.data.value, '12:00'), notes:f.obs.value.trim() || null};
+    if (acReg.id) o.id = acReg.id;
+    else {
+      if (contribDe(acReg.tither_id, acReg.mes)){ toast('Esta contribuição já está registrada.'); acReg = null; render(); return; }
+      Object.assign(o, {tither_id:acReg.tither_id, reference_month:acReg.mes});
+    }
+    const btn = f.querySelector('#acSalvar'); btn.disabled = true; btn.textContent = 'Salvando…';
+    const r = await relGravar('contribs', o);
+    if (!r){ if (NUVEM.ativo) await relCarregar().catch(() => {}); acReg = null; render(); return; } // ex.: outro aparelho registrou antes
+    registrar(acReg.id ? 'corrigiu-contribuicao' : 'registrou-contribuicao', mesBarra(acReg.mes));
+    toast(acReg.id ? 'Registro corrigido' : `Contribuição de ${mesBarra(acReg.mes)} registrada`);
+    acReg = null; render();
   });
 }
 

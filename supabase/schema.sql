@@ -2,7 +2,8 @@
 -- Rode este script inteiro no SQL Editor do Supabase (projeto do piloto).
 -- O estado original da paróquia continua guardado como um JSON só (coluna
 -- "data"), igual ao objeto S do protótipo. A partir do MVP 2, comunidades,
--- agenda, dizimistas e interessados ficam em tabelas próprias (mais abaixo).
+-- agenda, dizimistas, interessados e o acompanhamento mensal do dízimo ficam
+-- em tabelas próprias (mais abaixo).
 -- Seguro para rodar de novo: não há DROP TABLE, TRUNCATE nem DELETE.
 
 create extension if not exists pgcrypto;
@@ -282,6 +283,56 @@ create policy "equipe altera interessados" on tither_leads
   for update to authenticated using (can_access(parish_id, 'dizimistas')) with check (can_access(parish_id, 'dizimistas'));
 drop policy if exists "equipe exclui interessados" on tither_leads;
 create policy "equipe exclui interessados" on tither_leads
+  for delete to authenticated using (can_access(parish_id, 'dizimistas'));
+
+-- ---------- Acompanhamento mensal do dízimo ----------
+-- Uma linha = "contribuição do mês registrada" para um dizimista. Sem linha = ainda não
+-- registrada (nada de "pendente" gravado). Sem valores em dinheiro nesta etapa.
+-- reference_month é sempre o 1º dia do mês (ex.: 2026-09-01).
+
+-- Permite exigir que a contribuição aponte para um dizimista da mesma paróquia.
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'tither_profiles_id_parish_key' and conrelid = 'tither_profiles'::regclass) then
+    alter table tither_profiles add constraint tither_profiles_id_parish_key unique (id, parish_id);
+  end if;
+end;
+$$;
+
+create table if not exists tither_contributions (
+  id uuid primary key default gen_random_uuid(),
+  parish_id uuid not null references parishes(id) on delete cascade,
+  tither_id uuid not null,
+  reference_month date not null check (reference_month = date_trunc('month', reference_month)::date),
+  received_at timestamptz,
+  notes text check (length(notes) <= 500),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint tither_contributions_one_per_month unique (tither_id, reference_month),
+  constraint tither_contributions_same_parish foreign key (tither_id, parish_id) references tither_profiles (id, parish_id) on delete cascade
+);
+create index if not exists tither_contributions_parish_month_idx on tither_contributions (parish_id, reference_month);
+
+drop trigger if exists trg_touch_tither_contributions on tither_contributions;
+create trigger trg_touch_tither_contributions before update on tither_contributions for each row execute function touch_updated_at();
+
+-- Só padre, secretaria e suporte (área 'dizimistas' de can_access). PASCOM e visitante: nada.
+alter table tither_contributions enable row level security;
+revoke all on tither_contributions from anon;
+revoke all on tither_contributions from authenticated;
+grant select, insert, update, delete on tither_contributions to authenticated;
+
+drop policy if exists "equipe le contribuicoes" on tither_contributions;
+create policy "equipe le contribuicoes" on tither_contributions
+  for select to authenticated using (can_access(parish_id, 'dizimistas'));
+drop policy if exists "equipe registra contribuicoes" on tither_contributions;
+create policy "equipe registra contribuicoes" on tither_contributions
+  for insert to authenticated with check (can_access(parish_id, 'dizimistas'));
+drop policy if exists "equipe corrige contribuicoes" on tither_contributions;
+create policy "equipe corrige contribuicoes" on tither_contributions
+  for update to authenticated using (can_access(parish_id, 'dizimistas')) with check (can_access(parish_id, 'dizimistas'));
+drop policy if exists "equipe remove contribuicoes" on tither_contributions;
+create policy "equipe remove contribuicoes" on tither_contributions
   for delete to authenticated using (can_access(parish_id, 'dizimistas'));
 
 -- ---------- Converter interessado em dizimista (painel) ----------
