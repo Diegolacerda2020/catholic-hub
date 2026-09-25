@@ -154,7 +154,7 @@ nav.tabs svg{width:24px;height:24px}
 nav.tabs button[aria-current="page"]{color:var(--lit);font-weight:700}
 .badge{position:absolute;top:5px;left:calc(50% + 6px);background:var(--gold);color:#fff;font-size:.7rem;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px;font-weight:700}
 
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:500;z-index:10;max-width:90%;text-align:center}
+.toast{pointer-events:none;position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-weight:500;z-index:10;max-width:90%;text-align:center}
 @media (prefers-reduced-motion:no-preference){.toast{animation:pop .25s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,8px)}}}
 .empty{text-align:center;padding:22px 16px;color:var(--muted)}
 details.fold{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
@@ -731,7 +731,7 @@ function renderHeader(){
 }
 document.getElementById('btnSair').onclick = () => sair();
 document.getElementById('mPainel').onclick = () => { S.mode='painel'; save(); render(); scrollTo(0,0); };
-document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = S.minha; save(); render(); scrollTo(0,0); };
+document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = S.minha; if (S.pubTab in SUBTELAS_PUB) S.pubTab = 'igreja'; dzPubEnviado = false; save(); render(); scrollTo(0,0); };
 document.getElementById('hdrName').onclick = () => { if (S.mode!=='publico') return; S.pubTab='escolher'; buscaPar=''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); };
 document.getElementById('op').onchange = e => { S.operador = e.target.value; save(); toast('Usando como: '+e.target.selectedOptions[0].text); };
 
@@ -757,21 +757,22 @@ const tabsFor = () => S.mode==='painel'
   ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja'};
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja'};
 const abaAtual = () => S.mode==='painel' ? S.tab : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
 function renderTabs(){
   const cur = abaAtual();
   const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
   document.getElementById('tabs').innerHTML = tabsFor().map(([k,l]) => {
     const ni = (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())).length;
-    const b = (k==='mensagens' && pend) ? `<span class="badge">${pend}</span>` : (k==='intencoes' && ni) ? `<span class="badge">${ni}</span>` : '';
+    const nl = k==='dizimistas' ? rel('leads').filter(l => l.status==='new').length : 0;
+    const b = (k==='mensagens' && pend) ? `<span class="badge">${pend}</span>` : (k==='intencoes' && ni) ? `<span class="badge">${ni}</span>` : nl ? `<span class="badge">${nl}</span>` : '';
     return `<button data-tab="${k}" ${cur===k?'aria-current="page"':''}>${icon(k)}${l}${b}</button>`;
   }).join('');
 }
 document.getElementById('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if(!b) return;
   if (S.mode==='painel') S.tab = b.dataset.tab; else S.pubTab = b.dataset.tab;
-  comEdit = evEdit = dzEdit = null; // formulário aberto não segue para outra aba
+  comEdit = evEdit = dzEdit = null; dzPubEnviado = false; // formulário aberto não segue para outra aba
   save(); render(); scrollTo(0,0);
 });
 
@@ -1542,7 +1543,7 @@ function dizimistasHTML(){
     ${stat('ativos', cont.ativos, 'ativos')}${stat('aniv', cont.aniv, 'aniversariantes do mês')}${stat('bodas', cont.bodas, 'bodas no mês')}${stat('novos', cont.novos, 'novos (30 dias)')}
     <button class="stat" data-ir="interessados"><b>${pendentes}</b><span>contatos pendentes</span></button>
   </div>
-  ${typeof interessadosHTML === 'function' ? interessadosHTML() : ''}
+  ${interessadosHTML()}
   ${hoje.length ? `<h2>Hoje</h2><div class="list">${hoje.map(x => { const ok = S.enviadosHoje.ids.includes(x.key);
     return `<div class="row"><div class="grow"><b>${esc(x.p.nome)}</b><div class="small muted">${esc(rotuloHoje(x))}</div></div>
       <a class="btn sm ${ok?'done':'wa'}" href="${waLink(x.p.whats, fill(S.modelos[x.tipo], x.p, x.anos))}" target="_blank" rel="noopener" data-send="${x.key}">${ok?'Enviada ✓':'Enviar'}</a></div>`; }).join('')}</div>
@@ -1584,6 +1585,7 @@ function dizimistaFormHTML(t){
   </form>`;
 }
 function bindDizimistas(root){
+  bindInteressados(root);
   root.querySelectorAll('[data-dzf]').forEach(b => b.onclick = () => { dzFiltro = dzFiltro === b.dataset.dzf && b.classList.contains('stat') ? 'todos' : b.dataset.dzf; render(); });
   root.querySelector('[data-ir]')?.addEventListener('click', () => document.getElementById('interessados')?.scrollIntoView({behavior:'smooth'}));
   root.querySelector('#dzCom')?.addEventListener('change', e => { dzCom = e.target.value; render(); });
@@ -1616,6 +1618,111 @@ function bindDizimistas(root){
     if (!r){ btn.disabled = false; btn.textContent = 'Salvar'; return; }
     registrar(dzEdit.id ? 'editou-dizimista' : 'cadastrou-dizimista');
     dzEdit = null; render(); scrollTo(0,0); toast('Dizimista salvo');
+  });
+}
+
+/* ---------- "Quero ser dizimista": interessados vindos da página ---------- */
+const PREF = {whatsapp:'Prefere WhatsApp', ligacao:'Prefere ligação', qualquer:'WhatsApp ou ligação'};
+function quandoLead(iso){ const d = diaSP(iso); return d === isoDay(new Date()) ? 'Hoje' : d === isoDay(plusDays(-1)) ? 'Ontem' : dataCurta(d); }
+function interessadosHTML(){
+  const l = rel('leads').slice().sort((a,b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  const abertos = l.filter(x => x.status === 'new' || x.status === 'contacted'), fechados = l.filter(x => !abertos.includes(x));
+  const novos = abertos.filter(x => x.status === 'new').length;
+  return `<h2 id="interessados">Novos interessados${novos ? ` <span class="chip gold">${novos} novo${novos===1?'':'s'}</span>` : ''}</h2>
+  ${abertos.length ? `<div class="list">${abertos.map(x => { const c = comunidadeDe(x.community_id);
+    const msg = `Olá, ${primeiroNome(x.name)}! Aqui é da ${S.cfg.nome}. Recebemos seu interesse em ser dizimista. Muito obrigado! Podemos conversar sobre como participar?`;
+    return `<div class="row" style="align-items:flex-start"><div class="grow"><b>${esc(x.name)}</b>
+      <div class="small muted">${[c?.name, quandoLead(x.created_at), PREF[x.contact_preference]].filter(Boolean).map(esc).join(' · ')}</div>
+      ${x.status === 'contacted' ? '<span class="chip">Já contatado</span>' : '<span class="chip gold">Novo</span>'}
+      <div class="acoes">
+        <a class="btn sm wa" href="${waLink(x.whatsapp, msg)}" target="_blank" rel="noopener" data-lead-wa="${x.id}">Falar no WhatsApp</a>
+        ${x.contact_preference !== 'whatsapp' ? `<a class="btn sm ghost" href="${telLink(x.whatsapp)}" data-lead-wa="${x.id}">Ligar</a>` : ''}
+        <button class="btn sm" data-lead-conv="${x.id}">Converter em dizimista</button>
+        <button class="btn sm ghost" data-lead-fim="${x.id}">Encerrar</button></div></div></div>`; }).join('')}</div>`
+    : '<div class="empty">Nenhum interessado aguardando contato. Quando alguém tocar em “Quero ser dizimista” na página, aparece aqui.</div>'}
+  ${fechados.length ? `<details class="fold"><summary>Histórico de interessados (${fechados.length})</summary><div class="list" style="margin:0 12px 12px">${fechados.map(x => `<div class="row"><div class="grow">${esc(x.name)}<div class="small muted">${quandoLead(x.created_at)} · ${x.status === 'converted' ? 'virou dizimista' : 'encerrado'}</div></div><button class="link-btn" data-lead-del="${x.id}">Apagar</button></div>`).join('')}</div></details>` : ''}`;
+}
+async function converterLead(x){
+  if (!NUVEM.ativo){ // demonstração: mesma regra da função convert_tither_lead do banco
+    let t = rel('tithers').find(t => t.whatsapp === x.whatsapp);
+    t = t ? await relGravar('tithers', {id:t.id, status:'active'}) : await relGravar('tithers', {name:x.name, whatsapp:x.whatsapp, community_id:x.community_id, joined_on:isoDay(new Date()), status:'active', consent:x.consent, notes:null, birth_date:null, marriage_date:null});
+    await relGravar('leads', {id:x.id, status:'converted', tither_id:t.id});
+    return t;
+  }
+  const {data, error} = await NUVEM.sb.rpc('convert_tither_lead', {p_lead:x.id});
+  if (error){ toast(erroGravar(error)); return null; }
+  await relCarregar();
+  return rel('tithers').find(t => t.id === data) || {id:data};
+}
+function bindInteressados(root){
+  root.querySelectorAll('[data-lead-wa]').forEach(a => a.addEventListener('click', async () => {
+    const x = rel('leads').find(l => l.id === a.dataset.leadWa);
+    if (x?.status === 'new' && await relGravar('leads', {id:x.id, status:'contacted'})){ registrar('contatou-interessado'); setTimeout(render, 300); }
+  }));
+  root.querySelectorAll('[data-lead-conv]').forEach(b => b.onclick = async () => {
+    const x = rel('leads').find(l => l.id === b.dataset.leadConv);
+    if (!confirm(`Cadastrar ${x.name} como dizimista? Se o WhatsApp já estiver no cadastro, o cadastro existente é reativado.`)) return;
+    b.disabled = true;
+    const t = await converterLead(x);
+    if (t){ registrar('converteu-interessado'); toast(`${primeiroNome(x.name)} agora é dizimista. Complete o cadastro quando puder.`); dzEdit = clone(rel('tithers').find(y => y.id === t.id) || null); scrollTo(0,0); }
+    render();
+  });
+  root.querySelectorAll('[data-lead-fim]').forEach(b => b.onclick = async () => {
+    const x = rel('leads').find(l => l.id === b.dataset.leadFim);
+    if (!confirm(`Encerrar o contato com ${x.name}? Ele sai da lista de pendentes.`)) return;
+    b.disabled = true; if (await relGravar('leads', {id:x.id, status:'closed'})){ registrar('encerrou-interessado'); toast('Contato encerrado'); } render();
+  });
+  root.querySelectorAll('[data-lead-del]').forEach(b => b.onclick = async () => {
+    if (!confirm('Apagar os dados deste interessado? Não dá para desfazer.')) return;
+    if (await relExcluir('leads', b.dataset.leadDel)) toast('Apagado'); render();
+  });
+}
+
+/* página pública: formulário (sem login), gravado pela função segura public_tither_interest */
+let dzPubEnviado = false;
+const ctaDizimistaHTML = () => vendoAtiva() ? `<div class="cta-diz"><h3>❤️ Quero ser dizimista</h3>
+  <p class="small">O dízimo sustenta a missão da ${esc(S.cfg.nome)}: a liturgia, a evangelização e o cuidado com quem mais precisa. Deixe seu contato e a equipe da paróquia conversa com você.</p>
+  <button class="btn gold block-w" data-pub="dizimista">Quero ser dizimista</button></div>` : '';
+function dizimistaPubHTML(){
+  if (dzPubEnviado) return `<button class="crumb" data-pub="igreja">‹ Igreja</button><div class="signal green" role="status" style="margin-top:8px"><div style="font-size:1.1rem;font-weight:700">Obrigado!</div>A equipe da paróquia entrará em contato com você.</div><button class="btn ghost block-w" data-pub="igreja">Voltar para o início</button>`;
+  const coms = comunidadesAtivas(), minha = minhaComunidade();
+  return `<button class="crumb" data-pub="igreja">‹ Igreja</button>
+  <h2 style="margin-top:4px">❤️ Quero ser dizimista</h2>
+  <p class="lead">Ser dizimista é participar da vida da comunidade com gratidão. Deixe seu contato: a equipe da paróquia vai conversar com você, sem compromisso.</p>
+  <form class="block" id="dzPubF" novalidate>
+    <div class="field"><label for="dp-nome">Nome *</label><input type="text" id="dp-nome" name="nome" maxlength="120" autocomplete="name" required></div>
+    <div class="field"><label for="dp-wa">WhatsApp *</label><input type="tel" id="dp-wa" name="whats" autocomplete="tel" placeholder="(31) 99999-0000" required></div>
+    ${coms.length ? `<div class="field"><label for="dp-com">Comunidade</label><select id="dp-com" name="com"><option value="">Matriz / não sei</option>${coms.map(c => `<option value="${c.id}" ${c.id===minha?.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>` : ''}
+    <fieldset class="field" style="border:0;padding:0;margin:0 0 12px"><legend style="font-weight:500;font-size:.92rem;margin-bottom:6px">Como prefere ser contatado?</legend>
+      <div class="radio-row"><label><input type="radio" name="pref" value="whatsapp" checked> WhatsApp</label><label><input type="radio" name="pref" value="ligacao"> Ligação</label><label><input type="radio" name="pref" value="qualquer"> Tanto faz</label></div></fieldset>
+    <div class="hp" aria-hidden="true"><label for="dp-site">Não preencha</label><input type="text" id="dp-site" name="site" tabindex="-1" autocomplete="off"></div>
+    <label class="check"><input type="checkbox" name="ok"> Autorizo a paróquia a entrar em contato comigo por WhatsApp ou telefone sobre o dízimo. *</label>
+    <p class="small muted" style="margin:0 0 12px">Seus dados são vistos só pela equipe da paróquia e nunca aparecem na página.</p>
+    <button class="btn gold block-w" id="dp-btn">Enviar</button>
+  </form>`;
+}
+function bindDizimistaPub(root){
+  const f = root.querySelector('#dzPubF'); if (!f) return;
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nome = f.nome.value.trim().replace(/\s+/g, ' '), wa = digits(f.whats.value).replace(/^55(?=\d{10,11}$)/, '');
+    if (nome.length < 2){ toast('Escreva seu nome.'); f.nome.focus(); return; }
+    if (wa.length < 10 || wa.length > 11){ toast('Confira o WhatsApp com DDD.'); f.whats.focus(); return; }
+    if (!f.ok.checked){ toast('Marque a autorização para a paróquia entrar em contato.'); f.ok.focus(); return; }
+    if (f.site.value){ dzPubEnviado = true; render(); return; } // robô preencheu o campo escondido: finge que deu certo
+    if (now() - (S.dzPubEm || 0) < 60e3){ toast('Seu pedido já foi enviado. Aguarde o contato da paróquia.'); return; }
+    const item = {name:nome, whatsapp:wa, community_id:f.com?.value || null, contact_preference:f.pref.value, consent:true};
+    const btn = f.querySelector('#dp-btn'); btn.disabled = true; btn.textContent = 'Enviando…';
+    let ok = false;
+    if (NUVEM.ativo){
+      try { const {data, error} = await NUVEM.sb.rpc('public_tither_interest', {p_slug:NUVEM.slug, p_item:item}); ok = !error && data === true; } catch(x){}
+      if (ok && logado()) relCarregar().catch(() => {});
+    } else { // demonstração: fica só neste aparelho
+      if (!rel('leads').some(l => l.whatsapp === wa && (l.status === 'new' || l.status === 'contacted'))) await relGravar('leads', {...item, status:'new', tither_id:null});
+      ok = true;
+    }
+    if (!ok){ btn.disabled = false; btn.textContent = 'Enviar'; toast('Não foi possível enviar agora. Tente de novo ou fale com a secretaria.'); return; }
+    S.dzPubEm = now(); save(); dzPubEnviado = true; render(); scrollTo(0,0);
   });
 }
 
@@ -1726,7 +1833,8 @@ function contatoPubHTML(){
   ${c.secretaria?`<div class="block"><p style="margin:0;white-space:pre-line">${esc(c.secretaria)}</p></div>`:''}
   ${contatoBtn()}
   ${minhaBtn()}
-  <p class="small muted" style="margin:14px 4px">Batismo, casamento, certidões, intenções de missa e cadastro de dizimista: fale com a secretaria.</p>
+  ${ctaDizimistaHTML()}
+  <p class="small muted" style="margin:14px 4px">Batismo, casamento, certidões e intenções de missa: fale com a secretaria.</p>
   <h2>Forania ${esc(c.forania)}</h2>
   <p class="lead small">Paróquias vizinhas da mesma forania.</p>
   <div class="list">${irmas.map(redeItem).join('')}</div>
@@ -1990,6 +2098,7 @@ function igrejaPubHTML(){
   ${ativa ? missaHTML() : ''}
   ${evs.length ? `<h2>${evs.length > 1 ? 'Próximos eventos' : 'Próximo evento'}</h2>${evs.map(e => eventoCard(e)).join('')}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver Agenda</button>` : ''}
   ${ativa ? minhaComunidadeHTML() : ''}
+  ${ctaDizimistaHTML()}
   <h2>Notícias da Igreja</h2>
   ${noticiasParoquiaHTML(2)}
   ${noticiasArquidioceseHTML(3)}
@@ -2451,7 +2560,7 @@ function render(){
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
-  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
+  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
@@ -2459,7 +2568,7 @@ function render(){
     map.escolher = [escolherHTML, bindEscolher];
     if (!vendoAtiva()){ map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
     const [h,b] = map[S.pubTab]; v.innerHTML = h(); b(v); pickBind(v);
-    v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; save(); render(); scrollTo(0,0); }; });
+    v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; if (S.pubTab !== 'dizimista') dzPubEnviado = false; save(); render(); scrollTo(0,0); }; });
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
     return;
   }
