@@ -649,6 +649,7 @@ async function sair(){
   location.hash = ''; location.reload();
 }
 
+const MODELO_ENTRADA = 'Querido(a) {nome}, hoje você completa {anos} anos como dizimista da {paroquia}! Obrigado pela sua fidelidade e generosidade, que sustentam a nossa comunidade. Deus lhe pague! 🙏';
 function relSeed(){ // só no modo demonstração (sem banco): nomes de exemplo, nunca gravados no Supabase
   const t = new Date().toISOString(), sj = uuid(), ap = uuid();
   const em = (dias, hora) => { const d = plusDays(dias); return new Date(`${isoDay(d)}T${hora}:00-03:00`).toISOString(); };
@@ -667,7 +668,7 @@ function relSeed(){ // só no modo demonstração (sem banco): nomes de exemplo,
 function normalizar(){
   S.pubRel ??= {communities:[], events:[]}; S.minhaCom ??= null;
   if (!NUVEM.ativo) S.rel ??= relSeed();
-  S.draft.tipo ||= 'paroquia'; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
+  S.draft.tipo ||= 'paroquia'; S.modelos.entradaDizimo ??= MODELO_ENTRADA; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
   S.cfg.missas ||= MISSAS; S.log ??= []; S.pessoas ??= []; S.avisos ??= [];
   if (S.enviadosHoje?.dia !== isoDay(new Date())) { S.enviadosHoje = {dia:isoDay(new Date()), ids:[]}; save(); }
 }
@@ -681,7 +682,7 @@ const digits = s => String(s||'').replace(/\D/g,'');
 const waLink = (num, msg) => { const d = digits(num); const full = d.length<=11 ? '55'+d : d; return 'https://wa.me/'+full+'?text='+encodeURIComponent(msg); };
 const waShare = msg => 'https://wa.me/?text='+encodeURIComponent(msg);
 const primeiroNome = n => n.split(' ')[0];
-const fill = (tpl, p, anos) => tpl.replaceAll('{nome}', p ? primeiroNome(p.nome) : '').replaceAll('{paroquia}', S.cfg.nome).replaceAll('{anos}', anos ?? '');
+const fill = (tpl, p, anos) => tpl.replaceAll('{nome}', p ? primeiroNome(p.nome) : '').replaceAll('{paroquia}', S.cfg.nome).replaceAll('{anos} anos', anos == 1 ? '1 ano' : (anos ?? '') + ' anos').replaceAll('{anos}', anos ?? '');
 
 async function copiar(txt){
   try { await navigator.clipboard.writeText(txt); toast('Copiado'); return; } catch(e){}
@@ -753,7 +754,7 @@ const I = {
 };
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 const tabsFor = () => S.mode==='painel'
-  ? [['comunicar','Comunicar'],['agenda','Agenda'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
+  ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['mensagens','Mensagens'],['intencoes','Intenções'],['pessoas','Pessoas'],['comunidades','Comunid.'],['uso','Uso'],['ajustes','Ajustes']].filter(([k]) => pode(k))
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
 const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja'};
@@ -770,7 +771,7 @@ function renderTabs(){
 document.getElementById('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]'); if(!b) return;
   if (S.mode==='painel') S.tab = b.dataset.tab; else S.pubTab = b.dataset.tab;
-  comEdit = evEdit = null; // formulário aberto não segue para outra aba
+  comEdit = evEdit = dzEdit = null; // formulário aberto não segue para outra aba
   save(); render(); scrollTo(0,0);
 });
 
@@ -995,22 +996,34 @@ function pendentesHoje(){
     if (p.aniv === hoje) r.push({key:'aniv-'+p.id, tipo:'aniversario', p});
     if (p.casamento && p.casamento.slice(5) === hoje){ const anos = ano - Number(p.casamento.slice(0,4)); r.push({key:'bodas-'+p.id, tipo:'bodas', p, anos}); }
   });
+  const vistos = new Set(r.map(x => x.tipo + digits(x.p.whats)));
+  dizimistasHoje().forEach(x => { if (!vistos.has(x.tipo + x.p.whats)) r.push(x); });
   return r;
 }
 function proximos(dias){
   const r = [];
   for (let i=1;i<=dias;i++){ const d = plusDays(i), k = mmdd(d);
-    S.pessoas.forEach(p => { if (p.consent && p.aniv===k) r.push({d, p, tipo:'Aniversário'}); if (p.consent && p.casamento && p.casamento.slice(5)===k) r.push({d, p, tipo:'Casamento'}); }); }
+    S.pessoas.forEach(p => { if (p.consent && p.aniv===k) r.push({d, p, tipo:'Aniversário'}); if (p.consent && p.casamento && p.casamento.slice(5)===k) r.push({d, p, tipo:'Casamento'}); });
+    rel('tithers').forEach(t => { if (t.status!=='active' || !t.consent || r.some(x => x.d===d && digits(x.p.whats)===t.whatsapp)) return; const p = {nome:t.name, whats:t.whatsapp};
+      if (t.birth_date?.slice(5)===k) r.push({d, p, tipo:'Aniversário (dizimista)'}); if (t.marriage_date?.slice(5)===k) r.push({d, p, tipo:'Casamento (dizimista)'}); if (t.joined_on?.slice(5)===k && anosDesde(t.joined_on) > 0) r.push({d, p, tipo:'Aniversário de dízimo'}); }); }
   return r;
 }
 const GRUPOS = {dizimista:'Dizimistas', pastoral:'Agentes de pastoral', geral:'Paroquianos', todos:'Todos'};
+function alvoGrupo(g){
+  const r = S.pessoas.filter(p => p.consent && p.whats && (g==='todos' || p.grupo===g)).map(p => ({k:String(p.id), nome:p.nome, whats:p.whats}));
+  if (g === 'dizimista' || g === 'todos'){
+    const vistos = new Set(r.map(p => digits(p.whats)));
+    rel('tithers').filter(t => t.status==='active' && t.consent && t.whatsapp && !vistos.has(t.whatsapp)).forEach(t => { vistos.add(t.whatsapp); r.push({k:'t'+t.id, nome:t.name, whats:t.whatsapp}); });
+  }
+  return r;
+}
 function mensagensHTML(){
   const hoje = pendentesHoje(), prox = proximos(7);
-  const f = S.fila, alvo = S.pessoas.filter(p => p.consent && p.whats && (f.grupo==='todos' || p.grupo===f.grupo));
+  const f = S.fila, alvo = alvoGrupo(f.grupo), aberto = k => f.abertos.map(String).includes(k);
   return `<h2>Hoje</h2>
   ${hoje.length ? `<div class="list">${hoje.map(x => {
     const msg = fill(S.modelos[x.tipo], x.p, x.anos), ok = S.enviadosHoje.ids.includes(x.key);
-    return `<div class="row person"><div class="grow"><div class="who">${esc(x.p.nome)}</div><div class="small muted">${x.tipo==='aniversario'?'Faz aniversário hoje':`${x.anos} anos de casamento`}</div></div>
+    return `<div class="row person"><div class="grow"><div class="who">${esc(x.p.nome)}</div><div class="small muted">${esc(rotuloHoje(x))}${x.p.dizimista?' · dizimista':''}</div></div>
       <a class="btn sm ${ok?'done':'wa'}" href="${waLink(x.p.whats, msg)}" target="_blank" rel="noopener" data-send="${x.key}">${ok?'Enviada ✓':'Enviar'}</a></div>`;
   }).join('')}</div><p class="lead small">O botão abre o WhatsApp da paróquia com a mensagem pronta. É só conferir e enviar.</p>`
   : '<div class="empty">Nenhum aniversário ou bodas hoje.</div>'}
@@ -1025,14 +1038,14 @@ function mensagensHTML(){
       <textarea id="gtxt" placeholder="Use {nome} para personalizar. Ex.: Querido(a) {nome}, obrigado por sustentar nossa comunidade…">${esc(f.texto)}</textarea>
       <div class="hint">Dica: <button class="link-btn" style="color:var(--lit);padding:0" id="useDiz">usar o modelo de agradecimento ao dizimista</button></div></div>
   </div>
-  ${f.texto.trim() ? `<div class="list">${alvo.map(p => { const k='grp-'+p.id, ok=f.abertos.includes(p.id);
-      return `<div class="row"><div class="grow">${esc(p.nome)}</div><a class="btn sm ${ok?'done':'wa'}" href="${waLink(p.whats, fill(f.texto,p))}" target="_blank" rel="noopener" data-gsend="${p.id}">${ok?'Aberta ✓':'Abrir'}</a></div>`; }).join('') || '<div class="empty">Ninguém neste grupo ainda.</div>'}</div>
-    <p class="lead small">${f.abertos.length} de ${alvo.length} abertas. Envie aos poucos: o WhatsApp pode bloquear números que disparam muitas mensagens de uma vez.
+  ${f.texto.trim() ? `<div class="list">${alvo.map(p => { const ok = aberto(p.k);
+      return `<div class="row"><div class="grow">${esc(p.nome)}</div><a class="btn sm ${ok?'done':'wa'}" href="${waLink(p.whats, fill(f.texto,p))}" target="_blank" rel="noopener" data-gsend="${esc(p.k)}">${ok?'Aberta ✓':'Abrir'}</a></div>`; }).join('') || '<div class="empty">Ninguém neste grupo ainda.</div>'}</div>
+    <p class="lead small">${alvo.filter(p => aberto(p.k)).length} de ${alvo.length} abertas. Envie aos poucos: o WhatsApp pode bloquear números que disparam muitas mensagens de uma vez.
     ${f.abertos.length?' <button class="link-btn" id="resetFila" style="color:var(--lit)">Recomeçar lista</button>':''}</p>` : ''}
 
   <details class="fold"><summary>Modelos de mensagem</summary><div class="inner">
-    <p class="small muted" style="margin-top:0">Use {nome}, {paroquia} e, nas bodas, {anos}.</p>
-    ${[['aniversario','Aniversário'],['bodas','Bodas'],['dizimista','Agradecimento ao dizimista']].map(([k,l])=>`<div class="field"><label for="m-${k}">${l}</label><textarea id="m-${k}" data-model="${k}">${esc(S.modelos[k])}</textarea></div>`).join('')}
+    <p class="small muted" style="margin-top:0">Use {nome}, {paroquia} e, nas bodas e no aniversário de dízimo, {anos}.</p>
+    ${[['aniversario','Aniversário'],['bodas','Bodas'],['dizimista','Agradecimento ao dizimista'],['entradaDizimo','Aniversário de dízimo']].map(([k,l])=>`<div class="field"><label for="m-${k}">${l}</label><textarea id="m-${k}" data-model="${k}">${esc(S.modelos[k])}</textarea></div>`).join('')}
     <button class="btn sm" id="saveModels">Salvar modelos</button>
   </div></details>`;
 }
@@ -1046,7 +1059,7 @@ function bindMensagens(root){
   let tmr; gt.addEventListener('input', () => { S.fila.texto = gt.value; save(); clearTimeout(tmr); tmr = setTimeout(()=>{ const pos=gt.selectionStart; render(); const n=document.getElementById('gtxt'); n.focus(); n.setSelectionRange(pos,pos); }, 700); });
   root.querySelector('#useDiz').onclick = () => { S.fila.grupo='dizimista'; S.fila.texto=S.modelos.dizimista; S.fila.abertos=[]; save(); render(); };
   root.querySelectorAll('[data-gsend]').forEach(a => a.addEventListener('click', () => {
-    const id = Number(a.dataset.gsend); if (!S.fila.abertos.includes(id)) S.fila.abertos.push(id);
+    const k = a.dataset.gsend; if (!S.fila.abertos.map(String).includes(k)) S.fila.abertos.push(k);
     registrar('mensagem-grupo', GRUPOS[S.fila.grupo]); setTimeout(render, 300);
   }));
   root.querySelector('#resetFila')?.addEventListener('click', () => { S.fila.abertos = []; save(); render(); });
@@ -1482,6 +1495,129 @@ function bindAgendaAdm(root){
 }
 // No aviso (lido dias depois), "Hoje/Amanhã" ficaria errado: usa sempre o dia da semana e a data.
 function diaExtensoFixo(dia){ const [y, m, d] = dia.split('-').map(Number), dd = new Date(y, m-1, d); return `${cap(DIAS[dd.getDay()])}, ${d} de ${MESES[m-1]}`; }
+
+/* =========================================================
+   8. DIZIMISTAS — relacionamento pastoral (sem valores, sem dados financeiros)
+   ========================================================= */
+let dzEdit = null, dzFiltro = 'ativos', dzCom = '', dzBusca = '';
+const fmtTel = d => { d = digits(d).replace(/^55(?=\d{10,11}$)/, ''); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d.length === 10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : d; };
+const dataCurta = iso => iso ? iso.slice(8,10) + '/' + iso.slice(5,7) + '/' + iso.slice(0,4) : '';
+const anosDesde = iso => new Date().getFullYear() - Number(iso.slice(0,4));
+// Datas especiais de hoje entre os dizimistas ativos que autorizaram mensagens.
+function dizimistasHoje(){
+  const hoje = mmdd(new Date()), r = [];
+  rel('tithers').forEach(t => {
+    if (t.status !== 'active' || !t.consent || !t.whatsapp) return;
+    const p = {id:'t'+t.id, nome:t.name, whats:t.whatsapp, dizimista:true};
+    if (t.birth_date?.slice(5) === hoje) r.push({key:'dz-aniv-'+t.id, tipo:'aniversario', p});
+    if (t.marriage_date?.slice(5) === hoje && anosDesde(t.marriage_date) > 0) r.push({key:'dz-bodas-'+t.id, tipo:'bodas', p, anos:anosDesde(t.marriage_date)});
+    if (t.joined_on?.slice(5) === hoje && anosDesde(t.joined_on) > 0) r.push({key:'dz-entrada-'+t.id, tipo:'entradaDizimo', p, anos:anosDesde(t.joined_on)});
+  });
+  return r;
+}
+const rotuloHoje = x => x.tipo === 'aniversario' ? 'Faz aniversário hoje' : x.tipo === 'bodas' ? `${x.anos} ano${x.anos===1?'':'s'} de casamento`
+  : `Hoje ${primeiroNome(x.p.nome)} completa ${x.anos} ano${x.anos===1?'':'s'} como dizimista da paróquia`;
+function dizimistasHTML(){
+  if (NUVEM.ativo && REL.faltando) return `<h2>Dizimistas</h2>${migracaoHTML()}`;
+  if (dzEdit) return dizimistaFormHTML(dzEdit);
+  const T = rel('tithers'), ativos = T.filter(t => t.status === 'active'), mes = pad(new Date().getMonth()+1);
+  const cont = {ativos:ativos.length, aniv:ativos.filter(t => t.birth_date?.slice(5,7) === mes).length, bodas:ativos.filter(t => t.marriage_date?.slice(5,7) === mes).length,
+    novos:ativos.filter(t => t.joined_on && Date.parse(t.joined_on) >= now() - 30*DAY).length};
+  const pendentes = rel('leads').filter(l => l.status === 'new' || l.status === 'contacted').length;
+  const q = semAcento(dzBusca.trim()), qd = digits(dzBusca);
+  const lista = T.filter(t => {
+    if (dzFiltro === 'ativos' && t.status !== 'active') return false;
+    if (dzFiltro === 'inativos' && t.status !== 'inactive') return false;
+    if (dzFiltro === 'aniv' && (t.status !== 'active' || t.birth_date?.slice(5,7) !== mes)) return false;
+    if (dzFiltro === 'bodas' && (t.status !== 'active' || t.marriage_date?.slice(5,7) !== mes)) return false;
+    if (dzFiltro === 'novos' && !(t.status === 'active' && t.joined_on && Date.parse(t.joined_on) >= now() - 30*DAY)) return false;
+    if (dzCom === 'sem' ? t.community_id : dzCom && t.community_id !== dzCom) return false;
+    return !q || semAcento(t.name).includes(q) || (qd.length >= 3 && t.whatsapp.includes(qd));
+  }).sort(dzFiltro === 'aniv' ? (a,b) => a.birth_date.slice(8).localeCompare(b.birth_date.slice(8)) : porNome);
+  const hoje = dizimistasHoje(), coms = comunidadesAtivas();
+  const stat = (k, n, rot) => `<button class="stat" data-dzf="${k}" aria-pressed="${dzFiltro===k}"><b>${n}</b><span>${rot}</span></button>`;
+  return `<h2>Dizimistas</h2>
+  <p class="lead small">Relacionamento pastoral com quem sustenta a paróquia: datas especiais, agradecimentos e acolhida de novos dizimistas. Sem valores nem dados financeiros.</p>
+  <div class="stats cinco">
+    ${stat('ativos', cont.ativos, 'ativos')}${stat('aniv', cont.aniv, 'aniversariantes do mês')}${stat('bodas', cont.bodas, 'bodas no mês')}${stat('novos', cont.novos, 'novos (30 dias)')}
+    <button class="stat" data-ir="interessados"><b>${pendentes}</b><span>contatos pendentes</span></button>
+  </div>
+  ${typeof interessadosHTML === 'function' ? interessadosHTML() : ''}
+  ${hoje.length ? `<h2>Hoje</h2><div class="list">${hoje.map(x => { const ok = S.enviadosHoje.ids.includes(x.key);
+    return `<div class="row"><div class="grow"><b>${esc(x.p.nome)}</b><div class="small muted">${esc(rotuloHoje(x))}</div></div>
+      <a class="btn sm ${ok?'done':'wa'}" href="${waLink(x.p.whats, fill(S.modelos[x.tipo], x.p, x.anos))}" target="_blank" rel="noopener" data-send="${x.key}">${ok?'Enviada ✓':'Enviar'}</a></div>`; }).join('')}</div>
+    <p class="lead small">O botão abre o WhatsApp com a mensagem pronta. Nada é enviado sozinho.</p>` : ''}
+  <h2>Cadastro</h2>
+  <button class="btn block-w" id="dzNovo" style="margin-bottom:10px">+ Cadastrar dizimista</button>
+  <input type="text" id="dzBusca" placeholder="Buscar por nome ou WhatsApp" aria-label="Buscar dizimista" value="${esc(dzBusca)}" style="margin-bottom:8px">
+  <div class="filtros" role="group" aria-label="Filtrar dizimistas">
+    ${[['todos','Todos'],['ativos','Ativos'],['inativos','Inativos'],['aniv','Aniversariantes do mês']].map(([k,l]) => `<button data-dzf="${k}" aria-pressed="${dzFiltro===k}">${l}</button>`).join('')}</div>
+  ${coms.length ? `<select id="dzCom" aria-label="Filtrar por comunidade" style="margin-bottom:10px"><option value="">Todas as comunidades</option>${coms.map(c => `<option value="${c.id}" ${dzCom===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}<option value="sem" ${dzCom==='sem'?'selected':''}>Sem comunidade</option></select>` : ''}
+  ${lista.length ? `<div class="list">${lista.map(t => { const c = comunidadeDe(t.community_id);
+    return `<div class="row" style="align-items:flex-start"><div class="grow"><b>${esc(t.name)}</b>
+      <div class="tagline">${c ? `<span class="chip">${esc(c.name)}</span>` : ''}${t.status === 'inactive' ? '<span class="chip neutro">Inativo</span>' : ''}${!t.consent ? '<span class="chip gold">Sem autorização para mensagens</span>' : ''}</div>
+      <div class="small muted">${[t.joined_on && 'Dizimista desde ' + dataCurta(t.joined_on).slice(3), t.birth_date && 'aniv. ' + dataCurta(t.birth_date).slice(0,5), t.whatsapp && fmtTel(t.whatsapp)].filter(Boolean).join(' · ')}</div>
+      <div class="acoes"><button class="btn sm ghost" data-dz-edit="${t.id}">Editar</button>
+        ${t.consent && t.whatsapp && t.status === 'active' ? `<a class="btn sm wa" href="${waLink(t.whatsapp, fill(S.modelos.dizimista, {nome:t.name}))}" target="_blank" rel="noopener" data-dz-msg="${t.id}">Agradecer</a>` : ''}</div></div></div>`; }).join('')}</div>`
+    : `<div class="empty">${T.length ? 'Ninguém encontrado com esse filtro.' : 'Nenhum dizimista cadastrado ainda.'}</div>`}
+  <div class="block small"><b>Privacidade (LGPD).</b> Estes dados são vistos só por padre e secretaria, nunca aparecem na página pública e servem apenas para o cuidado pastoral. Mensagens só para quem autorizou. A pessoa pode pedir para sair a qualquer momento: use “Excluir cadastro”.</div>`;
+}
+function dizimistaFormHTML(t){
+  const coms = comunidadesAtivas();
+  return `<h2>${t.id ? 'Editar dizimista' : 'Cadastrar dizimista'}</h2>
+  <form class="block" id="dzF">
+    <div class="field"><label for="dz-nome">Nome *</label><input type="text" id="dz-nome" name="name" maxlength="120" required value="${esc(t.name||'')}"></div>
+    <div class="field"><label for="dz-wa">WhatsApp</label><input type="tel" id="dz-wa" name="whatsapp" placeholder="(31) 99999-0000" value="${esc(t.whatsapp ? fmtTel(t.whatsapp) : '')}"></div>
+    <div class="two">
+      <div class="field"><label for="dz-nasc">Nascimento</label><input type="date" id="dz-nasc" name="birth_date" value="${t.birth_date||''}"></div>
+      <div class="field"><label for="dz-cas">Casamento</label><input type="date" id="dz-cas" name="marriage_date" value="${t.marriage_date||''}"><div class="hint">opcional</div></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="dz-desde">Dizimista desde</label><input type="date" id="dz-desde" name="joined_on" value="${t.joined_on||''}"></div>
+      <div class="field"><label for="dz-st">Situação</label><select id="dz-st" name="status"><option value="active" ${t.status!=='inactive'?'selected':''}>Ativo</option><option value="inactive" ${t.status==='inactive'?'selected':''}>Inativo</option></select></div>
+    </div>
+    ${coms.length || t.community_id ? `<div class="field"><label for="dz-com">Comunidade</label><select id="dz-com" name="community_id"><option value="">Sem comunidade / Matriz</option>${coms.map(c => `<option value="${c.id}" ${c.id===t.community_id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>` : ''}
+    <label class="check"><input type="checkbox" name="consent" ${t.consent?'checked':''}> A pessoa autorizou a paróquia a enviar mensagens pelo WhatsApp.</label>
+    <div class="field"><label for="dz-obs">Observação pastoral</label><textarea id="dz-obs" name="notes" maxlength="2000" style="min-height:70px" placeholder="Ex.: prefere ser procurada depois das 18h">${esc(t.notes||'')}</textarea><div class="hint">Só a equipe vê. Nunca aparece na página. Não anote valores nem dados financeiros.</div></div>
+    <div style="display:flex;gap:8px"><button type="button" class="btn ghost" id="dzVoltar">Voltar</button><button class="btn" style="flex:1" id="dzSalvar">Salvar</button></div>
+    ${t.id ? '<div style="text-align:center;margin-top:12px"><button type="button" class="link-btn" id="dzExcluir">Excluir cadastro</button></div>' : ''}
+  </form>`;
+}
+function bindDizimistas(root){
+  root.querySelectorAll('[data-dzf]').forEach(b => b.onclick = () => { dzFiltro = dzFiltro === b.dataset.dzf && b.classList.contains('stat') ? 'todos' : b.dataset.dzf; render(); });
+  root.querySelector('[data-ir]')?.addEventListener('click', () => document.getElementById('interessados')?.scrollIntoView({behavior:'smooth'}));
+  root.querySelector('#dzCom')?.addEventListener('change', e => { dzCom = e.target.value; render(); });
+  const b = root.querySelector('#dzBusca');
+  b?.addEventListener('input', () => { dzBusca = b.value; const pos = b.selectionStart; render(); const n = document.getElementById('dzBusca'); n.focus(); n.setSelectionRange(pos, pos); });
+  root.querySelectorAll('[data-send]').forEach(a => a.addEventListener('click', () => {
+    if (!S.enviadosHoje.ids.includes(a.dataset.send)) S.enviadosHoje.ids.push(a.dataset.send);
+    registrar('mensagem-dizimista', a.dataset.send.split('-')[1]); setTimeout(render, 300);
+  }));
+  root.querySelectorAll('[data-dz-msg]').forEach(a => a.addEventListener('click', () => registrar('mensagem-dizimista', 'agradecimento')));
+  root.querySelector('#dzNovo')?.addEventListener('click', () => { dzEdit = {consent:true, status:'active', community_id:dzCom && dzCom !== 'sem' ? dzCom : null}; render(); scrollTo(0,0); document.getElementById('dz-nome')?.focus(); });
+  root.querySelectorAll('[data-dz-edit]').forEach(x => x.onclick = () => { dzEdit = clone(rel('tithers').find(t => t.id === x.dataset.dzEdit)); render(); scrollTo(0,0); });
+  root.querySelector('#dzVoltar')?.addEventListener('click', () => { dzEdit = null; render(); });
+  root.querySelector('#dzExcluir')?.addEventListener('click', async () => {
+    if (!confirm(`Excluir o cadastro de ${dzEdit.name}? Todos os dados dessa pessoa serão apagados e não dá para desfazer.`)) return;
+    if (await relExcluir('tithers', dzEdit.id)){ registrar('excluiu-dizimista'); dzEdit = null; render(); toast('Cadastro excluído'); }
+  });
+  root.querySelector('#dzF')?.addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target, nome = f.name.value.trim().replace(/\s+/g, ' '), wa = digits(f.whatsapp.value).replace(/^55(?=\d{10,11}$)/, '');
+    if (nome.length < 2){ toast('Escreva o nome.'); f.name.focus(); return; }
+    if (wa && (wa.length < 10 || wa.length > 13)){ toast('Confira o WhatsApp com DDD.'); f.whatsapp.focus(); return; }
+    if (f.consent.checked && !wa){ toast('Para enviar mensagens, informe o WhatsApp.'); f.whatsapp.focus(); return; }
+    const outro = wa && rel('tithers').find(t => t.whatsapp === wa && t.id !== dzEdit.id);
+    if (outro && !confirm(`${outro.name} já está cadastrado(a) com este WhatsApp. Salvar mesmo assim?`)) return;
+    const o = {name:nome, whatsapp:wa, birth_date:f.birth_date.value || null, marriage_date:f.marriage_date.value || null, joined_on:f.joined_on.value || null,
+      status:f.status.value, consent:f.consent.checked, notes:f.notes.value.trim() || null, community_id:f.community_id?.value || null};
+    if (dzEdit.id) o.id = dzEdit.id;
+    const btn = f.querySelector('#dzSalvar'); btn.disabled = true; btn.textContent = 'Salvando…';
+    const r = await relGravar('tithers', o);
+    if (!r){ btn.disabled = false; btn.textContent = 'Salvar'; return; }
+    registrar(dzEdit.id ? 'editou-dizimista' : 'cadastrou-dizimista');
+    dzEdit = null; render(); scrollTo(0,0); toast('Dizimista salvo');
+  });
+}
 
 /* página pública: lista, detalhe e "minha comunidade" (preferência só neste aparelho) */
 const mapaLink = end => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(end);
@@ -2314,7 +2450,7 @@ function render(){
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
-    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
+    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
