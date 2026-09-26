@@ -5,3 +5,6 @@ Thumbs.db
 *.bak
 node_modules/
 .wrangler/
+
+# testes locais
+tests/**/shots/
