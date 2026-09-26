@@ -570,7 +570,7 @@ const rel = k => NUVEM.ativo ? REL[k] : (S.rel[k] ||= []);
 const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(e?.code) || /does not exist|schema cache/i.test(e?.message||'');
 // Matriz de acesso: espelha can_access() do schema.sql. As áreas que já existiam no piloto
 // continuam abertas a toda a equipe nesta versão; dizimistas (dados pessoais) só padre e secretaria.
-const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes'], pascom:['avisos','agenda','comunidades','noticias']};
+const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes','secretaria24h'], pascom:['avisos','agenda','comunidades','noticias']};
 const AREAS_ABERTAS = ['comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
 const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
 const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas', contribs:'dizimistas'};
@@ -765,6 +765,7 @@ const I = {
   assistir:'<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/>',
   comunidades:'<path d="M2.5 21V12l5-4 5 4v9"/><path d="M12.5 21v-6.5l4.5-3.5 4.5 3.5V21"/><path d="M7.5 3v5M5.8 4.7h3.4M1.5 21h21"/>',
   dizimistas:'<path d="M12 20s-7-4.2-7-9.5A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.5C19 15.8 12 20 12 20z"/><path d="M12 11v4M10 13h4"/>',
+  secretaria24h:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   mais:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   contato:'<path d="M12 2v5M10 4h4M5 21V11l7-4 7 4v10M9 21v-5h6v5"/>'
 };
@@ -776,7 +777,8 @@ const tabsFor = () => S.mode==='painel'
 const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja'};
 // Painel: 4 tarefas do dia a dia na barra; o resto fica em "Mais" (nenhuma função some).
 const MAIS = [['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
-  ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
+  ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],
+  ...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
 const maisItens = () => MAIS.filter(([k]) => pode(k));
 const abaAtual = () => S.mode==='painel' ? (maisItens().some(([k]) => k===S.tab) ? 'mais' : S.tab) : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
 function maisHTML(){
@@ -2691,7 +2693,8 @@ function render(){
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
     comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
-    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
+    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
+    ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]})
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     secretaria: window.S24 ? [S24.publicoHTML, S24.bindPublico] : [igrejaPubHTML, bindIgreja],
