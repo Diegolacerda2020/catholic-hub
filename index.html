@@ -272,6 +272,7 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
 .mesnav b{font-family:var(--serif);font-size:1.2rem;text-align:center}
 .mesnav .btn{font-size:.8rem;padding:6px 8px}
 </style>
+<link rel="stylesheet" href="secretaria24h.css">
 </head>
 <body>
 <div class="app">
@@ -306,6 +307,7 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
 </div>
 
 <script src="config.js"></script>
+<script src="secretaria24h.js"></script>
 <script>
 /* =========================================================
    Central Paroquial — protótipo 0.1
@@ -771,7 +773,7 @@ const tabsFor = () => S.mode==='painel'
   ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['intencoes','Intenções'],['mais','Mais']].filter(([k]) => pode(k))
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja'};
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja'};
 // Painel: 4 tarefas do dia a dia na barra; o resto fica em "Mais" (nenhuma função some).
 const MAIS = [['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
   ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
@@ -1960,6 +1962,7 @@ function contatoPubHTML(){
   <h2>Secretaria paroquial</h2>
   ${c.secretaria?`<div class="block"><p style="margin:0;white-space:pre-line">${esc(c.secretaria)}</p></div>`:''}
   ${contatoBtn()}
+  ${window.S24 ? S24.botaoParoquiaHTML() : ''}
   ${minhaBtn()}
   ${ctaDizimistaHTML()}
   <p class="small muted" style="margin:14px 4px">Batismo, casamento, certidões e intenções de missa: fale com a secretaria.</p>
@@ -2224,6 +2227,7 @@ function igrejaPubHTML(){
   ${liturgiaHTML(t, festa)}
   ${rezarGridHTML()}
   ${ativa ? missaHTML() : ''}
+  ${ativa && window.S24 ? S24.cardHomeHTML() : ''}
   ${evs.length ? `<h2>${evs.length > 1 ? 'Próximos eventos' : 'Próximo evento'}</h2>${evs.map(e => eventoCard(e)).join('')}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver Agenda</button>` : ''}
   ${ativa ? minhaComunidadeHTML() : ''}
   ${ctaDizimistaHTML()}
@@ -2690,6 +2694,7 @@ function render(){
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes]
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
+    secretaria: window.S24 ? [S24.publicoHTML, S24.bindPublico] : [igrejaPubHTML, bindIgreja],
     contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
   if (S.mode==='publico'){
     const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='igreja'; save(); render(); scrollTo(0,0); }; });
