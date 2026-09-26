@@ -95,6 +95,40 @@ e junta as alterações item a item. Assim, um aviso publicado num aparelho não
 
 `demo_seed.sql` (pode rodar mais de uma vez) e `demo_cleanup.sql` (só apaga o que tem as marcas `[DEMO]` / `[Evento de demonstração]`). Veja os comentários no topo de cada arquivo.
 
+Secretaria 24h: `demo_secretaria_seed.sql` (5 solicitações fictícias, `is_demo = true`) e `demo_secretaria_cleanup.sql`
+(só apaga `is_demo = true`). A última consulta do seed mostra protocolo e WhatsApp para testar o acompanhamento.
+
+## Secretaria 24h
+
+"A Secretaria 24h recebe sua solicitação a qualquer momento. O atendimento pela equipe acontece no horário
+normal da secretaria." O fiel escolhe um serviço, preenche o formulário e recebe um protocolo
+(`SA-AAAA-XXXXXXXX`); a equipe vê tudo em **Mais → Secretaria 24h** e responde pelo WhatsApp (sempre um toque
+da equipe; nada é enviado automaticamente).
+
+**Para ligar num banco que já está rodando:** rode só `secretaria24h.sql` no SQL Editor (pode rodar de novo
+sem problema). Ele cria as 3 tabelas, as funções e o catálogo inicial da paróquia piloto, e acrescenta a área
+`secretaria24h` ao `can_access()`. Não mexe em `get_public_parish` nem nas outras tabelas.
+Rode o SQL **antes** de publicar o site: sem ele, o card da Home e o botão da página Paróquia simplesmente
+não aparecem, e o painel mostra o aviso de atualização.
+
+| Tabela | O que guarda |
+|---|---|
+| `service_catalog` | serviços oferecidos (título, orientações, campos do formulário em `form_fields`) |
+| `service_requests` | solicitações: protocolo, nome, WhatsApp, preferência de contato, respostas, status |
+| `service_request_history` | mudanças de status e notas (`public_note` = aparece para o fiel) |
+
+| Função | Quem chama | O que faz |
+|---|---|---|
+| `public_service_catalog(slug)` | visitante | serviços ativos, sem ids |
+| `public_create_service_request(...)` | visitante | valida tudo no servidor, cria a solicitação + 1º histórico; reenvio em 5 min devolve o mesmo protocolo |
+| `public_get_service_request(slug, protocolo, whatsapp)` | visitante | só com protocolo **e** WhatsApp; devolve status e histórico público |
+| `staff_update_service_request(id, status, nota, publica)` | padre/secretaria/suporte | muda status e grava o histórico na mesma transação |
+
+Visitante não tem acesso direto a nenhuma das 3 tabelas. Não há CPF nem documento. Para mudar os serviços,
+edite `service_catalog` pelo SQL Editor (`active = false` tira um serviço da página). Tipos de campo aceitos:
+`text`, `date`, `textarea`, `select` (o banco recusa outro formato). Intenção de Missa e "Quero ser
+dizimista" continuam nos fluxos que já existiam; a Secretaria 24h só mostra atalhos para eles.
+
 ## Tabelas do MVP 2
 
 | Tabela | Para quê | Observações |
@@ -130,6 +164,7 @@ A matriz fica num lugar só: `can_access()` no banco (e `pode()` no `index.html`
 | Comunicar, Mensagens, Pessoas, Intenções, Uso, Ajustes (`parish_state`) | sim | sim | sim (como no piloto; restringir é o próximo passo) |
 | Agenda e Comunidades | sim | sim | sim |
 | Dizimistas, interessados e acompanhamento do dízimo | sim | sim | **não** |
+| Secretaria 24h (solicitações dos fiéis) | sim | sim | **não** (nem vê o item em Mais) |
 
 ## Regras de acesso (resumo)
 
