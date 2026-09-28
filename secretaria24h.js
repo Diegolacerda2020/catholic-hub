@@ -22,7 +22,7 @@ const AVISO = 'A Secretaria 24h recebe sua solicitação a qualquer momento. O a
 const ST = {
   new:          {ic:'✅', pub:'Solicitação recebida', adm:'Recebida',       card:'Novas'},
   in_progress:  {ic:'🔄', pub:'Em atendimento',       adm:'Em atendimento', card:'Em atendimento'},
-  waiting_user: {ic:'⏳', pub:'Aguardando seu retorno', adm:'Aguardando fiel', card:'Aguardando fiel'},
+  waiting_user: {ic:'⏳', pub:'Aguardando seu retorno', adm:'Aguardando resposta do fiel', card:'Aguardando fiel'},
   completed:    {ic:'✔️', pub:'Concluída',            adm:'Concluída',      card:'Concluídas'},
   closed:       {ic:'📁', pub:'Encerrada',            adm:'Encerrada',      card:'Encerradas'}
 };
@@ -215,6 +215,27 @@ async function apiAtualizar(id, status, nota, publica){
    PÁGINA PÚBLICA
    ========================================================= */
 const CAT = {estado:'nada', lista:[]}; // nada | carregando | ok | ausente | erro
+
+/* "Minhas solicitações": guardadas só neste aparelho, só o necessário para acompanhar
+   (protocolo, serviço, data, WhatsApp normalizado e a última situação vista). Nunca as respostas do formulário. */
+const MINHAS_KEY = 'central-paroquial-s24-minhas';
+const PROTO_OK = /^SA-\d{4}-[0-9A-F]{8}$/;
+function minhasTodas(){ try { const d = JSON.parse(localStorage.getItem(MINHAS_KEY)); return d && typeof d === 'object' && !Array.isArray(d) ? d : {}; } catch(e){ return {}; } }
+function minhasLer(){ const l = minhasTodas()[NUVEM.slug]; return Array.isArray(l) ? l.filter(x => x && PROTO_OK.test(x.protocol) && s24Whats(x.whats)) : []; }
+function minhasGravar(l){ try { const d = minhasTodas(); d[NUVEM.slug] = l.slice(0, 10); localStorage.setItem(MINHAS_KEY, JSON.stringify(d)); } catch(e){} }
+function minhasGuardar(x){ minhasGravar([x, ...minhasLer().filter(m => m.protocol !== x.protocol)]); }
+function minhasStatus(proto, status){ const l = minhasLer(), m = l.find(x => x.protocol === proto); if (m && ST[status] && m.status !== status){ m.status = status; minhasGravar(l); } }
+function minhasHTML(){
+  const l = minhasLer();
+  if (!l.length) return '';
+  return `<h2>Minhas solicitações</h2>
+  <div class="list s24-minhas">${l.map(m => `<div class="row"><div class="grow"><b>${esc(m.service_title || 'Solicitação')}</b>
+      <span class="small muted" style="display:block">${esc(m.protocol)} · ${esc(dataHora(m.created_at))}</span>
+      <div style="margin-top:4px">${chipSt(ST[m.status] ? m.status : 'new', 'pub')}</div></div>
+    <div class="s24-minha-acoes"><button type="button" class="btn sm" data-s24-minha="${esc(m.protocol)}">Acompanhar</button>
+      <button type="button" class="link-btn" data-s24-esquecer="${esc(m.protocol)}">Remover deste aparelho</button></div></div>`).join('')}</div>
+  <p class="small muted" style="margin:0 4px 12px">Guardadas só neste aparelho, para você acompanhar sem digitar. As respostas do formulário não ficam guardadas.</p>`;
+}
 const P = {tela:'inicio', code:null, rascunho:{}, envio:null, consulta:{proto:'', whats:''}, resultado:null, naoAchou:false, ocupado:false};
 
 function carregarCatalogo(forcar){
@@ -288,14 +309,16 @@ function inicioHTML(){
     <p>${esc(AVISO)}</p>
     ${horarioHTML()}
   </section>
+  ${minhasHTML()}
+  ${minhasLer().length ? '<h2>Nova solicitação</h2>' : ''}
   ${servicos}
   <h2>Atalhos</h2>
   <div class="list">
     <button type="button" class="pick-row" data-s24-intencao><span class="s24-ic" aria-hidden="true">🙏</span><span class="grow"><b>Enviar intenção de Missa</b><span class="small muted" style="display:block">Abre o pedido de intenção da paróquia</span></span><span class="muted" aria-hidden="true">›</span></button>
     <button type="button" class="pick-row" data-pub="dizimista"><span class="s24-ic" aria-hidden="true">❤️</span><span class="grow"><b>Quero ser dizimista</b><span class="small muted" style="display:block">Deixe seu contato para a equipe do dízimo</span></span><span class="muted" aria-hidden="true">›</span></button>
   </div>
-  <h2>Já fez uma solicitação?</h2>
-  <button type="button" class="btn ghost block-w" data-s24-ir="consulta">Acompanhar protocolo</button>`;
+  <h2>${minhasLer().length ? 'Fez a solicitação em outro aparelho?' : 'Já fez uma solicitação?'}</h2>
+  <button type="button" class="btn ghost block-w" data-s24-ir="consulta">${minhasLer().length ? 'Consultar outra solicitação' : 'Acompanhar protocolo'}</button>`;
 }
 
 function campoHTML(f, v){
@@ -378,7 +401,7 @@ async function consultar(proto, whats){
   P.ocupado = true;
   try {
     const r = await apiConsultar(p, whats);
-    if (r && r.protocol) P.resultado = r; else P.naoAchou = true;
+    if (r && r.protocol){ P.resultado = r; minhasStatus(r.protocol, r.status); } else P.naoAchou = true;
   } catch(e){ toast(msgErro(e)); }
   finally { P.ocupado = false; }
   P.consulta.proto = p;
@@ -396,6 +419,14 @@ function bindPublico(root){
   });
   root.querySelector('[data-s24-copiar]')?.addEventListener('click', () => copiar(P.envio.protocol));
   root.querySelector('[data-s24-acompanhar]')?.addEventListener('click', () => { const e = P.envio; P.tela = 'consulta'; scrollTo(0,0); consultar(e.protocol, e.whats); render(); });
+  // Minhas solicitações: preenche protocolo + WhatsApp sozinho e já consulta.
+  root.querySelectorAll('[data-s24-minha]').forEach(b => b.onclick = () => {
+    const m = minhasLer().find(x => x.protocol === b.dataset.s24Minha); if (!m) return;
+    P.tela = 'consulta'; scrollTo(0,0); consultar(m.protocol, m.whats); render();
+  });
+  root.querySelectorAll('[data-s24-esquecer]').forEach(b => b.onclick = () => {
+    minhasGravar(minhasLer().filter(x => x.protocol !== b.dataset.s24Esquecer)); render(); toast('Removida deste aparelho.');
+  });
 
   const c = root.querySelector('#s24C');
   if (c){
@@ -430,6 +461,7 @@ function bindPublico(root){
       const res = await apiCriar(svc.code, nome, wa, r.pref, v.ans);
       if (!res?.protocol) throw new Error('sem protocolo');
       P.envio = {protocol:res.protocol, created_at:res.created_at, whats:wa, title:svc.title};
+      minhasGuardar({protocol:res.protocol, service_title:svc.title, created_at:res.created_at, whats:wa, status:res.status || 'new'});
       enviado = true; delete P.rascunho[svc.code];
       P.tela = 'ok';
       if (S.pubTab === 'secretaria'){ render(); scrollTo(0,0); }
@@ -443,23 +475,87 @@ function bindPublico(root){
 /* =========================================================
    PAINEL (Mais > Secretaria 24h)
    ========================================================= */
-const A = {dados:null, estado:'nada', carregadoEm:0, filtro:'todas', busca:'', aberto:null, hist:{}, lendoHist:new Set(), nota:{}, salvando:false, timer:null};
+const A = {dados:null, estado:'nada', carregadoEm:0, filtro:'todas', busca:'', aberto:null, hist:{}, lendoHist:new Set(), nota:{}, salvando:false, timer:null, tick:0, conhecidos:null, abaAnterior:null};
 const FILTROS = [['todas','Todas'],['new','Novas'],['in_progress','Em atendimento'],['waiting_user','Aguardando fiel'],['completed','Concluídas']];
 const naTela = () => S.mode === 'painel' && S.tab === 'secretaria24h';
+const naInicio = () => S.mode === 'painel' && S.tab === 'inicio';
+// Equipe com acesso e painel aberto (login feito, ou modo demonstração).
+const equipeAqui = () => S.mode === 'painel' && (!NUVEM.ativo || logado()) && pode('secretaria24h');
+// Computador/tablet deitado: lista e detalhe lado a lado (mesma largura do CSS).
+const largo = () => !!window.matchMedia?.('(min-width:1024px)').matches;
 
+/* "Nova" = recebida e ainda não aberta NESTE aparelho (a marca some ao abrir a solicitação). */
+const VISTAS_KEY = () => 'central-paroquial-s24-vistas-' + (NUVEM.parishId || 'demo');
+function vistasLer(){ try { const l = JSON.parse(localStorage.getItem(VISTAS_KEY())); return new Set(Array.isArray(l) ? l : []); } catch(e){ return new Set(); } }
+function marcarVisto(id){
+  const v = vistasLer(); if (!id || v.has(id)) return;
+  v.add(id); try { localStorage.setItem(VISTAS_KEY(), JSON.stringify([...v].slice(-500))); } catch(e){}
+}
+
+/* ---------- notificações do navegador (opcional, só depois de a pessoa aceitar) ----------
+   Não é Web Push: o aviso aparece enquanto o painel estiver aberto (mesmo em outra aba ou minimizado).
+   O pedido de permissão do navegador só acontece depois do clique em "Ativar notificações". */
+const NOTIF_KEY = 'central-paroquial-notif-depois';
+const notifSuportado = () => 'Notification' in window && window.isSecureContext !== false;
+const notifAtivas = () => notifSuportado() && Notification.permission === 'granted';
+function notifCardHTML(){
+  if (!notifSuportado() || Notification.permission !== 'default') return '';
+  try { if (Date.now() - (+localStorage.getItem(NOTIF_KEY) || 0) < 14 * 864e5) return ''; } catch(e){}
+  return `<section class="notif-card" aria-labelledby="notifT"><b id="notifT">🔔 Quer receber aviso quando uma nova solicitação chegar?</b>
+    <p class="small">O computador avisa mesmo com o painel em outra aba ou minimizado (o painel precisa estar aberto). Dá para desligar quando quiser nas configurações do navegador.</p>
+    <div class="acoes"><button type="button" class="btn sm" data-notif="ativar">Ativar notificações</button><button type="button" class="btn sm ghost" data-notif="depois">Agora não</button></div></section>`;
+}
+function bindNotif(root){
+  root.querySelector('[data-notif="ativar"]')?.addEventListener('click', async () => {
+    let p = 'denied';
+    try { p = await Notification.requestPermission(); } catch(e){}
+    if (p === 'granted') toast('✓ Notificações ativadas neste computador');
+    else { try { localStorage.setItem(NOTIF_KEY, String(Date.now())); } catch(e){} toast('Tudo bem. Os avisos continuam aparecendo aqui no painel.'); }
+    render();
+  });
+  root.querySelector('[data-notif="depois"]')?.addEventListener('click', () => { try { localStorage.setItem(NOTIF_KEY, String(Date.now())); } catch(e){} render(); });
+}
+function notificarNavegador(novas, titulo){
+  if (!notifAtivas() || !document.hidden) return;
+  try {
+    const r = novas[0];
+    // Sem o nome do fiel: a notificação pode aparecer na tela bloqueada do computador.
+    const n = new Notification(novas.length > 1 ? `${novas.length} novas solicitações — Secretaria 24h` : 'Nova solicitação — Secretaria 24h',
+      {body: novas.length > 1 ? 'Abra o painel para ver.' : titulo(r.service_id) + '. Clique para abrir no painel.', tag:'s24-nova', lang:'pt-BR'});
+    n.onclick = () => { window.focus(); novas.length > 1 ? abrirFila('new') : abrirSolicitacao(r.id); n.close(); };
+  } catch(e){ /* Android: notificação só com Service Worker (fica para o Web Push) */ }
+}
+// Chegou solicitação nova desde a última leitura: aviso discreto do próprio sistema (não interrompe).
+function avisarChegadas(novas, d){
+  if (!novas.length) return;
+  const titulo = id => d.catalogo.find(s => s.id === id)?.title || 'Secretaria 24h';
+  if (window.avisoToast){
+    if (novas.length > 2) avisoToast({icone:'📥', titulo:`${novas.length} novas solicitações`, linhas:['Secretaria 24h'], acao:{rotulo:'Ver solicitações', fn:() => abrirFila('new')}});
+    else novas.forEach(r => avisoToast({icone:'📥', titulo:'Nova solicitação', linhas:[titulo(r.service_id), r.requester_name], acao:{rotulo:'Ver solicitação', fn:() => abrirSolicitacao(r.id)}}));
+  }
+  notificarNavegador(novas, titulo);
+}
+
+function redesenhar(){
+  if (naTela() || naInicio()) renderSeguro();
+  if (typeof atualizarAtencao === 'function') atualizarAtencao(); // badge do menu e 🔔, sem mexer no que está sendo digitado
+}
 async function carregarPainel(){
   if (A.estado === 'carregando') return;
+  const antes = A.estado;
   A.estado = 'carregando';
   try {
     const d = await apiPainel();
     const mudou = JSON.stringify(d) !== JSON.stringify(A.dados);
+    if (A.conhecidos) avisarChegadas(d.lista.filter(r => r.status === 'new' && !A.conhecidos.has(r.id)), d);
+    A.conhecidos = new Set(d.lista.map(r => r.id));
     A.dados = d; A.estado = 'ok'; A.carregadoEm = Date.now();
     if (A.aberto && !d.lista.some(r => r.id === A.aberto)) A.aberto = null;
-    if (mudou && naTela()) renderSeguro();
+    if (mudou || antes !== 'ok') redesenhar();
   } catch(e){
     A.estado = (typeof tabelaFaltando === 'function' && tabelaFaltando(e)) ? 'ausente' : 'erro';
     console.warn('Secretaria 24h: falha ao ler solicitações', e);
-    if (naTela()) renderSeguro();
+    redesenhar();
   }
 }
 async function carregarHist(id){
@@ -472,9 +568,37 @@ async function carregarHist(id){
 }
 function iniciarAtualizacao(){
   if (A.timer) return;
-  // Relê a cada 30 s enquanto a tela estiver aberta (o resto do painel continua com o próprio ciclo de 15 s).
-  A.timer = setInterval(() => { if (naTela() && !document.hidden && !A.salvando){ carregarPainel(); if (A.aberto) carregarHist(A.aberto); } }, 30000);
+  // Sem Realtime: relê a cada 30 s na tela da Secretaria 24h e a cada 60 s no resto do painel (badge, Início, 🔔).
+  // Com a aba escondida, só continua se a pessoa ativou as notificações do navegador.
+  A.timer = setInterval(() => {
+    if (!equipeAqui() || A.salvando || (document.hidden && !notifAtivas())) return;
+    A.tick++;
+    if (naTela() || A.tick % 2 === 0){ carregarPainel(); if (naTela() && A.aberto && !document.hidden) carregarHist(A.aberto); }
+  }, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && equipeAqui() && Date.now() - A.carregadoEm > 15000) carregarPainel(); });
 }
+// Chamado a cada desenho do painel: ao ENTRAR na fila ou no Início, relê (os números nunca abrem velhos).
+function iniciar(){
+  iniciarAtualizacao();
+  const entrou = S.tab !== A.abaAnterior && (naTela() || naInicio());
+  A.abaAnterior = S.tab;
+  if (A.estado === 'nada' || (entrou && A.estado !== 'carregando')) carregarPainel();
+}
+
+// Números para o Início, o menu e o 🔔.
+function resumo(){
+  if (A.estado === 'nada') carregarPainel();
+  if (!A.dados) return {estado: A.estado === 'erro' || A.estado === 'ausente' ? A.estado : 'carregando'};
+  const hoje = diaSP(new Date().toISOString()), vs = vistasLer();
+  const cont = {new:0, in_progress:0, waiting_user:0, completed:0, closed:0, concluidasHoje:0};
+  A.dados.lista.forEach(r => { cont[r.status] = (cont[r.status] || 0) + 1; if (r.status === 'completed' && r.updated_at && diaSP(r.updated_at) === hoje) cont.concluidasHoje++; });
+  const novas = A.dados.lista.filter(r => r.status === 'new').sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)))
+    .map(r => ({id:r.id, nome:r.requester_name, servico:servicoDe(r.service_id)?.title || 'Serviço', created_at:r.created_at, visto:vs.has(r.id), is_demo:!!r.is_demo}));
+  return {estado:'ok', cont, novas};
+}
+function irTela(){ S.mode = 'painel'; S.tab = 'secretaria24h'; if (typeof fecharSino === 'function') fecharSino(); save(); render(); scrollTo(0,0); }
+function abrirFila(filtro){ A.filtro = FILTROS.some(([k]) => k === filtro) ? filtro : 'todas'; A.aberto = null; A.busca = ''; irTela(); }
+function abrirSolicitacao(id){ A.aberto = id; delete A.hist[id]; marcarVisto(id); irTela(); }
 
 const servicoDe = id => A.dados?.catalogo.find(s => s.id === id);
 function filtrada(){
@@ -492,24 +616,41 @@ function painelHTML(){
     return `<h2>Secretaria 24h</h2><div class="status" role="status"><span class="spinner"></span>Carregando solicitações…</div>`;
   }
   const r = A.aberto && A.dados.lista.find(x => x.id === A.aberto);
+  if (r) marcarVisto(r.id);
   // Dados já carregados continuam na tela; se a última releitura falhou, avisa sem esconder nada.
-  return (A.estado === 'erro' ? indispHTML() : '') + (r ? detalheHTML(r) : listaHTML());
+  // Celular: lista OU detalhe. Computador: resumo no topo e, embaixo, lista à esquerda e detalhe à direita.
+  return (A.estado === 'erro' ? indispHTML() : '') + `<div class="s24-painel${r ? ' com-detalhe' : ''}">
+    ${topoHTML()}
+    <div class="s24-md"><div class="s24-md-lista">${listaHTML()}</div><div class="s24-md-det">${r ? detalheHTML(r) : semSelecaoHTML()}</div></div>
+  </div>`;
 }
-function listaHTML(){
+function topoHTML(){
   const cont = {}; A.dados.lista.forEach(r => cont[r.status] = (cont[r.status] || 0) + 1);
-  const l = filtrada();
-  return `<h2>Secretaria 24h</h2>
+  return `<div class="s24-topo"><h2>📥 Secretaria 24h</h2>
   <p class="lead small">Solicitações recebidas pela secretaria digital, a qualquer hora. Responda no horário de atendimento; nada é enviado automaticamente ao fiel.</p>
-  <div class="stats quatro s24-cards">${['new','in_progress','waiting_user','completed'].map(k => `<button type="button" class="stat" data-s24-f="${k}" aria-pressed="${A.filtro===k}"><b>${cont[k] || 0}</b><span>${ST[k].card}</span></button>`).join('')}</div>
-  <div class="filtros" role="group" aria-label="Filtrar solicitações">${FILTROS.map(([k,t]) => `<button type="button" data-s24-f="${k}" aria-pressed="${A.filtro===k}">${t}</button>`).join('')}</div>
-  <input type="text" id="s24Busca" placeholder="Buscar por nome, telefone ou protocolo" aria-label="Buscar solicitação" value="${esc(A.busca)}" style="margin-bottom:10px">
-  ${l.length ? `<div class="list">${l.map(r => `<button type="button" class="pick-row s24-row" data-s24-req="${esc(r.id)}">
-      <span class="grow"><b>${esc(r.requester_name)}</b>${r.is_demo ? ' <span class="chip neutro">demonstração</span>' : ''}
+  <div class="stats quatro s24-cards">${['new','in_progress','waiting_user','completed'].map(k => `<button type="button" class="stat${k === 'new' && cont.new ? ' s24-quente' : ''}" data-s24-f="${k}" aria-pressed="${A.filtro===k}"><b>${cont[k] || 0}</b><span>${ST[k].card}</span></button>`).join('')}</div></div>`;
+}
+const VAZIO = {new:'Nenhuma solicitação nova 🎉<br>Tudo em dia por aqui.', in_progress:'Nenhuma solicitação em atendimento agora.', waiting_user:'Ninguém aguardando resposta do fiel.', completed:'Nenhuma solicitação concluída ainda.'};
+function listaHTML(){
+  const l = filtrada(), vs = vistasLer();
+  return `<div class="filtros" role="group" aria-label="Filtrar solicitações">${FILTROS.map(([k,t]) => `<button type="button" data-s24-f="${k}" aria-pressed="${A.filtro===k}">${t}</button>`).join('')}</div>
+  <input type="text" id="s24Busca" placeholder="🔎 Buscar por nome, telefone ou protocolo" aria-label="Buscar solicitação" value="${esc(A.busca)}" style="margin-bottom:10px">
+  ${l.length ? `<div class="list s24-lista">${l.map(r => { const sel = r.id === A.aberto;
+      return `<button type="button" class="pick-row s24-row${sel ? ' sel' : ''}" data-s24-req="${esc(r.id)}"${sel ? ' aria-current="true"' : ''}>
+      <span class="grow"><span class="s24-row-l1"><b>${esc(r.requester_name)}</b>${r.status === 'new' && !vs.has(r.id) ? ' <span class="s24-nova">Nova</span>' : ''}${r.is_demo ? ' <span class="chip neutro">demonstração</span>' : ''}</span>
       <span class="small muted" style="display:block">${esc(servicoDe(r.service_id)?.title || 'Serviço')} · ${esc(r.protocol)}</span>
-      <span class="small muted" style="display:block">${dataHora(r.created_at)}</span></span>
-      ${chipSt(r.status)}</button>`).join('')}</div>`
-    : `<div class="empty">${A.dados.lista.length ? 'Nenhuma solicitação com este filtro.' : 'Nenhuma solicitação recebida ainda.'}</div>`}
-  <button type="button" class="btn ghost block-w" id="s24Recarregar">Atualizar lista</button>`;
+      <span class="small muted" style="display:block">${dataHora(r.created_at)} · ${esc(ago(Date.parse(r.created_at)))}</span></span>
+      ${chipSt(r.status)}</button>`; }).join('')}</div>`
+    : `<div class="empty">${A.busca.trim() ? 'Nenhuma solicitação encontrada com essa busca.' : !A.dados.lista.length ? 'Nenhuma solicitação recebida ainda.<br>Quando um fiel enviar pelo celular, ela aparece aqui.' : VAZIO[A.filtro] || 'Nenhuma solicitação com este filtro.'}</div>`}
+  <button type="button" class="btn ghost block-w" id="s24Recarregar">Atualizar lista agora</button>
+  <p class="small muted s24-auto">A lista também se atualiza sozinha a cada 30 segundos.</p>`;
+}
+function semSelecaoHTML(){
+  const n = A.dados.lista.filter(r => r.status === 'new').length;
+  return `<div class="s24-vazio"><div class="s24-vazio-ic" aria-hidden="true">📥</div>
+    <b>Selecione uma solicitação na lista</b>
+    <p class="small muted">Os detalhes aparecem aqui, ao lado da lista, sem precisar voltar.</p>
+    ${n ? `<p>${n === 1 ? 'Há 1 solicitação nova' : `Há ${n} solicitações novas`} esperando atendimento.</p>` : '<p>Nenhuma solicitação nova 🎉<br>Tudo em dia por aqui.</p>'}</div>`;
 }
 function respostasHTML(r){
   const svc = servicoDe(r.service_id), ans = r.answers && typeof r.answers === 'object' ? r.answers : {};
@@ -523,7 +664,7 @@ function detalheHTML(r){
   if (h === undefined) carregarHist(r.id);
   const msg = `Olá, ${primeiroNome(r.requester_name)}! Aqui é da secretaria da ${S.cfg.nome}, sobre a sua solicitação ${r.protocol} (${svc?.title || 'Secretaria 24h'}).`;
   return `<button class="crumb" data-s24-voltar>‹ Secretaria 24h</button>
-  <h2>${esc(svc?.title || 'Solicitação')}</h2>
+  <h2 class="s24-det-t">${esc(svc?.title || 'Solicitação')}</h2>
   <div class="block">
     <dl class="s24-dl">
       <dt>Protocolo</dt><dd>${esc(r.protocol)}${r.is_demo ? ' <span class="chip neutro">demonstração</span>' : ''}</dd>
@@ -535,19 +676,19 @@ function detalheHTML(r){
       <dt>Status</dt><dd>${chipSt(r.status)}</dd>
     </dl>
     <div class="acoes">
-      <a class="btn wa" href="${esc(waLink(r.whatsapp, msg))}" target="_blank" rel="noopener">Falar no WhatsApp</a>
-      ${r.contact_preference !== 'whatsapp' ? `<a class="btn ghost" href="${esc(telLink(r.whatsapp))}">Ligar</a>` : ''}
+      <a class="btn wa" href="${esc(waLink(r.whatsapp, msg))}" target="_blank" rel="noopener">Responder fiel no WhatsApp</a>
+      ${r.contact_preference !== 'whatsapp' ? `<a class="btn ghost" href="${esc(telLink(r.whatsapp))}">Ligar para o fiel</a>` : ''}
     </div>
   </div>
   <h2>Respostas do formulário</h2>
   <div class="block">${respostasHTML(r)}</div>
-  <h2>Alterar status</h2>
+  <h2>Atualizar atendimento</h2>
   <form class="block" id="s24St" novalidate>
     <div class="field"><label for="s24-st">Status</label><select id="s24-st" name="status">${Object.keys(ST).map(k => `<option value="${k}" ${n.status===k?'selected':''}>${ST[k].adm}</option>`).join('')}</select></div>
     <div class="field"><label for="s24-nota">Nota</label><textarea id="s24-nota" name="nota" maxlength="1000" placeholder="Ex.: Localizamos o registro. A certidão está sendo preparada.">${esc(n.texto)}</textarea></div>
     <label class="check"><input type="checkbox" name="publica" ${n.publica?'checked':''}> Esta mensagem pode aparecer para o fiel no acompanhamento</label>
     <p class="small muted" style="margin:-4px 0 12px">Sem marcar, a nota fica só para a equipe. A mudança de status sempre aparece para o fiel, sem a nota interna.</p>
-    <button class="btn block-w" id="s24Salvar" ${A.salvando?'disabled':''}>Salvar</button>
+    <button class="btn block-w" id="s24Salvar" ${A.salvando?'disabled':''}>Salvar alteração</button>
   </form>
   <h2>Histórico</h2>
   ${h === undefined ? `<div class="status" role="status"><span class="spinner"></span>Carregando histórico…</div>`
@@ -562,7 +703,12 @@ function detalheHTML(r){
 function bindPainel(root){
   root.querySelector('#s24Recarregar')?.addEventListener('click', () => { carregarPainel(); toast('Atualizando…'); });
   root.querySelectorAll('[data-s24-f]').forEach(b => b.onclick = () => { A.filtro = A.filtro === b.dataset.s24F && b.dataset.s24F !== 'todas' ? 'todas' : b.dataset.s24F; render(); });
-  root.querySelectorAll('[data-s24-req]').forEach(b => b.onclick = () => { A.aberto = b.dataset.s24Req; delete A.hist[A.aberto]; render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-s24-req]').forEach(b => b.onclick = () => {
+    A.aberto = b.dataset.s24Req; delete A.hist[A.aberto]; marcarVisto(A.aberto); render();
+    // Computador: a lista fica onde estava e o detalhe abre ao lado. Celular: o detalhe ocupa a tela.
+    if (largo()) document.querySelector('.s24-md-det')?.scrollTo(0, 0); else scrollTo(0,0);
+  });
+  bindNotif(root);
   root.querySelector('[data-s24-voltar]')?.addEventListener('click', () => { A.aberto = null; render(); scrollTo(0,0); });
   root.querySelector('#s24Hist')?.addEventListener('click', () => { delete A.hist[A.aberto]; render(); });
   const b = root.querySelector('#s24Busca');
@@ -584,10 +730,15 @@ function bindPainel(root){
     try {
       await apiAtualizar(id, n.status, n.texto, n.publica);
       salvo = true; delete A.nota[id];
-      toast(n.status !== r.status ? 'Status atualizado: ' + ST[n.status].adm : 'Nota registrada');
+      toast(n.status !== r.status ? '✓ Status atualizado: ' + ST[n.status].adm : '✓ Nota registrada');
       r.status = n.status; // mostra já; a releitura abaixo confirma com o banco
       await Promise.all([carregarPainel(), carregarHist(id)]);
-    } catch(x){ toast(msgErro(x)); }
+    } catch(x){
+      // O que foi escrito continua no formulário (A.nota); "Tentar novamente" envia de novo.
+      if (window.avisoToast) avisoToast({icone:'⚠️', tipo:'erro', titulo:'Não foi possível salvar agora', linhas:[msgErro(x)], tempo:15000,
+        acao:{rotulo:'Tentar novamente', fn:() => document.getElementById('s24Salvar')?.click()}});
+      else toast(msgErro(x));
+    }
     finally { A.salvando = false; if (naTela()) render(); }
   });
 }
@@ -605,6 +756,13 @@ window.S24 = {
   bindPublico: seguro(bindPublico, () => {}),
   painelHTML: seguro(painelHTML, () => { A.aberto = null; return '<h2>Secretaria 24h</h2>' + indispHTML(); }),
   bindPainel: seguro(bindPainel, () => {}),
+  // Início, menu e 🔔 do painel
+  iniciar: seguro(iniciar, () => {}),
+  resumo: seguro(resumo, () => ({estado:'erro'})),
+  abrirFila: seguro(abrirFila, () => {}),
+  abrirSolicitacao: seguro(abrirSolicitacao, () => {}),
+  notifCardHTML: seguro(notifCardHTML, () => ''),
+  bindNotif: seguro(bindNotif, () => {}),
   s24Whats, validar
 };
 })();

@@ -168,6 +168,7 @@ details.fold .inner{padding:0 16px 14px}
 .parish-btn .caret{display:inline-block;font-size:.8em;opacity:.85;margin-left:4px;padding:1px 6px;border-radius:6px;background:rgba(255,255,255,.18);font-family:var(--sans);vertical-align:middle}
 .pick-row{width:100%;border:0;background:transparent;text-align:left;display:flex;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
 .list > .pick-row:first-child{border-top:0}
+.pick-row .grow{flex:1;min-width:0}
 .pick-row:hover{background:var(--lit-soft)}
 .vela-hero{background:#141c17;color:#F4EEDF;border-radius:16px;padding:22px 18px;text-align:center;margin-bottom:10px}
 .vela-hero h3{font-family:var(--serif);font-size:1.35rem;margin:10px 0 4px;color:#fff}
@@ -271,6 +272,120 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
 .mesnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
 .mesnav b{font-family:var(--serif);font-size:1.2rem;text-align:center}
 .mesnav .btn{font-size:.8rem;padding:6px 8px}
+
+/* =========================================================
+   Painel responsivo (vale só com body.painel-app: painel logado ou modo demonstração).
+   A página pública e a tela de login continuam iguais.
+   celular  (até 767px):   barra inferior com 4 tarefas + Mais, uma coluna
+   tablet   (768–1199px):  trilho lateral com ícone + nome de todas as áreas
+   computador (1200px+):   menu lateral completo, conteúdo largo
+   ========================================================= */
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.marca{display:none}
+nav.tabs .so-lateral{display:none}
+.sino{position:relative;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;border-radius:8px;padding:2px 9px;font-size:.9rem;line-height:1.3;display:inline-flex;align-items:center;gap:5px}
+.sino[aria-expanded="true"]{background:rgba(255,255,255,.18)}
+.sino-n{background:var(--cta);color:var(--cta-ink);border-radius:999px;font-size:.72rem;font-weight:700;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px}
+.sino-painel{position:fixed;right:12px;width:min(380px,calc(100vw - 24px));max-height:min(70vh,560px);overflow-y:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.22);z-index:40}
+.sino-painel h3{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 16px 6px;margin:0}
+.sino-item{width:100%;border:0;border-top:1px solid var(--line);background:transparent;text-align:left;display:flex;gap:12px;align-items:flex-start;padding:11px 16px;color:inherit}
+.sino-item:hover{background:var(--lit-soft)}
+.sino-item .ic{font-size:1.2rem;line-height:1.2}
+.sino-item.nao-visto b::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cta);margin-left:6px;vertical-align:middle}
+.sino-vazio{padding:8px 16px 16px;color:var(--muted)}
+/* avisos com ação (nova solicitação, erro com "Tentar novamente"): não bloqueiam a tela */
+.avisos-box{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.aviso-toast{pointer-events:auto;width:100%;max-width:380px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--lit);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.2);padding:12px 12px 12px 14px}
+.aviso-toast.erro{border-left-color:var(--danger)}
+.aviso-toast .at-l{display:flex;gap:10px;align-items:flex-start}
+.aviso-toast .at-ic{font-size:1.25rem;line-height:1.2}
+.aviso-toast .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.aviso-toast .at-x{border:0;background:transparent;color:var(--muted);font-size:1.3rem;line-height:1;padding:0 4px}
+.aviso-toast .at-acao{margin:8px 0 0 34px}
+@media (prefers-reduced-motion:no-preference){.aviso-toast{animation:chega .3s ease-out}@keyframes chega{from{opacity:0;transform:translateY(10px)}}}
+
+/* ---------- Início do painel ---------- */
+.ini-data{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:4px 4px 0}
+.ini-cab h2{margin:2px 4px 12px;font-size:1.55rem}
+.ini-h{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
+.ini-s24{background:var(--surface);border:1.5px solid var(--lit);border-radius:16px;padding:16px;margin-bottom:10px}
+.ini-s24.tem-novas{border-color:var(--cta);box-shadow:inset 5px 0 0 var(--cta)}
+.ini-s24-cab{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.ini-s24-cab h3{font-family:var(--serif);font-size:1.3rem;margin:2px 0 0}
+.ini-s24-cab p{margin:2px 0 0}
+.ini-s24 .s24-kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--lit)}
+.ini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 0}
+.ini-stats .stat{min-height:74px}
+.ini-stats .stat.quente{border-color:var(--cta);background:var(--gold-soft)}
+.ini-stats .stat.quente b{color:var(--cta)}
+.ini-novas{list-style:none;margin:12px 0 0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ini-novas li + li{border-top:1px solid var(--line)}
+.ini-nova{width:100%;border:0;background:transparent;text-align:left;display:flex;gap:10px;align-items:center;padding:10px 12px;color:inherit}
+.ini-nova:hover{background:var(--lit-soft)}
+.ini-nova .grow{flex:1;min-width:0}
+.ini-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ini-card{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:4px;color:inherit;min-height:128px;min-width:0}
+.ini-card:hover{border-color:var(--lit)}
+.ini-card .ini-k{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ini-card .ini-v{font-family:var(--serif);font-size:1.9rem;line-height:1.05;color:var(--lit);font-variant-numeric:lining-nums}
+.ini-card .ini-v.zero{color:var(--muted)}
+.ini-card .ini-t{font-size:.92rem}
+.ini-card .ini-l{display:block;font-size:.88rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ini-card .ini-go{margin-top:auto;padding-top:6px;font-size:.88rem;font-weight:700;color:var(--lit)}
+.ini-card.alerta{border-color:var(--cta)}
+.ini-card.alerta .ini-v{color:var(--cta)}
+.ini-card.largo{grid-column:1/-1}
+.ini-prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:4px 0 2px}
+.ini-prog i{display:block;height:100%;background:var(--lit);border-radius:99px}
+.ini-rapidas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ini-rapidas .btn{justify-content:flex-start;text-align:left;min-height:52px;gap:10px}
+.notif-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--lit);border-radius:14px;padding:14px 16px;margin:10px 0}
+.notif-card p{margin:4px 0 0}
+@media (max-width:359px){.ini-cards,.ini-rapidas{grid-template-columns:1fr}}
+@media (max-width:767px){.ini-data{display:none}} /* no celular a data já está no cabeçalho */
+@media (min-width:600px){.ini-stats{grid-template-columns:repeat(4,1fr)}}
+
+@media (min-width:768px){
+  html:has(body.painel-app){scroll-padding-top:76px}
+  body.painel-app{--topo:64px;--lateral:100px}
+  body.painel-app .app{max-width:none;border:0;display:grid;grid-template-columns:var(--lateral) minmax(0,1fr);grid-template-rows:var(--topo) 1fr;min-height:100vh}
+  body.painel-app header.top{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:14px;padding:0 20px;height:var(--topo);position:sticky;top:0;z-index:20}
+  body.painel-app .top-row{display:contents}
+  body.painel-app .top-row > div:first-child{min-width:0;flex:0 1 auto}
+  body.painel-app .marca{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85;font-weight:700;margin-bottom:1px}
+  body.painel-app .parish{font-size:1.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw;display:block}
+  body.painel-app .sub{display:none}
+  body.painel-app .operator{order:1;flex:1;margin:0;justify-content:flex-end;min-width:0}
+  body.painel-app #opUser{flex:0 1 auto}
+  body.painel-app .operator .sync{margin-left:0;order:-1}
+  body.painel-app .mode{order:2}
+  body.painel-app nav.tabs{grid-column:1;grid-row:2;position:sticky;top:var(--topo);bottom:auto;left:auto;right:auto;height:calc(100vh - var(--topo));max-width:none;margin:0;flex-direction:column;justify-content:flex-start;gap:2px;border-top:0;border-right:1px solid var(--line);overflow-y:auto;padding:10px 8px;z-index:4}
+  body.painel-app nav.tabs .so-lateral{display:flex}
+  body.painel-app nav.tabs .so-barra{display:none}
+  body.painel-app nav.tabs button{flex:0 0 auto;width:100%;border-radius:10px;padding:9px 4px;font-size:.74rem;line-height:1.15;text-align:center}
+  body.painel-app nav.tabs button:hover{background:var(--bg);color:var(--ink)}
+  body.painel-app nav.tabs button[aria-current="page"]{background:var(--lit-soft);color:var(--lit)}
+  body.painel-app nav.tabs .badge{top:4px;left:calc(50% + 8px)}
+  body.painel-app main{grid-column:2;grid-row:2;min-width:0;padding:22px max(24px,calc((100% - 1400px) / 2)) 48px}
+  body.painel-app #voltaMais{display:none}
+  body.painel-app main .composer,body.painel-app main .out,body.painel-app main .publish-bar,body.painel-app main form.block,body.painel-app main .lead{max-width:860px}
+  body.painel-app .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  body.painel-app .stats.quatro{grid-template-columns:repeat(4,1fr)}
+  body.painel-app .toast{bottom:24px}
+  body.painel-app .avisos-box{left:auto;bottom:24px;right:24px;width:380px}
+  .ini-cards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+}
+@media (min-width:1200px){
+  body.painel-app{--lateral:232px}
+  body.painel-app nav.tabs{padding:14px 12px}
+  body.painel-app nav.tabs button{flex-direction:row;justify-content:flex-start;gap:12px;padding:10px 14px;font-size:.98rem;text-align:left}
+  body.painel-app nav.tabs svg{width:22px;height:22px;flex-shrink:0}
+  body.painel-app nav.tabs .badge{position:static;margin-left:auto;font-size:.76rem;min-width:22px;height:22px;border-radius:11px}
+  body.painel-app nav.tabs .nav-destaque:not([aria-current="page"]){color:var(--ink);font-weight:700}
+  .ini-grade{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:0 24px;align-items:start}
+  .ini-rapidas{grid-template-columns:1fr}
+  .ini-colunas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 24px;align-items:start}
+}
 </style>
 <link rel="stylesheet" href="secretaria24h.css">
 </head>
@@ -279,6 +394,7 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
   <header class="top">
     <div class="top-row">
       <div>
+        <div class="marca" aria-hidden="true">Central Paroquial · Painel</div>
         <button class="parish parish-btn" id="hdrName" type="button"></button>
         <div class="sub" id="hdrSub"></div>
       </div>
@@ -298,6 +414,7 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
       </select>
       </span>
       <span id="opUser" hidden></span>
+      <button type="button" class="sino" id="sino" hidden aria-haspopup="true" aria-expanded="false" aria-controls="sinoPainel"><span aria-hidden="true">🔔</span><span class="sino-n" id="sinoN" hidden></span><span class="sr" id="sinoSr">Novas atividades</span></button>
       <button type="button" class="op-sair" id="btnSair" hidden>Sair</button>
       <span class="sync" id="syncSt" role="status" hidden></span>
     </div>
@@ -305,6 +422,7 @@ details.txt summary{cursor:pointer;color:var(--lit);font-weight:700;padding:4px 
   <main id="view" tabindex="-1"></main>
   <nav class="tabs" id="tabs" aria-label="Seções"></nav>
 </div>
+<div class="sino-painel" id="sinoPainel" role="region" aria-label="Novas atividades" hidden></div>
 
 <script src="config.js"></script>
 <script src="secretaria24h.js"></script>
@@ -329,7 +447,7 @@ const MISSAS = 'Terça-feira: 19h30\nQuarta-feira: 19h30\nQuinta-feira: 19h30\nP
 function seed(){
   const t0 = new Date();
   return {
-    mode:'painel', tab:'comunicar', pubTab:'igreja', operador:'Secretaria',
+    mode:'painel', tab:'inicio', pubTab:'igreja', operador:'Secretaria',
     cfg:{
       nome:'Paróquia Santo Antônio – Jaraguá',
       padroeiro:'Santo Antônio',
@@ -571,7 +689,7 @@ const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(
 // Matriz de acesso: espelha can_access() do schema.sql. As áreas que já existiam no piloto
 // continuam abertas a toda a equipe nesta versão; dizimistas (dados pessoais) só padre e secretaria.
 const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes','secretaria24h'], pascom:['avisos','agenda','comunidades','noticias']};
-const AREAS_ABERTAS = ['comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
+const AREAS_ABERTAS = ['inicio','comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
 const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
 const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas', contribs:'dizimistas'};
 // Contribuições: só os últimos 24 meses (o suficiente para a tela e o histórico).
@@ -652,7 +770,7 @@ async function iniciarNuvem(){
 async function entrar(email, senha){
   const {data, error} = await NUVEM.sb.auth.signInWithPassword({email, password:senha});
   if (error) throw error;
-  S.mode = 'painel';
+  S.mode = 'painel'; S.tab = 'inicio'; // depois do login, sempre a tela inicial do papel
   await entrarComSessao(data.session);
 }
 async function sair(){
@@ -743,6 +861,8 @@ function renderHeader(){
   // Com login real, "Usando agora" some: quem fez cada ação vem do usuário logado.
   document.getElementById('opDemo').hidden = NUVEM.ativo;
   ['opUser','btnSair','syncSt'].forEach(id => document.getElementById(id).hidden = !logado());
+  document.getElementById('sino').hidden = !painelApp();
+  if (!painelApp()) fecharSino();
   if (logado()){ document.getElementById('opUser').textContent = `${PAPEIS[NUVEM.papel]||NUVEM.papel} · ${NUVEM.sessao.user.email}`; marcar(NUVEM.estado); }
 }
 document.getElementById('btnSair').onclick = () => sair();
@@ -766,34 +886,60 @@ const I = {
   comunidades:'<path d="M2.5 21V12l5-4 5 4v9"/><path d="M12.5 21v-6.5l4.5-3.5 4.5 3.5V21"/><path d="M7.5 3v5M5.8 4.7h3.4M1.5 21h21"/>',
   dizimistas:'<path d="M12 20s-7-4.2-7-9.5A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.5C19 15.8 12 20 12 20z"/><path d="M12 11v4M10 13h4"/>',
   secretaria24h:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  inicio:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   mais:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   contato:'<path d="M12 2v5M10 4h4M5 21V11l7-4 7 4v10M9 21v-5h6v5"/>'
 };
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+// Painel: no celular, a barra de baixo tem as 4 tarefas do dia a dia + "Mais"; no tablet e no
+// computador, o menu lateral mostra todas as áreas (mesmo HTML; o CSS escolhe pela largura da tela).
+const NAV = [['inicio','Início'],['secretaria24h','Secretaria 24h'],['comunicar','Comunicar'],['agenda','Agenda'],['intencoes','Intenções'],
+  ['dizimistas','Dizimistas'],['mensagens','Mensagens'],['pessoas','Pessoas'],['comunidades','Comunidades'],['uso','Uso'],['ajustes','Ajustes']];
+const BARRA = ['inicio','comunicar','agenda','intencoes'];
+const navItens = () => NAV.filter(([k]) => pode(k) && (k !== 'secretaria24h' || window.S24));
 const tabsFor = () => S.mode==='painel'
-  ? [['comunicar','Comunicar'],['agenda','Agenda'],['dizimistas','Dizimistas'],['intencoes','Intenções'],['mais','Mais']].filter(([k]) => pode(k))
+  ? [...navItens().filter(([k]) => BARRA.includes(k)), ['mais','Mais']]
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
 const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja'};
-// Painel: 4 tarefas do dia a dia na barra; o resto fica em "Mais" (nenhuma função some).
-const MAIS = [['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
+// Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
+const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
+  ['dizimistas','Dizimistas','Cadastro, acompanhamento do dízimo e interessados'],
+  ['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
   ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],
-  ...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
+  ['uso','Uso','Como a equipe está usando a Central'],['ajustes','Ajustes','Dados da paróquia, horários de missa e canais']];
 const maisItens = () => MAIS.filter(([k]) => pode(k));
 const abaAtual = () => S.mode==='painel' ? (maisItens().some(([k]) => k===S.tab) ? 'mais' : S.tab) : (SUBTELAS_PUB[S.pubTab] || S.pubTab);
+// Números que pedem atenção em cada área (badge no menu, no "Mais" e no Início).
+function contagens(){
+  const s24 = window.S24 && pode('secretaria24h') ? S24.resumo() : null;
+  return {
+    mensagens: pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length,
+    intencoes: (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())).length,
+    dizimistas: pode('dizimistas') ? rel('leads').filter(l => l.status==='new').length : 0,
+    secretaria24h: s24?.estado === 'ok' ? s24.cont.new : 0
+  };
+}
+const ROTULO_BADGE = {mensagens:'para enviar hoje', intencoes:'novas', dizimistas:'novos interessados', secretaria24h:'novas', mais:'pendências'};
+const badgeHTML = (n, k) => n ? `<span class="badge"><span aria-hidden="true">${n}</span><span class="sr">${n} ${ROTULO_BADGE[k] || ''}</span></span>` : '';
 function maisHTML(){
-  const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
-  return `<h2>Mais</h2><div class="list">${maisItens().map(([k,l,d]) => `<button class="mais-item" data-mais="${k}">${icon(k)}<span class="grow"><b>${l}</b><span class="small muted" style="display:block">${d}</span></span>${k==='mensagens' && pend ? `<span class="badge">${pend}</span>` : '<span class="muted" aria-hidden="true">›</span>'}</button>`).join('')}</div>`;
+  const c = contagens();
+  return `<h2>Mais</h2><div class="list">${maisItens().map(([k,l,d]) => `<button class="mais-item" data-mais="${k}">${icon(k)}<span class="grow"><b>${l}</b><span class="small muted" style="display:block">${d}</span></span>${c[k] ? badgeHTML(c[k], k) : '<span class="muted" aria-hidden="true">›</span>'}</button>`).join('')}</div>`;
 }
 const bindMais = root => root.querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { S.tab = b.dataset.mais; save(); render(); scrollTo(0,0); });
 function renderTabs(){
   const cur = abaAtual();
-  const pend = pendentesHoje().filter(x=>!S.enviadosHoje.ids.includes(x.key)).length;
-  document.getElementById('tabs').innerHTML = tabsFor().map(([k,l]) => {
-    const ni = (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())).length;
-    const nl = k==='dizimistas' ? rel('leads').filter(l => l.status==='new').length : 0;
-    const b = (k==='mais' && pend) ? `<span class="badge">${pend}</span>` : (k==='intencoes' && ni) ? `<span class="badge">${ni}</span>` : nl ? `<span class="badge">${nl}</span>` : '';
-    return `<button data-tab="${k}" ${cur===k?'aria-current="page"':''}>${icon(k)}${l}${b}</button>`;
+  if (S.mode !== 'painel'){
+    document.getElementById('tabs').innerHTML = tabsFor().map(([k,l]) => `<button data-tab="${k}" ${cur===k?'aria-current="page"':''}>${icon(k)}${l}</button>`).join('');
+    return;
+  }
+  const c = contagens(), noMais = maisItens().map(([k]) => k);
+  c.mais = noMais.reduce((t, k) => t + (c[k] || 0), 0);
+  // O item aberto fica marcado no menu lateral; no celular, "Mais" fica marcado para o que está dentro dele.
+  const atual = k => k === S.tab || (k === 'mais' && cur === 'mais');
+  document.getElementById('tabs').innerHTML = [...navItens(), ['mais','Mais']].map(([k,l]) => {
+    const cls = [k === 'mais' ? 'so-barra' : BARRA.includes(k) ? '' : 'so-lateral', k === 'secretaria24h' && c[k] ? 'nav-destaque' : ''].filter(Boolean).join(' ');
+    return `<button data-tab="${k}"${cls ? ` class="${cls}"` : ''} ${atual(k)?'aria-current="page"':''}>${icon(k)}<span class="nav-t">${l}</span>${badgeHTML(c[k], k)}</button>`;
   }).join('');
 }
 document.getElementById('tabs').addEventListener('click', e => {
@@ -2677,8 +2823,229 @@ function bindAcesso(root){
   });
 }
 
+/* =========================================================
+   INÍCIO DO PAINEL — uma tela por papel
+   Secretaria: operacional, com a Secretaria 24h em primeiro lugar.
+   Padre e suporte: visão geral da paróquia em cartões; cada cartão abre o módulo.
+   PASCOM: comunicação e agenda.
+   ========================================================= */
+const painelApp = () => S.mode==='painel' && (!NUVEM.ativo || logado());
+const papelAtual = () => NUVEM.ativo ? NUVEM.papel : ({Secretaria:'secretaria', Padre:'padre', PASCOM:'pascom', Suporte:'admin'}[S.operador] || 'secretaria');
+const SAUDA_PAPEL = {secretaria:'Secretaria', padre:'Padre', pascom:'equipe da PASCOM', admin:'Suporte'};
+const saudacao = () => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; };
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+
+// Atalhos do Início, do 🔔 e dos avisos: abre o módulo já no ponto certo.
+function irPara(k){
+  comEdit = evEdit = dzEdit = acReg = acHist = null; dzPubEnviado = false;
+  let foco = null;
+  if (k === 'aviso-novo'){ k = 'comunicar'; foco = 'txt'; }
+  else if (k === 'evento-novo'){ k = 'agenda'; evEdit = {}; foco = 'ev-tit'; }
+  else if (k === 'dizimo'){ k = 'dizimistas'; dzVista = 'acomp'; acMes = null; }
+  else if (k === 'interessados'){ k = 'dizimistas'; dzVista = 'cadastro'; foco = '#interessados'; }
+  else if (k === 'dizimistas') dzVista = 'cadastro';
+  S.mode = 'painel'; S.tab = k; fecharSino(); save(); render(); scrollTo(0,0);
+  if (foco === '#interessados') document.getElementById('interessados')?.scrollIntoView({block:'start'});
+  else if (foco) document.getElementById(foco)?.focus();
+}
+
+function hojeDados(){
+  const hojeSP = diaSP(new Date().toISOString());
+  const evs = pode('agenda') && !falta('events') ? rel('events').filter(e => !e.cancelled).sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at)) : [];
+  return {
+    hojeSP,
+    eventosHoje: evs.filter(e => diaSP(e.starts_at) === hojeSP),
+    eventosSemana: evs.filter(e => Date.parse(fimEvento(e)) >= now() && Date.parse(e.starts_at) < now() + 7*DAY),
+    intencoes: (S.intencoes||[]).filter(i => i.status==='nova' && i.data >= isoDay(new Date())),
+    avisos: (S.avisos||[]).filter(a => a.categoria !== 'igreja').sort((a,b) => b.ts - a.ts),
+    datas: pendentesHoje(),
+    leads: pode('dizimistas') && !falta('leads') ? rel('leads').filter(l => l.status === 'new') : []
+  };
+}
+function quandoCurto(e, h){
+  const d = diaSP(e.starts_at), amanha = diaSP(new Date(now() + DAY).toISOString());
+  return `${d === h.hojeSP ? 'Hoje' : d === amanha ? 'Amanhã' : dataCurta(d).slice(0,5)}, ${horaBR(e.starts_at)}`;
+}
+const cartaoIni = ({ir, ic, k, v, t, extra = '', alerta = false, go = 'Abrir'}) =>
+  `<button type="button" class="ini-card${alerta ? ' alerta' : ''}" data-ir="${ir}"><span class="ini-k"><span aria-hidden="true">${ic}</span> ${k}</span>${v !== undefined ? `<b class="ini-v${!v ? ' zero' : ''}">${v}</b>` : ''}<span class="ini-t">${t}</span>${extra}<span class="ini-go">${go} ›</span></button>`;
+
+function cardAgenda(h, n = 2){
+  if (!pode('agenda')) return '';
+  const q = h.eventosHoje.length, prox = h.eventosSemana.slice(0, n);
+  return cartaoIni({ir:'agenda', ic:'📅', k:'Agenda', v:q, t:q ? (q === 1 ? 'compromisso hoje' : 'compromissos hoje') : 'Nenhum compromisso hoje', go:'Abrir agenda',
+    extra: prox.length ? prox.map(e => `<span class="ini-l">${esc(quandoCurto(e, h))} · ${esc(e.title)}</span>`).join('') : '<span class="ini-l">Não há eventos cadastrados para esta semana.</span>'});
+}
+function cardIntencoes(h){
+  const n = h.intencoes.length;
+  return cartaoIni({ir:'intencoes', ic:'🙏', k:'Intenções', v:n, alerta:n > 0, t:n ? 'aguardando confirmação' : 'Nenhuma intenção nova', go:'Ver intenções',
+    extra: n ? `<span class="ini-l">Próxima: ${esc(dataBR(h.intencoes.slice().sort((a,b) => a.data.localeCompare(b.data))[0].data))}</span>` : ''});
+}
+function cardAvisos(h){
+  const n = h.avisos.length;
+  return cartaoIni({ir:'comunicar', ic:'📣', k:'Avisos', v:n, t:n ? 'publicados na página' : 'Nenhum aviso publicado', go:'Publicar aviso',
+    extra: n ? `<span class="ini-l">Último: ${esc(h.avisos[0].titulo || '')}</span>` : ''});
+}
+function cardDatas(h){
+  const n = h.datas.length, pend = h.datas.filter(x => !S.enviadosHoje.ids.includes(x.key)).length;
+  return cartaoIni({ir:'mensagens', ic:'🎉', k:'Aniversários e bodas', v:n, alerta:pend > 0, go:'Enviar mensagens',
+    t: n ? (pend ? plural(pend, 'mensagem para enviar hoje', 'mensagens para enviar hoje') : 'Todas as mensagens de hoje enviadas ✓') : 'Ninguém para felicitar hoje',
+    extra: h.datas.slice(0, 3).map(x => `<span class="ini-l">${esc(x.p.nome)} · ${x.tipo === 'aniversario' ? 'aniversário' : x.tipo === 'bodas' ? `${x.anos} anos de casamento` : 'aniversário de dízimo'}</span>`).join('')});
+}
+function cardLeads(h){
+  if (!pode('dizimistas') || falta('leads')) return '';
+  const n = h.leads.length;
+  return cartaoIni({ir:'interessados', ic:'❤️', k:'Quero ser dizimista', v:n, alerta:n > 0, t:n ? (n === 1 ? 'novo interessado' : 'novos interessados') : 'Nenhum interessado novo', go:'Ver interessados',
+    extra: h.leads.slice(0, 2).map(l => `<span class="ini-l">${esc(l.name)} · ${esc(quandoLead(l.created_at))}</span>`).join('')});
+}
+function cardDizimo(){
+  if (!pode('dizimistas') || falta('contribs') || falta('tithers')) return '';
+  const m = mesDe(new Date()), ativos = ativosNoMes(m), reg = ativos.filter(t => contribDe(t.id, m)).length;
+  const pct = ativos.length ? Math.round(reg / ativos.length * 100) : 0;
+  return cartaoIni({ir:'dizimo', ic:'💚', k:`Dízimo de ${MESES[new Date().getMonth()]}`, v:`${pct}%`, go:'Abrir acompanhamento',
+    t: ativos.length ? `${reg} de ${ativos.length} dizimistas com contribuição registrada` : 'Nenhum dizimista ativo cadastrado',
+    extra: ativos.length ? `<span class="ini-prog" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="ini-l">${plural(ativos.length - reg, 'ainda não registrado', 'ainda não registrados')}</span>` : ''});
+}
+function cardNovosDizimistas(){
+  if (!pode('dizimistas') || falta('tithers')) return '';
+  const n = rel('tithers').filter(t => t.status === 'active' && t.joined_on && Date.parse(t.joined_on) >= now() - 30*DAY).length;
+  return cartaoIni({ir:'dizimistas', ic:'🤝', k:'Novos dizimistas', v:n, t:'nos últimos 30 dias', go:'Ver dizimistas'});
+}
+function cardS24(){
+  if (!window.S24 || !pode('secretaria24h')) return '';
+  const r = S24.resumo();
+  if (r.estado !== 'ok') return cartaoIni({ir:'s24', ic:'📥', k:'Secretaria 24h', t:r.estado === 'carregando' ? 'Carregando solicitações…' : 'Indisponível no momento. Os demais módulos continuam funcionando.', go:'Abrir fila'});
+  const c = r.cont;
+  return cartaoIni({ir:'s24', ic:'📥', k:'Secretaria 24h', v:c.new, alerta:c.new > 0, t:c.new ? (c.new === 1 ? 'solicitação nova' : 'solicitações novas') : 'Nenhuma solicitação nova 🎉', go:'Abrir fila',
+    extra:`<span class="ini-l">Em atendimento: ${c.in_progress} · Aguardando fiel: ${c.waiting_user}</span>`});
+}
+// Secretaria: o bloco grande da Secretaria 24h no topo do Início.
+function s24BlocoHTML(){
+  if (!window.S24 || !pode('secretaria24h')) return '';
+  const r = S24.resumo();
+  const cab = (titulo, sub) => `<div class="ini-s24-cab"><div><div class="s24-kicker">📥 Secretaria 24h</div><h3 id="iniS24T">${titulo}</h3>${sub ? `<p class="small muted">${sub}</p>` : ''}</div><button type="button" class="btn" data-ir="s24">Abrir fila da Secretaria 24h</button></div>`;
+  if (r.estado !== 'ok') return `<section class="ini-s24" aria-labelledby="iniS24T">${r.estado === 'carregando' ? cab('Carregando solicitações…') : cab('Secretaria 24h indisponível no momento', 'Os demais módulos continuam funcionando. Tente abrir a fila em instantes.')}</section>`;
+  const c = r.cont, n = c.new;
+  const stat = (f, v, rot, quente) => `<button type="button" class="stat${quente && v ? ' quente' : ''}" data-ir="s24:${f}"><b>${v}</b><span>${rot}</span></button>`;
+  return `<section class="ini-s24${n ? ' tem-novas' : ''}" aria-labelledby="iniS24T">
+    ${cab(n ? `${plural(n, 'solicitação nova', 'solicitações novas')} esperando atendimento` : 'Nenhuma solicitação nova 🎉', n ? 'Responda no horário da secretaria. Nada é enviado automaticamente ao fiel.' : 'Tudo em dia por aqui.')}
+    <div class="ini-stats">${stat('new', n, 'Novas', true)}${stat('in_progress', c.in_progress, 'Em atendimento')}${stat('waiting_user', c.waiting_user, 'Aguardando fiel')}${stat('completed', c.concluidasHoje, 'Concluídas hoje')}</div>
+    ${r.novas.length ? `<ul class="ini-novas" aria-label="Solicitações novas">${r.novas.slice(0, 4).map(x => `<li><button type="button" class="ini-nova" data-s24-abre="${esc(x.id)}"><span class="grow"><b>${esc(x.servico)}</b>${!x.visto ? ' <span class="s24-nova">Nova</span>' : ''}${x.is_demo ? ' <span class="chip neutro">demonstração</span>' : ''}<span class="small muted" style="display:block">${esc(x.nome)} · ${esc(ago(Date.parse(x.created_at)))}</span></span><span class="small" style="font-weight:700;color:var(--lit)">Abrir solicitação ›</span></button></li>`).join('')}</ul>` : ''}
+  </section>`;
+}
+function rapidasHTML(){
+  const a = [['aviso-novo','✍️','Publicar aviso']];
+  if (pode('agenda')) a.push(['evento-novo','📅','Criar evento']);
+  a.push(['intencoes','🙏','Ver intenções de missa']);
+  if (window.S24 && pode('secretaria24h')) a.push(['s24','📥','Abrir Secretaria 24h']);
+  if (pode('dizimistas')) a.push(['dizimo','💚','Registrar contribuição']);
+  a.push(['mensagens','💬','Enviar mensagens do dia']);
+  return `<div class="ini-rapidas">${a.map(([ir, ic, t]) => `<button type="button" class="btn ghost" data-ir="${ir}"><span aria-hidden="true">${ic}</span>${t}</button>`).join('')}</div>`;
+}
+function eventosSemanaHTML(h){
+  if (!pode('agenda')) return '';
+  const l = h.eventosSemana.slice(0, 6);
+  return l.length ? `<div class="list ini-eventos">${l.map(e => `<button type="button" class="pick-row" data-ir="agenda"><span class="grow"><b>${esc(e.title)}</b><span class="small muted" style="display:block">${esc(quandoCurto(e, h))}${e.location ? ' · ' + esc(e.location) : ''}</span></span><span class="muted" aria-hidden="true">›</span></button>`).join('')}</div>`
+    : `<div class="block empty" style="margin-bottom:10px">Não há eventos cadastrados para esta semana.<br><button type="button" class="btn sm ghost" data-ir="evento-novo" style="margin-top:10px">Criar evento</button></div>`;
+}
+function inicioHTML(){
+  const papel = papelAtual(), d = new Date(), h = hojeDados();
+  const cab = `<div class="ini-cab"><div class="ini-data">${cap(DIAS[d.getDay()])}, ${d.getDate()} de ${MESES[d.getMonth()]}</div><h2>${saudacao()}, ${esc(SAUDA_PAPEL[papel] || 'equipe')}</h2></div>`;
+  const notif = window.S24 && pode('secretaria24h') ? S24.notifCardHTML() : '';
+  if (papel === 'padre' || papel === 'admin') return cab + `<section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Como está a paróquia hoje</h3>
+    <div class="ini-cards">${cardS24()}${cardAgenda(h, 3)}${cardDatas(h)}${cardDizimo()}${cardAvisos(h)}${cardIntencoes(h)}${cardLeads(h)}${cardNovosDizimistas()}</div></section>
+    <div class="ini-colunas">
+      <section aria-labelledby="iniEv"><h3 class="ini-h" id="iniEv">Próximos eventos (7 dias)</h3>${eventosSemanaHTML(h)}</section>
+      <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section>
+    </div>${notif}`;
+  if (papel === 'pascom') return cab + `<div class="ini-grade">
+    <section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Hoje na paróquia</h3>
+      <div class="ini-cards">${cardAgenda(h)}${cardAvisos(h)}${pode('comunidades') ? cartaoIni({ir:'comunidades', ic:'⛪', k:'Comunidades', v:comunidadesAtivas().length, t:'comunidades ativas', go:'Ver comunidades'}) : ''}</div>
+      <h3 class="ini-h" id="iniEv">Próximos eventos (7 dias)</h3>${eventosSemanaHTML(h)}</section>
+    <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section></div>`;
+  return cab + s24BlocoHTML() + notif + `<div class="ini-grade">
+    <section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Hoje na paróquia</h3>
+      <div class="ini-cards">${cardAgenda(h)}${cardIntencoes(h)}${cardAvisos(h)}${cardDatas(h)}${cardLeads(h)}</div></section>
+    <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section>
+  </div>`;
+}
+function bindInicio(root){
+  root.querySelectorAll('[data-ir]').forEach(b => b.onclick = () => { const k = b.dataset.ir; if (k.startsWith('s24')) S24.abrirFila(k.split(':')[1]); else irPara(k); });
+  root.querySelectorAll('[data-s24-abre]').forEach(b => b.onclick = () => S24.abrirSolicitacao(b.dataset.s24Abre));
+  window.S24?.bindNotif(root);
+}
+
+/* ---------- avisos com ação (sem alert do navegador) ----------
+   Nova solicitação, erro com "Tentar novamente"… Não bloqueiam a tela e somem sozinhos. */
+function avisoToast({icone = '', titulo, linhas = [], acao = null, tempo = 9000, tipo = ''}){
+  let box = document.getElementById('avisosBox');
+  if (!box){ box = document.createElement('div'); box.id = 'avisosBox'; box.className = 'avisos-box'; box.setAttribute('aria-live', 'polite'); document.body.appendChild(box); }
+  while (box.children.length >= 3) box.firstElementChild.remove();
+  const t = document.createElement('div'); t.className = 'aviso-toast' + (tipo ? ' ' + tipo : ''); t.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+  t.innerHTML = `<div class="at-l">${icone ? `<span class="at-ic" aria-hidden="true">${esc(icone)}</span>` : ''}<div class="grow"><b>${esc(titulo)}</b>${linhas.filter(Boolean).map(l => `<div class="small">${esc(l)}</div>`).join('')}</div><button type="button" class="at-x" aria-label="Fechar aviso">×</button></div>${acao ? `<button type="button" class="btn sm at-acao">${esc(acao.rotulo)}</button>` : ''}`;
+  let timer;
+  const fechar = () => { clearTimeout(timer); t.remove(); };
+  const contar = ms => { clearTimeout(timer); timer = setTimeout(fechar, ms); };
+  t.querySelector('.at-x').onclick = fechar;
+  if (acao) t.querySelector('.at-acao').onclick = () => { fechar(); acao.fn(); };
+  t.addEventListener('mouseenter', () => clearTimeout(timer)); t.addEventListener('mouseleave', () => contar(4000));
+  t.addEventListener('focusin', () => clearTimeout(timer)); t.addEventListener('focusout', () => contar(4000));
+  box.appendChild(t); contar(tempo);
+  return t;
+}
+
+/* ---------- 🔔 novas atividades (dentro do sistema) ----------
+   Junta o que chegou: Secretaria 24h, "Quero ser dizimista" e intenções de missa.
+   "Visto" é só deste aparelho (abrir o sino marca tudo como visto). */
+const SINO_KEY = () => KEY + '-sino-' + (NUVEM.parishId || 'demo');
+function sinoVisto(){ try { return +localStorage.getItem(SINO_KEY()) || 0; } catch(e){ return 0; } }
+function atividades(){
+  const r = [];
+  if (window.S24 && pode('secretaria24h')){
+    const s = S24.resumo();
+    if (s.estado === 'ok') s.novas.forEach(x => r.push({ts:Date.parse(x.created_at), ic:'📥', t:'Nova solicitação', d:x.servico + (x.is_demo ? ' (demonstração)' : ''), ir:() => S24.abrirSolicitacao(x.id)}));
+  }
+  if (pode('dizimistas') && !falta('leads')) rel('leads').filter(l => l.status === 'new').forEach(l => r.push({ts:Date.parse(l.created_at), ic:'❤️', t:'Novo interessado em ser dizimista', d:l.name, ir:() => irPara('interessados')}));
+  (S.intencoes||[]).filter(i => i.status === 'nova' && i.data >= isoDay(new Date())).forEach(i => r.push({ts:i.ts, ic:'🙏', t:'Nova intenção de missa', d:`${TIPOS_INT[i.tipo] || 'Intenção'} · ${dataBR(i.data)}`, ir:() => irPara('intencoes')}));
+  return r.filter(a => a.ts).sort((a,b) => b.ts - a.ts);
+}
+let sinoAntes = 0;
+function desenharSino(){
+  const l = atividades().slice(0, 20), p = document.getElementById('sinoPainel');
+  p.innerHTML = `<h3>Novas atividades</h3>${l.length ? l.map((a, i) => `<button type="button" class="sino-item${a.ts > sinoAntes ? ' nao-visto' : ''}" data-at="${i}"><span class="ic" aria-hidden="true">${a.ic}</span><span class="grow"><b>${esc(a.t)}</b><span class="small" style="display:block">${esc(a.d)}</span><span class="small muted">${esc(ago(a.ts))}</span></span></button>`).join('')
+    : '<p class="sino-vazio">Nenhuma novidade por enquanto 🎉<br>Quando chegar algo novo, aparece aqui.</p>'}`;
+  p.querySelectorAll('[data-at]').forEach(b => b.onclick = () => { const a = l[+b.dataset.at]; fecharSino(); a.ir(); });
+}
+function atualizarSino(){
+  const btn = document.getElementById('sino'); if (!btn || btn.hidden) return;
+  const n = atividades().filter(a => a.ts > sinoVisto()).length, el = document.getElementById('sinoN');
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : n;
+  document.getElementById('sinoSr').textContent = n ? `Novas atividades: ${n}` : 'Novas atividades: nenhuma nova';
+  if (!document.getElementById('sinoPainel').hidden) desenharSino();
+}
+function abrirSino(){
+  const btn = document.getElementById('sino'), p = document.getElementById('sinoPainel');
+  sinoAntes = sinoVisto();
+  try { localStorage.setItem(SINO_KEY(), String(now())); } catch(e){}
+  desenharSino();
+  p.style.top = Math.round(btn.getBoundingClientRect().bottom + 8) + 'px';
+  p.hidden = false; btn.setAttribute('aria-expanded', 'true');
+  atualizarSino();
+  p.querySelector('button')?.focus();
+}
+function fecharSino(volta){
+  const p = document.getElementById('sinoPainel'), btn = document.getElementById('sino');
+  if (!p || p.hidden) return;
+  p.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (volta) btn.focus();
+}
+document.getElementById('sino').onclick = e => { e.stopPropagation(); document.getElementById('sinoPainel').hidden ? abrirSino() : fecharSino(); };
+document.addEventListener('click', e => { if (!e.target.closest?.('#sinoPainel, #sino')) fecharSino(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharSino(true); });
+// Chamado quando chegam dados novos em segundo plano: atualiza só o menu e o 🔔 (não mexe no que está sendo digitado).
+function atualizarAtencao(){ if (!painelApp()) return; renderTabs(); atualizarSino(); }
+
 /* ---------- roteador ---------- */
 function render(){
+  document.body.classList.toggle('painel-app', painelApp());
   if (!(S.mode==='painel' && S.tab==='comunicar')) { publicado = null; if (!removendo) avisoStatus = null; }
   renderHeader();
   if (S.mode==='painel' && NUVEM.ativo && !logado()){
@@ -2687,12 +3054,12 @@ function render(){
     return;
   }
   const validas = tabsFor().map(([k]) => k).concat(S.mode==='publico' ? Object.keys(SUBTELAS_PUB) : maisItens().map(([k]) => k));
-  if (!validas.includes(S.mode==='painel'?S.tab:S.pubTab)) { if (S.mode==='painel') S.tab='comunicar'; else S.pubTab='igreja'; }
+  if (!validas.includes(S.mode==='painel'?S.tab:S.pubTab)) { if (S.mode==='painel') S.tab='inicio'; else S.pubTab='igreja'; }
   if (S.mode==='publico' && !vendoAtiva() && !vendoRede()) S.vendo = ATIVA;
   renderTabs();
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
-    comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
+    inicio:[inicioHTML,bindInicio], comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
     ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]})
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
@@ -2711,6 +3078,8 @@ function render(){
   const [h,b] = map[S.tab], noMais = maisItens().some(([k]) => k===S.tab);
   v.innerHTML = (noMais ? '<button class="crumb" id="voltaMais">‹ Mais</button>' : '') + h(); b(v);
   v.querySelector('#voltaMais')?.addEventListener('click', () => { S.tab = 'mais'; comEdit = null; save(); render(); scrollTo(0,0); });
+  if (window.S24 && pode('secretaria24h')) S24.iniciar(); // badge, 🔔 e aviso de nova solicitação em qualquer tela
+  atualizarSino();
 }
 if (NUVEM.ativo && location.hash === '#painel') S.mode = 'painel';
 S.pubTab = 'igreja'; // a página pública sempre abre na Home (Igreja)
