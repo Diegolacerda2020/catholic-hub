@@ -122,6 +122,7 @@ A chave da IA fica só no servidor do Supabase, nunca no `config.js` nem no GitH
 - `wrangler.jsonc` e `.assetsignore`: deploy no Cloudflare Workers (publica só `index.html`, `config.js` e `secretaria24h.js`/`.css`).
 - `supabase/schema.sql`: tabelas, regras de acesso (RLS) e funções da página pública (idempotente).
 - `docs/MVP2.md`: arquitetura desta versão.
+- `docs/PILOTO.md`: página pública por ações, Agenda unificada, Sala das Velas, destaques litúrgicos, notícias, Diretório Arquidiocesano e multi-paróquia (rodada pré-piloto).
 - `docs/UX-PAINEL.md`: painel responsivo (celular/tablet/computador), Início por papel, avisos, 🔔 e a decisão sobre Web Push.
 - `secretaria24h.js`, `secretaria24h.css`, `supabase/secretaria24h.sql` e `tests/secretaria24h/`: Secretaria 24h ([`docs/SECRETARIA24H.md`](docs/SECRETARIA24H.md)).
 - `supabase/README.md`: passo a passo do banco e dos usuários.
