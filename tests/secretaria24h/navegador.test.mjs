@@ -16,7 +16,7 @@ const SRV = {slug:'santo-antonio-jaragua', modulo:'ok'};
 const PORTA = 8801;
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
-  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:${JSON.stringify(SRV.slug)}};`); }
+  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:${JSON.stringify(SRV.slug)}, noticiasOficial:"", noticiasEspelho:""};`); }
   if (u.pathname === '/secretaria24h.js' && SRV.modulo === '404'){ res.writeHead(404); return res.end(); }
   if (u.pathname === '/secretaria24h.js' && SRV.modulo === 'quebrado'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end('throw new Error("módulo quebrado de propósito");'); }
   if (u.pathname.startsWith('/api/')){ res.writeHead(404); return res.end(); }
@@ -66,11 +66,11 @@ console.log('== fiel anônimo (390 px)');
 const fiel = await aparelho();
 await clk(fiel, '#mPublico').catch(() => {}); await esperar(400);
 t_('barra pública sem aba nova', JSON.stringify(await fiel.$$eval('#tabs button', l => l.map(b => b.dataset.tab))) === '["igreja","agenda","comunidades","avisos","contato"]');
-t_('card na Home', await vis(fiel, '.s24-card') && (await texto(fiel)).includes('Secretaria paroquial, sempre aberta'));
+t_('ação Secretaria 24h na Home', await vis(fiel, '.acoes-grid [data-s24-abrir]') && (await texto(fiel)).includes('Secretaria 24h'));
 t_('Home sem rolagem lateral', await semRolagemLateral(fiel));
-await fiel.$eval('.s24-card', e => e.scrollIntoView({block:'center'}));
+await fiel.$eval('.acoes-grid', e => e.scrollIntoView({block:'center'}));
 await fiel.screenshot({path:path.join(SHOTS, '01-home-card-390.png')});
-await clk(fiel, '[data-s24-abrir]'); await esperar(400); t = await texto(fiel);
+await clk(fiel, '.acoes-grid [data-s24-abrir]'); await esperar(400); t = await texto(fiel);
 t_('catálogo via RPC com 6 serviços', (await fiel.$$('.s24-serv')).length === 6);
 t_('aviso de horário e horário da secretaria', t.includes('O atendimento pela equipe acontece no horário normal da secretaria') && t.includes('Segunda a sexta, 8h às 12h'));
 t_('catálogo sem rolagem lateral', await semRolagemLateral(fiel)); await foto(fiel, '02-catalogo-390');
@@ -107,7 +107,7 @@ t_('fiel não executa RPC da equipe', await fiel.evaluate(async () => { const r 
 // atalhos
 await clk(fiel, '#tabs [data-tab="igreja"]'); await esperar(250); await clk(fiel, '[data-s24-abrir]'); await esperar(300);
 await clk(fiel, '[data-s24-intencao]'); await esperar(400);
-t_('atalho: intenção de Missa (fluxo existente)', await fiel.evaluate(() => S.pubTab === 'agenda' && !!document.getElementById('intF')));
+t_('atalho: intenção de Missa (fluxo existente)', await fiel.evaluate(() => S.pubTab === 'intencao' && !!document.getElementById('intF')));
 await clk(fiel, '#tabs [data-tab="contato"]'); await esperar(300);
 t_('botão Secretaria 24h na página Paróquia', (await fiel.$$eval('#view [data-s24-abrir]', l => l.map(b => b.textContent))).join().includes('Secretaria 24h'));
 await clk(fiel, '#view [data-s24-abrir]'); await esperar(300);
@@ -166,7 +166,7 @@ console.log('== desktop (1280 px) e modo escuro');
 for (const [larg, suf, escuro] of [[1280, '1280', false], [390, '390-escuro', true]]){
   const p = await aparelho({largura:larg, escuro});
   await clk(p, '#mPublico').catch(() => {}); await esperar(300);
-  await p.$eval('.s24-card', e => e.scrollIntoView({block:'center'})); await p.screenshot({path:path.join(SHOTS, `01-home-card-${suf}.png`)});
+  await p.$eval('.acoes-grid', e => e.scrollIntoView({block:'center'})); await p.screenshot({path:path.join(SHOTS, `01-home-card-${suf}.png`)});
   await clk(p, '[data-s24-abrir]'); await esperar(300); await foto(p, `02-catalogo-${suf}`);
   await clk(p, '[data-s24-servico="batismo"]'); await esperar(300); await foto(p, `03-formulario-${suf}`);
   t_(`${suf}: sem rolagem lateral`, await semRolagemLateral(p));
@@ -205,8 +205,8 @@ async function passeio(p, rotulo){
   // Home, Agenda (+ intenções), Comunidades, Avisos, Paróquia, e no painel Dizimistas / Acompanhamento / Intenções
   const r = {};
   for (const k of ['igreja','agenda','comunidades','avisos','contato']){ await p.evaluate(k => document.querySelector(`#tabs [data-tab="${k}"]`).click(), k); await esperar(250); r[k] = await texto(p); }
-  t_(`${rotulo}: Home Igreja continua`, r.igreja.includes('Hoje na Igreja') && r.igreja.includes('Notícias da Igreja'));
-  t_(`${rotulo}: Agenda e intenções continuam`, r.agenda.includes('Agenda da paróquia') && r.agenda.includes('Pedir intenção de missa'));
+  t_(`${rotulo}: Home Igreja continua`, r.igreja.includes('Liturgia de hoje') && r.igreja.includes('Notícias da Igreja'));
+  t_(`${rotulo}: Agenda e intenções continuam`, r.agenda.includes('Horário de missas') && r.agenda.includes('Pedir intenção de missa'));
   t_(`${rotulo}: Comunidades continuam`, r.comunidades.includes('Comunidade São José'));
   t_(`${rotulo}: Avisos continuam`, r.avisos.includes('Aviso da paróquia'));
   t_(`${rotulo}: Paróquia continua`, r.contato.includes('Secretaria paroquial'));
@@ -227,7 +227,7 @@ for (const modo of ['rede', 'ausente']){
   console.log(`== falha: RPC/tabelas da Secretaria 24h com erro (${modo})`);
   OP.falha = modo;
   const p = await aparelho(); await clk(p, '#mPublico').catch(() => {}); await esperar(400);
-  t_(`${modo}: Home sem o card (não quebra)`, !(await p.$('.s24-card')) && (await texto(p)).includes('Hoje na Igreja'));
+  t_(`${modo}: Home sem a ação da Secretaria 24h (não quebra)`, !(await p.$('.acoes-grid [data-s24-abrir]')) && (await texto(p)).includes('Liturgia de hoje'));
   await passeio(p, modo);
   await p.evaluate(() => { S.pubTab = 'secretaria'; render(); }); await esperar(500); t = await texto(p);
   t_(`${modo}: dentro da Secretaria 24h: mensagem amigável`, t.includes('A Secretaria 24h está temporariamente indisponível. Os demais serviços da paróquia continuam funcionando.'));
@@ -254,17 +254,17 @@ OP.falha = null;
   await p.evaluate(() => { S.cfg.secretaria = window.__sec; });
   t_('exceção interna do módulo: mensagem amigável', t.includes('temporariamente indisponível'));
   await p.evaluate(() => document.querySelector('#tabs [data-tab="agenda"]').click()); await esperar(300);
-  t_('exceção interna do módulo: Agenda segue', (await texto(p)).includes('Agenda da paróquia'));
+  t_('exceção interna do módulo: Agenda segue', (await texto(p)).includes('Horário de missas'));
   t_('exceção interna do módulo: nenhum erro de JS escapou', !p.erros.length, p.erros.join(' | '));
 }
 for (const modulo of ['404', 'quebrado']){
   console.log(`== falha: secretaria24h.js ${modulo === '404' ? 'não carregou (404)' : 'carregou com erro'}`);
   SRV.modulo = modulo;
   const p = await aparelho(); await clk(p, '#mPublico').catch(() => {}); await esperar(300);
-  t_(`${modulo}: window.S24 ausente, Home sem card`, await p.evaluate(() => !window.S24) && !(await p.$('.s24-card')));
+  t_(`${modulo}: window.S24 ausente, Home sem a ação`, await p.evaluate(() => !window.S24) && !(await p.$('.acoes-grid [data-s24-abrir]')));
   await passeio(p, modulo);
   await p.evaluate(() => { S.pubTab = 'secretaria'; render(); }); await esperar(300);
-  t_(`${modulo}: tela da Secretaria cai na Home`, (await texto(p)).includes('Hoje na Igreja'));
+  t_(`${modulo}: tela da Secretaria cai na Home`, (await texto(p)).includes('Liturgia de hoje'));
   const s = await painelPasseio(modulo);
   t_(`${modulo}: sem item em Mais`, !(await s.evaluate(() => maisItens().some(([k]) => k === 'secretaria24h'))));
   const errs = [...p.erros, ...s.erros].filter(e => !e.includes('módulo quebrado de propósito'));
@@ -275,7 +275,7 @@ SRV.modulo = 'ok';
 // ---------------------------------------------------------------- f.data.onchange no navegador real
 console.log('== formulário de intenção (f.data.onchange) no Chrome real');
 { const p = await aparelho(); await clk(p, '#mPublico').catch(() => {}); await esperar(300);
-  await clk(p, '#tabs [data-tab="agenda"]'); await esperar(300);
+  await p.evaluate(() => { S.pubTab = 'intencao'; render(); }); await esperar(300);
   const d = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);
   await p.$eval('#i-data', (i, v) => { i.value = v; i.dispatchEvent(new Event('change')); }, d); await esperar(300);
   t_('Chrome: trocar a data da intenção funciona, sem erro', await p.$eval('#i-data', i => i.value) === d && !p.erros.length, p.erros.join(' | '));

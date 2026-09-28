@@ -31,7 +31,7 @@ await tick();
 if (semModulo){
   console.log('== sem secretaria24h.js');
   $('#mPublico').click(); await tick();
-  ok(!$('[data-s24-abrir]') && /Hoje na Igreja/.test(view()), 'Home abre normal, sem card');
+  ok(!$('[data-s24-abrir]') && /Liturgia de hoje/.test(view()) && $('[data-acao="intencao"]'), 'Home abre normal, sem a ação Secretaria 24h');
   $('#tabs [data-tab="contato"]').click(); await tick();
   ok(!/Secretaria 24h/.test(view()) && /Secretaria paroquial/.test(view()), 'Paróquia abre normal, sem botão');
   $('#mPainel').click(); await tick();
@@ -45,8 +45,10 @@ console.log('== página pública (modo demonstração)');
 $('#mPublico').click(); await tick(60);
 const tabs = $$('#tabs [data-tab]').map(b => b.dataset.tab).join();
 ok(tabs === 'igreja,agenda,comunidades,avisos,contato', 'barra pública continua com 5 abas: ' + tabs);
-const card = $('.s24-card');
-ok(card && /Secretaria paroquial, sempre aberta/.test(card.textContent) && /responderá no horário de atendimento/.test(card.textContent), 'card da Home com título e texto');
+// Home nova: a Secretaria 24h é uma das 5 ações, no mesmo nível de Liturgia, Rezar, Intenção e Vela
+const acoes = $$('.acoes-grid .acao').map(b => b.querySelector('b').textContent).join(' | ');
+ok(acoes === 'Liturgia de hoje | Rezar | Pedir intenção de Missa | Acender uma vela | Secretaria 24h', 'ações da Home: ' + acoes);
+ok(!/Hoje na Igreja/.test(view()), 'Home sem o bloco repetido "Hoje na Igreja"');
 $('[data-s24-abrir]').click(); await tick();
 ok(/Como podemos ajudar\?/.test(view()) && /recebe sua solicitação a qualquer momento\. O atendimento pela equipe acontece no horário normal/.test(view()), 'tela Secretaria 24h com o aviso de horário');
 ok($('#tabs [aria-current="page"]')?.dataset.tab === 'igreja', 'aba Igreja continua marcada (subtela)');
@@ -93,7 +95,7 @@ ok(/Não encontramos uma solicitação/.test(view()) && !$('.s24-res'), 'WhatsAp
 // atalho da intenção de Missa
 $('[data-s24-ir="inicio"]').click(); await tick();
 $('[data-s24-intencao]').click(); await tick();
-ok(w.eval('S.pubTab') === 'agenda' && $('#intF'), 'atalho abre o pedido de intenção existente');
+ok(w.eval('S.pubTab') === 'intencao' && $('#intF'), 'atalho abre o pedido de intenção existente');
 $('#tabs [data-tab="igreja"]').click(); await tick();
 $('[data-s24-abrir]').click(); await tick();
 $('[data-pub="dizimista"]').click(); await tick();

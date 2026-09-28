@@ -15,7 +15,7 @@ const TIPOS = {'.html':'text/html; charset=utf-8', '.js':'text/javascript; chars
 const PORTA = 8802;
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
-  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end('window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua"};'); }
+  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end('window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua", noticiasOficial:"", noticiasEspelho:""};'); }
   if (u.pathname.startsWith('/api/')){ res.writeHead(404); return res.end(); } // Worker de notícias/liturgia não roda aqui (404 esperado)
   const f = path.join(REPO, u.pathname === '/' ? 'index.html' : u.pathname);
   if (!f.startsWith(path.resolve(REPO)) || !fs.existsSync(f)){ res.writeHead(404); return res.end(); }

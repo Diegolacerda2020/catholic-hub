@@ -4,20 +4,39 @@
 // (PASCOM sem dizimistas), RPCs públicas e o cenário "schema novo ainda não rodado".
 import crypto from 'node:crypto';
 
-export function criarBackend({migrado = true, semContrib = false} = {}){
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+// Diretório real (gerado do Catálogo 2026) para os testes de busca/ativação no front.
+const DIR = JSON.parse(fs.readFileSync(fileURLToPath(new URL('../../docs/diretorio-importacao.json', import.meta.url)), 'utf8')).diretorio;
+const SA = 'santo-antonio-jaragua', SC = 'santa-clara-e-sao-francisco-mineirao', NG = 'nossa-senhora-das-gracas-ibirite';
+export const TENANTS = {[SA]:'p-1', [SC]:'p-2', [NG]:'p-3'};
+
+export function criarBackend({migrado = true, semContrib = false, diretorio = true} = {}){
   const PID = 'p-1';
   const usuarios = {'secretaria@teste':{id:'u-sec', senha:'123456', role:'secretaria'}, 'padre@teste':{id:'u-padre', senha:'123456', role:'padre'},
-    'pascom@teste':{id:'u-pascom', senha:'123456', role:'pascom'}, 'semvinculo@teste':{id:'u-x', senha:'123456', role:null}};
-  const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[]};
+    'pascom@teste':{id:'u-pascom', senha:'123456', role:'pascom'}, 'semvinculo@teste':{id:'u-x', senha:'123456', role:null},
+    'sc@teste':{id:'u-sc', senha:'123456', role:'secretaria', pid:'p-2'}};
+  const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[], diretorio};
+  // Tenants novos: estado próprio, só com dados do catálogo (como o diretorio_ativacao.sql)
+  const cfgDir = d => ({nome:'Paróquia ' + d.display_name + ' – ' + (d.neighborhood && !/^centro$/i.test(d.neighborhood) ? d.neighborhood : d.municipality),
+    endereco:[d.address, d.neighborhood, d.municipality + ' – MG, CEP ' + d.postal_code].filter(Boolean).join(' – '), telefone:d.phone, email:d.email, paroco:d.pastor_name, forania:d.forania, regiao:d.episcopal_region_name, missas:'', secretaria:''});
+  B.estados = {'p-1':B.estado};
+  for (const [slug, pid] of [[SC, 'p-2'], [NG, 'p-3']]) B.estados[pid] = {data:{cfg:cfgDir(DIR.find(d => d.slug === slug))}, updated_at:new Date().toISOString()};
+  const pidDe = uid => Object.values(usuarios).find(u => u.id === uid)?.pid || PID;
   const papel = uid => Object.values(usuarios).find(u => u.id === uid)?.role;
   const areaDe = {communities:'comunidades', events:'agenda', tither_profiles:'dizimistas', tither_leads:'dizimistas', tither_contributions:'dizimistas'};
   const pode = (uid, area) => { const r = papel(uid); return r === 'padre' || r === 'secretaria' || (r === 'pascom' && ['agenda','comunidades','avisos'].includes(area)); };
   const tick = () => { const d = new Date(Date.now() + B.log.length); return d.toISOString(); };
   const erroFalta = {code:'PGRST205', message:"Could not find the table in the schema cache"};
 
-  function publico(){
-    const d = B.estado.data, r = {name:'Paróquia Santo Antônio – Jaraguá', slug:'santo-antonio-jaragua', cfg:d.cfg || {}, avisos:d.avisos || [],
+  function publico(slug = SA){
+    const pid = TENANTS[slug];
+    if (!pid) return null;
+    B.estados[PID] = B.estado; // os testes antigos trocam B.estado inteiro
+    const d = B.estados[pid].data;
+    const r = {name:pid === PID ? 'Paróquia Santo Antônio – Jaraguá' : d.cfg.nome, slug, cfg:d.cfg || {}, avisos:d.avisos || [],
       velasHoje:(d.velas || []).filter(v => v.ts > Date.now() - 864e5).length};
+    if (pid !== PID) return {...r, communities:[], events:[]};
     if (!B.migrado) return r; // função antiga: sem comunidades/eventos
     const ativas = B.t.communities.filter(c => c.active);
     r.communities = ativas.map(({id,name,slug,patron,address,phone,description,photo_url,mass_schedule}) => ({id,name,slug,patron,address,phone,description,photo_url,mass_schedule}));
@@ -31,9 +50,20 @@ export function criarBackend({migrado = true, semContrib = false} = {}){
     const uid = q.uid;
     if (q.kind === 'login'){ const u = usuarios[q.email]; return u && u.senha === q.senha ? {data:{session:{user:{id:u.id, email:q.email}, access_token:'x'}}} : {error:{message:'Invalid login credentials'}}; }
     if (q.kind === 'rpc'){
-      if (q.fn === 'get_public_parish') return {data:publico()};
-      if (q.fn === 'public_submit'){ const k = q.args.p_kind === 'vela' ? 'velas' : 'intencoes'; const it = {...q.args.p_item, id:Date.now()*1000, ts:Date.now()}; if (k === 'intencoes') it.status = 'nova';
-        B.estado.data[k] = [...(B.estado.data[k] || []), it]; B.estado.updated_at = tick(); return {data:true}; }
+      if (q.fn === 'get_public_parish') return {data:publico(q.args.p_slug)};
+      if (q.fn === 'public_submit'){ const pid = TENANTS[q.args.p_slug]; if (!pid) return {data:false};
+        B.estados[PID] = B.estado;
+        const est = B.estados[pid], k = q.args.p_kind === 'vela' ? 'velas' : 'intencoes'; const it = {...q.args.p_item, id:Date.now()*1000, ts:Date.now()}; if (k === 'intencoes') it.status = 'nova';
+        est.data[k] = [...(est.data[k] || []), it]; est.updated_at = tick(); return {data:true}; }
+      if (q.fn === 'public_directory_search' || q.fn === 'public_directory_entry'){
+        if (!B.diretorio) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
+        const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const ativo = d => TENANTS[d.slug] ? d.slug : null;
+        const pub = d => ({slug:d.slug, name:d.display_name, type:d.type, municipality:d.municipality, neighborhood:d.neighborhood, forania:d.forania, episcopal_region:d.episcopal_region, active:!!ativo(d), tenant_slug:ativo(d)});
+        if (q.fn === 'public_directory_entry'){ const d = DIR.find(x => x.slug === q.args.p_slug); return {data:d ? {...pub(d), address:d.address, postal_code:d.postal_code, phone:d.phone, email:d.email, pastor_role:d.pastor_role, pastor_name:d.pastor_name, catalog_code:d.catalog_code, episcopal_region_name:d.episcopal_region_name} : null}; }
+        const w = norm(q.args.p_q).split(/\s+/).filter(Boolean);
+        const l = DIR.filter(d => w.length ? w.every(x => norm([d.display_name, d.neighborhood, d.municipality, d.forania].join(' ')).includes(x)) : ativo(d));
+        return {data:l.map(pub).sort((a, b) => b.active - a.active || a.name.localeCompare(b.name)).slice(0, q.args.p_limit || 30)}; }
       if (!B.migrado) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
       if (q.fn === 'public_tither_interest'){ const it = q.args.p_item, wa = String(it.whatsapp).replace(/\D/g,'');
         if (!it.consent || wa.length < 10 || String(it.name||'').trim().length < 2) return {data:false};
@@ -48,11 +78,13 @@ export function criarBackend({migrado = true, semContrib = false} = {}){
       return {error:{message:'rpc desconhecida'}};
     }
     const f = Object.fromEntries(q.eq || []);
-    if (q.table === 'parish_users'){ const r = papel(uid); return {data: r ? [{parish_id:PID, role:r, parishes:{slug:'santo-antonio-jaragua'}}] : []}; }
+    if (q.table === 'parish_users'){ const r = papel(uid), pid = pidDe(uid); return {data: r ? [{parish_id:pid, role:r, parishes:{slug:Object.keys(TENANTS).find(s => TENANTS[s] === pid)}}] : []}; }
     if (q.table === 'parish_state'){
-      if (!papel(uid)) return q.single ? {error:{message:'no rows'}} : {data:[]};
-      if (q.kind === 'select') return {data:{data:structuredClone(B.estado.data), updated_at:B.estado.updated_at}};
-      if (q.kind === 'update'){ if (f.updated_at !== B.estado.updated_at) return {data:[]}; B.estado = {data:structuredClone(q.payload.data), updated_at:tick()}; return {data:[{updated_at:B.estado.updated_at}]}; }
+      B.estados[PID] = B.estado;
+      if (!papel(uid) || f.parish_id !== pidDe(uid)) return q.single ? {error:{message:'no rows'}} : {data:[]}; // RLS: só a própria paróquia
+      const est = B.estados[f.parish_id];
+      if (q.kind === 'select') return {data:{data:structuredClone(est.data), updated_at:est.updated_at}};
+      if (q.kind === 'update'){ if (f.updated_at !== est.updated_at) return {data:[]}; const novo = {data:structuredClone(q.payload.data), updated_at:tick()}; B.estados[f.parish_id] = novo; if (f.parish_id === PID) B.estado = novo; return {data:[{updated_at:novo.updated_at}]}; }
     }
     if (!(q.table in B.t)) return {error:{message:'tabela desconhecida'}};
     if (!B.migrado || (semContrib && q.table === "tither_contributions")) return {error:erroFalta};
