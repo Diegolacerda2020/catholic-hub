@@ -16,7 +16,7 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
   const usuarios = {'secretaria@teste':{id:'u-sec', senha:'123456', role:'secretaria'}, 'padre@teste':{id:'u-padre', senha:'123456', role:'padre'},
     'pascom@teste':{id:'u-pascom', senha:'123456', role:'pascom'}, 'semvinculo@teste':{id:'u-x', senha:'123456', role:null},
     'sc@teste':{id:'u-sc', senha:'123456', role:'secretaria', pid:'p-2'}};
-  const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[], diretorio};
+  const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[], diretorio, doacoes:{}, doacoesMigrado:true};
   // Tenants novos: estado próprio, só com dados do catálogo (como o diretorio_ativacao.sql)
   const cfgDir = d => ({nome:'Paróquia ' + d.display_name + ' – ' + (d.neighborhood && !/^centro$/i.test(d.neighborhood) ? d.neighborhood : d.municipality),
     endereco:[d.address, d.neighborhood, d.municipality + ' – MG, CEP ' + d.postal_code].filter(Boolean).join(' – '), telefone:d.phone, email:d.email, paroco:d.pastor_name, forania:d.forania, regiao:d.episcopal_region_name, missas:'', secretaria:''});
@@ -59,11 +59,31 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
         if (!B.diretorio) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
         const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         const ativo = d => TENANTS[d.slug] ? d.slug : null;
-        const pub = d => ({slug:d.slug, name:d.display_name, type:d.type, municipality:d.municipality, neighborhood:d.neighborhood, forania:d.forania, episcopal_region:d.episcopal_region, active:!!ativo(d), tenant_slug:ativo(d)});
-        if (q.fn === 'public_directory_entry'){ const d = DIR.find(x => x.slug === q.args.p_slug); return {data:d ? {...pub(d), address:d.address, postal_code:d.postal_code, phone:d.phone, email:d.email, pastor_role:d.pastor_role, pastor_name:d.pastor_name, catalog_code:d.catalog_code, episcopal_region_name:d.episcopal_region_name} : null}; }
-        const w = norm(q.args.p_q).split(/\s+/).filter(Boolean);
-        const l = DIR.filter(d => w.length ? w.every(x => norm([d.display_name, d.neighborhood, d.municipality, d.forania].join(' ')).includes(x)) : ativo(d));
-        return {data:l.map(pub).sort((a, b) => b.active - a.active || a.name.localeCompare(b.name)).slice(0, q.args.p_limit || 30)}; }
+        const pub = d => ({slug:d.slug, name:d.display_name, type:d.type, municipality:d.municipality, neighborhood:d.neighborhood, forania:d.forania, episcopal_region:d.episcopal_region,
+          is_sanctuary:!!d.is_sanctuary, sanctuary_name:d.sanctuary_name || null, sanctuary_kind:d.sanctuary_kind || null, active:!!ativo(d), tenant_slug:ativo(d)});
+        if (q.fn === 'public_directory_entry'){ const d = DIR.find(x => x.slug === q.args.p_slug); return {data:d ? {...pub(d), address:d.address, postal_code:d.postal_code, phone:d.phone, email:d.email, pastor_role:d.pastor_role, pastor_name:d.pastor_name, catalog_code:d.catalog_code, episcopal_region_name:d.episcopal_region_name, sanctuary_code:d.sanctuary_code || null, rector_name:d.rector_name || null} : null}; }
+        // mesma regra do supabase/diretorio_santuarios.sql: abreviações simples, filtro de tipo e relevância pelo nome
+        const exp = t => (' ' + norm(t).replace(/[^a-z0-9]+/g, ' ') + ' ').replace(/ n s /g, ' nossa senhora ').replace(/ nsra /g, ' nossa senhora ').replace(/ sto /g, ' santo ').replace(/ sta /g, ' santa ').replace(/ sra /g, ' senhora ').replace(/\s+/g, ' ');
+        const frase = exp(String(q.args.p_q || '').slice(0, 80)).trim(), w = frase.split(' ').filter(Boolean), tipo = q.args.p_tipo || null;
+        const texto = d => exp([d.display_name, d.neighborhood, d.municipality, d.forania, d.sanctuary_name, d.sanctuary_kind].join(' ') + (d.type.startsWith('paroquia') ? ' paroquia' : '') + (d.is_sanctuary ? ' santuario' : ''));
+        const rel = d => w.length && exp(d.display_name + ' ' + (d.sanctuary_name || '')).includes(frase) ? 0 : 1;
+        const l = DIR.filter(d => !tipo || (tipo === 'paroquia' && d.type.startsWith('paroquia')) || (tipo === 'santuario' && d.is_sanctuary))
+          .filter(d => w.length ? w.every(x => texto(d).includes(x)) : (ativo(d) || tipo === 'santuario'));
+        return {data:l.sort((a, b) => rel(a) - rel(b) || !!ativo(b) - !!ativo(a) || (a.sanctuary_name || a.display_name).localeCompare(b.sanctuary_name || b.display_name)).slice(0, Math.min(q.args.p_limit || 30, 50)).map(pub)}; }
+      // Doações (supabase/doacoes.sql): começa sem nada; só padre/suporte configuram; o público só vê o que está ligado
+      if (['public_donation_settings', 'staff_get_donation_settings', 'staff_save_donation_settings'].includes(q.fn)){
+        if (!B.doacoesMigrado) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
+        if (q.fn === 'public_donation_settings'){ const s = B.doacoes[TENANTS[q.args.p_slug]];
+          if (!s || !(s.pix_enabled || s.card_enabled)) return {data:null};
+          return {data:{...(s.pix_enabled ? {pix:{key:s.pix_key, key_type:s.pix_key_type, beneficiary:s.pix_beneficiary, city:s.pix_city}} : {}), ...(s.card_enabled ? {card:{provider:s.payment_provider || null, checkout_url:s.checkout_url}} : {})}}; }
+        if (!['padre', 'admin'].includes(papel(uid)) || q.args.p_parish !== pidDe(uid)) return {error:{code:'42501', message:'Sem permissão'}};
+        if (q.fn === 'staff_get_donation_settings') return {data:structuredClone(B.doacoes[q.args.p_parish] || {parish_id:q.args.p_parish, pix_enabled:false, card_enabled:false})};
+        const PERMITIDOS = ['pix_enabled','pix_key','pix_key_type','pix_beneficiary','pix_city','card_enabled','payment_provider','checkout_url'], d = q.args.p_dados || {};
+        const extra = Object.keys(d).find(k => !PERMITIDOS.includes(k)); if (extra) return {error:{code:'22023', message:'Campo não permitido: ' + extra}};
+        if (d.checkout_url && !/^https:\/\/\S+$/.test(d.checkout_url)) return {error:{code:'23514', message:'violates check constraint "parish_donation_card_ck"'}};
+        if ((d.pix_enabled && !(d.pix_key && d.pix_key_type && d.pix_beneficiary && d.pix_city)) || (d.card_enabled && !d.checkout_url)) return {error:{code:'23514', message:'violates check constraint'}};
+        B.doacoes[q.args.p_parish] = {parish_id:q.args.p_parish, ...Object.fromEntries(PERMITIDOS.map(k => [k, d[k] ?? (k.endsWith('enabled') ? false : null)])), updated_at:new Date().toISOString()};
+        return {data:structuredClone(B.doacoes[q.args.p_parish])}; }
       if (!B.migrado) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
       if (q.fn === 'public_tither_interest'){ const it = q.args.p_item, wa = String(it.whatsapp).replace(/\D/g,'');
         if (!it.consent || wa.length < 10 || String(it.name||'').trim().length < 2) return {data:false};

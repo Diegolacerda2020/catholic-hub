@@ -218,7 +218,7 @@ let ctxFiel;
   t_('Trocar abre "Encontre sua paróquia" com as ativas', t.includes('Encontre sua paróquia') && t.includes('Com a Central Paroquial') && t.includes('Santa Clara e São Francisco'), t.slice(0, 400));
   await p.type('#buscaPar', 'ibirité graças'); await esperar(800);
   t = await texto(p);
-  t_('busca por município + nome: N. Sra. das Graças ativa', t.includes('Nossa Senhora das Graças') && t.includes('Ibirité — Centro') && t.includes('✓ Central Paroquial ativa'));
+  t_('busca por município + nome: N. Sra. das Graças ativa', t.includes('Nossa Senhora das Graças') && t.includes('Centro · Ibirité') && t.includes('✓ Central Paroquial ativa'));
   await foto(p, 'busca-ativa-390');
   await p.$eval('#buscaPar', e => e.value = ''); await p.type('#buscaPar', 'bom pastor'); await esperar(800);
   t = await texto(p);

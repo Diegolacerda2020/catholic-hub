@@ -411,19 +411,59 @@ nav.tabs .so-lateral{display:none}
 .devocao .destaque-k{margin:4px 4px 0}
 .devocao h2{margin-top:2px}
 .tempo-lit{display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:700;font-size:1.05rem}
-.sala{background:#141c17;color:#F4EEDF;border-radius:18px;padding:22px 18px;text-align:center;margin-bottom:10px}
-.sala h2{color:#fff;margin:0 0 14px}
-.sala-velas{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 12px;max-width:420px;margin:0 auto 16px;padding:8px 0}
-.mv{position:relative;width:14px;height:34px;border-radius:3px 3px 2px 2px;background:linear-gradient(90deg,#e4d9c0,#f8f1e0 45%,#d9cba8);margin-top:18px}
-.mv i{position:absolute;left:50%;bottom:100%;width:10px;height:16px;margin-left:-5px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
-  background:radial-gradient(ellipse at 50% 72%,#fffbe0 0%,#ffd766 35%,#ff9d24 65%,rgba(255,130,20,0) 75%);filter:drop-shadow(0 0 6px rgba(255,190,80,.75));transform-origin:50% 90%}
+/* Sala das Velas: capela escura, arco, prateleiras do altar e um brilho que cresce com o número REAL de velas */
+.sala{--brilho:.3;position:relative;overflow:hidden;color:#F4EEDF;text-align:center;margin-bottom:10px;padding:34px 18px 26px;
+  border-radius:46% 46% 18px 18px/110px 110px 18px 18px;border:1px solid #3b2f22;
+  background:radial-gradient(ellipse 70% 46% at 50% 52%,rgba(255,176,72,calc(.06 + var(--brilho) * .3)),transparent 70%),linear-gradient(180deg,#221a13 0%,#15110d 55%,#0d0a08 100%)}
+.sala::before{content:"";position:absolute;inset:10px 10px auto;height:100%;border:1px solid rgba(214,178,110,.18);border-bottom:0;border-radius:inherit;pointer-events:none}
+.sala-cruz{display:block;width:26px;height:36px;margin:0 auto 6px;color:#d6b26e;opacity:.85}
+.sala h2{color:#fff;margin:0;font-size:1.55rem;letter-spacing:.01em}
+.sala-lema{margin:4px 0 14px;color:#e2d6bd;font-family:var(--serif);font-style:italic}
+.sala-velas{--s:1;--k:1;display:flex;flex-direction:column;align-items:center;gap:calc(14px * var(--s));max-width:560px;margin:0 auto 18px;padding:6px 0 0}
+.prateleira{position:relative;display:flex;justify-content:center;align-items:flex-end;gap:calc(10px * var(--s) * var(--k));padding:0 calc(22px * var(--k)) 2px;min-width:min(100%, 240px);min-height:calc(56px * var(--s) * var(--k))}
+.prateleira::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;border-radius:2px;background:linear-gradient(180deg,#8a6038,#4d3219);box-shadow:0 6px 14px rgba(0,0,0,.55)}
+.mv{position:relative;flex:0 0 auto;width:calc(14px * var(--s) * var(--k));height:calc(34px * var(--s) * var(--k));border-radius:3px 3px 2px 2px;background:linear-gradient(90deg,#e4d9c0,#f8f1e0 45%,#d9cba8)}
+.mv i{position:absolute;left:50%;bottom:100%;width:calc(10px * var(--s) * var(--k));height:calc(16px * var(--s) * var(--k));transform:translateX(-50%);border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
+  background:radial-gradient(ellipse at 50% 72%,#fffbe0 0%,#ffd766 35%,#ff9d24 65%,rgba(255,130,20,0) 75%);filter:drop-shadow(0 0 calc(6px * var(--s)) rgba(255,190,80,.8));transform-origin:50% 90%}
 .mv.apagada i{display:none}
 .mv.apagada{opacity:.55}
 @media (prefers-reduced-motion:no-preference){.mv i{animation:tremula 2.4s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
-  @keyframes tremula{0%{transform:scale(1) rotate(-2deg);opacity:.92}50%{transform:scale(1.06,1.12) rotate(1.5deg);opacity:1}100%{transform:scale(.96,1.04) rotate(-1deg);opacity:.95}}}
+  @keyframes tremula{0%{transform:translateX(-50%) scale(1) rotate(-2deg);opacity:.92}50%{transform:translateX(-50%) scale(1.06,1.12) rotate(1.5deg);opacity:1}100%{transform:translateX(-50%) scale(.96,1.04) rotate(-1deg);opacity:.95}}}
 .sala-n{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px;color:#fff}
 .sala-mais{margin:0 0 10px;color:#ffd766;font-weight:700}
-.sala .btn{margin-top:10px}
+.sala .btn{margin-top:10px;min-width:220px}
+.sala-priv{margin:14px auto 0;max-width:460px;font-size:.88rem;color:#d9cdb3}
+.sala-oracao{margin:14px auto 0;max-width:460px;font-family:var(--serif);font-style:italic;font-size:1.08rem;color:#f1dfb4}
+/* Acesso rápido (subpáginas) */
+.acesso-rapido{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px 4px;scrollbar-width:none}
+.acesso-rapido::-webkit-scrollbar{display:none}
+.acesso-rapido .ar-t{flex:0 0 auto;align-self:center;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-right:2px}
+.acesso-rapido button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font-size:.88rem;font-weight:500;white-space:nowrap}
+.acesso-rapido button:hover{border-color:var(--lit)}
+.acesso-rapido button[aria-current="page"]{background:var(--lit);border-color:var(--lit);color:#fff}
+/* Diretório: cartões */
+.filtros-dir{margin-bottom:12px}
+#buscaPar{width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:1rem}
+#buscaPar:focus{border-color:var(--lit);outline:none}
+.dir-grade{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+.dir-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dir-card.ativa{border-color:var(--lit)}
+.dir-card .dir-nome{font-family:var(--serif);font-size:1.12rem;line-height:1.25}
+.dir-card .dir-local{font-size:.92rem}
+.dir-card .tagline{display:flex;flex-wrap:wrap;gap:6px}
+.dir-card .dir-acao{margin-top:auto;padding-top:6px;display:flex;justify-content:flex-start}
+.chip.santuario{background:#F3E6CC;color:#7A5418}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.santuario{background:#3d3020;color:#f0d9a8}}
+/* Doações */
+.cta-doa{margin-top:10px}
+.doa-grade{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px;align-items:start}
+.doa-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.doa-card h3{font-family:var(--serif);font-size:1.3rem}
+.doa-qr{align-self:center;width:216px;max-width:100%;aspect-ratio:1;background:#fff;border-radius:12px;padding:8px;display:grid;place-items:center;border:1px solid var(--line)}
+.doa-qr svg,.doa-qr img{width:100%;height:auto;display:block}
+.doa-chave{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.doa-chave code{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.95rem}
+.doa-nota{font-size:.88rem;color:var(--muted);margin:0}
 .ag-dia{font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
 .ag-sec{font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin:14px 4px 8px}
 .ag-item{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
@@ -433,12 +473,52 @@ nav.tabs .so-lateral{display:none}
 .dir-nome{color:var(--ink);font-weight:700;font-size:1rem;padding:0;text-align:left}
 .dir-row{align-items:center}
 @media (min-width:600px){.acoes-grid{grid-template-columns:repeat(3,1fr)}.acoes-grid .acao:last-child:nth-child(odd){grid-column:auto}}
-/* computador: a página pública ganha largura de leitura (o painel tem o próprio layout) */
-@media (min-width:900px){
-  body:not(.painel-app) .app{max-width:760px}
-  body:not(.painel-app) nav.tabs{max-width:760px}
-  .acoes-grid{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
-  .acoes-grid .acao{min-height:120px}
+/* =========================================================
+   Página pública responsiva — só pela LARGURA da tela (nada de user-agent):
+   celular ≤767 (uma coluna, barra embaixo) · tablet 768–1199 · computador ≥1200.
+   A partir do tablet: barra de seções no topo e largura máxima por tela (body[data-tela]):
+   Home ~1180 · Agenda/Diretório/Velas ~1240 · formulários ~820 · leitura devocional ~760.
+   ========================================================= */
+@media (min-width:768px){
+  body.pub{--larg:960px}
+  body.pub[data-tela="igreja"]{--larg:1180px}
+  body.pub[data-tela="agenda"],body.pub[data-tela="escolher"],body.pub[data-tela="velas"],body.pub[data-tela="noticias"],body.pub[data-tela="comunidades"]{--larg:1240px}
+  body.pub[data-tela="intencao"],body.pub[data-tela="dizimista"],body.pub[data-tela="secretaria"],body.pub[data-tela="contato"],body.pub[data-tela="evento"],body.pub[data-tela="avisos"],body.pub[data-tela="comunidade"]{--larg:880px}
+  body.pub[data-tela="devocao"],body.pub[data-tela="liturgia"],body.pub[data-tela="rezar"]{--larg:760px}
+  body.pub[data-tela="doacoes"]{--larg:1000px}
+  body.pub .app{max-width:none;border:0}
+  body.pub header.top{position:static;padding:18px max(24px,calc((100% - 1240px) / 2)) 16px}
+  body.pub nav.tabs{order:1;position:sticky;top:0;bottom:auto;left:auto;right:auto;max-width:none;margin:0;border-top:0;border-bottom:1px solid var(--line);justify-content:center;gap:2px;padding:0 16px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  body.pub nav.tabs button{flex:0 0 auto;flex-direction:row;gap:8px;padding:13px 16px 11px;font-size:.96rem;border-bottom:3px solid transparent}
+  body.pub nav.tabs button:hover{color:var(--ink)}
+  body.pub nav.tabs button[aria-current="page"]{border-bottom-color:var(--lit)}
+  body.pub nav.tabs svg{width:20px;height:20px}
+  body.pub main{order:2;width:100%;max-width:calc(var(--larg) + 48px);margin:0 auto;padding:24px 24px 64px}
+  body.pub .toast{bottom:28px}
+  body.pub .avisos-box{left:auto;right:24px;bottom:24px;width:380px}
+  .acoes-grid{grid-template-columns:repeat(3,1fr)}
+  .acoes-grid .acao{min-height:118px}
+  .dir-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .doa-grade{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .doa-grade.uma{grid-template-columns:minmax(0,560px);justify-content:center}
+  .ag-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0 22px;align-items:start}
+  .ag-grade .ag-dia{margin-top:14px}
+  .sala-velas{--k:1.25;max-width:760px}
+  .sala{padding:44px 32px 32px;border-radius:46% 46% 22px 22px/150px 150px 22px 22px}
+  .dir-busca{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .dir-busca input{flex:1 1 380px;margin-bottom:0!important}
+  .dir-busca .filtros{margin:0}
+}
+@media (min-width:1024px){
+  .home-grade{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:0 28px;align-items:start}
+  .home-grade > div > h2:first-child{margin-top:18px}
+}
+@media (min-width:1200px){
+  .acoes-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .acoes-grid .acao{min-height:128px;padding:18px 16px}
+  .dir-grade{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sala-velas{--k:1.45;max-width:900px}
+  .sala{padding:52px 48px 36px}
 }
 </style>
 <link rel="stylesheet" href="secretaria24h.css">
@@ -989,7 +1069,7 @@ const tabsFor = () => S.mode==='painel'
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
 const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja',
-  liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda'};
+  liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda', doacoes:'contato'};
 // Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
 const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
   ['dizimistas','Dizimistas','Cadastro, acompanhamento do dízimo e interessados'],
@@ -1478,6 +1558,7 @@ function ajustesHTML(){
     <div class="field"><label for="c-ass">Assinatura das mensagens</label><input type="text" id="c-ass" name="assinatura" value="${esc(c.assinatura)}"></div>
     <button class="btn block-w">Salvar ajustes</button>
   </form>
+  ${doacoesAdmHTML()}
   ${NUVEM.ativo ? '' : `<h2>Demonstração</h2>
   <div class="block"><p class="small muted" style="margin-top:0">Apaga tudo o que foi feito neste aparelho e volta aos dados de exemplo.</p><button class="btn sm ghost" id="reset">Recomeçar do zero</button></div>`}`;
 }
@@ -1488,6 +1569,59 @@ function bindAjustes(root){
     S.cfg.emoji = f.emoji.checked; S.cfg.rec = Object.fromEntries(CANAIS.map(v => [v.k, f['rec-'+v.k].checked])); save(); render(); toast('Ajustes salvos');
   });
   const rs = root.querySelector('#reset'); if (rs) rs.onclick = () => { if (!confirm('Apagar tudo e recomeçar?')) return; S = seed(); save(); render(); scrollTo(0,0); toast('Demonstração reiniciada'); };
+  bindDoacoesAdm(root);
+}
+
+/* Ajustes › Doações: só padre e suporte (área 'doacoes'). Secretaria e PASCOM não veem.
+   Só dados PÚBLICOS de recebimento — nada de senha, token, chave secreta ou dados de cartão. */
+const DOA_ADM = {estado:null, dados:null, pid:null};
+const podeDoacoes = () => NUVEM.ativo && logado() && pode('doacoes') && ['padre', 'admin'].includes(NUVEM.papel);
+async function carregarDoacoesAdm(){
+  DOA_ADM.estado = 'carregando'; DOA_ADM.pid = NUVEM.parishId;
+  try { const {data, error} = await NUVEM.sb.rpc('staff_get_donation_settings', {p_parish:NUVEM.parishId}); if (error) throw error; DOA_ADM.dados = data || {}; DOA_ADM.estado = 'ok'; }
+  catch(e){ DOA_ADM.estado = tabelaFaltando(e) ? 'ausente' : 'erro'; }
+  if (S.mode === 'painel' && S.tab === 'ajustes') renderSeguro();
+}
+function doacoesAdmHTML(){
+  if (!podeDoacoes()) return '';
+  if (DOA_ADM.pid !== NUVEM.parishId || !DOA_ADM.estado){ carregarDoacoesAdm(); }
+  const cab = `<h2 id="doacoesAdm">Doações</h2>`;
+  if (DOA_ADM.estado === 'carregando') return cab + `<div class="status" role="status"><span class="spinner"></span>Carregando…</div>`;
+  if (DOA_ADM.estado === 'ausente') return cab + `<div class="block small muted">As doações ainda não foram instaladas no banco desta paróquia.</div>`;
+  if (DOA_ADM.estado === 'erro') return cab + `<div class="signal wait">Não foi possível carregar as doações agora.</div>`;
+  const d = DOA_ADM.dados || {}, v = k => esc(d[k] || '');
+  return `${cab}<form class="block" id="doaF" autocomplete="off">
+    <p class="small muted" style="margin-top:0">O valor doado vai direto para a conta da paróquia: a Central Paroquial não recebe nem intermedeia dinheiro. <b>Nunca</b> informe aqui senha, token, chave secreta ou dados de cartão.</p>
+    <label class="check"><input type="checkbox" name="pix_enabled" ${d.pix_enabled ? 'checked' : ''}> Receber doações por Pix</label>
+    <div class="two">
+      <div class="field"><label for="d-tipo">Tipo da chave Pix</label><select id="d-tipo" name="pix_key_type"><option value="">Escolha</option>${Object.entries(TIPO_CHAVE).map(([k, t]) => `<option value="${k}" ${d.pix_key_type === k ? 'selected' : ''}>${cap(t)}</option>`).join('')}</select></div>
+      <div class="field"><label for="d-chave">Chave Pix</label><input type="text" id="d-chave" name="pix_key" maxlength="77" value="${v('pix_key')}"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="d-ben">Nome do beneficiário</label><input type="text" id="d-ben" name="pix_beneficiary" maxlength="25" value="${v('pix_beneficiary')}"><div class="hint">Como aparece no banco (até 25 letras).</div></div>
+      <div class="field"><label for="d-cid">Cidade</label><input type="text" id="d-cid" name="pix_city" maxlength="15" value="${v('pix_city')}"></div>
+    </div>
+    <label class="check"><input type="checkbox" name="card_enabled" ${d.card_enabled ? 'checked' : ''}> Receber doações com cartão (site de pagamento externo)</label>
+    <div class="field"><label for="d-prov">Serviço de pagamento</label><input type="text" id="d-prov" name="payment_provider" maxlength="60" placeholder="Nome do serviço contratado pela paróquia" value="${v('payment_provider')}"></div>
+    <div class="field"><label for="d-url">Link público de doação (checkout)</label><input type="text" id="d-url" name="checkout_url" inputmode="url" maxlength="500" placeholder="https://" value="${v('checkout_url')}"><div class="hint">O link de doação gerado pelo serviço de pagamento. Só links https://, sem tokens.</div></div>
+    <button class="btn block-w">Salvar doações</button>
+  </form>`;
+}
+function bindDoacoesAdm(root){
+  root.querySelector('#doaF')?.addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target;
+    const d = {pix_enabled:f.pix_enabled.checked, card_enabled:f.card_enabled.checked};
+    ['pix_key_type', 'pix_key', 'pix_beneficiary', 'pix_city', 'payment_provider', 'checkout_url'].forEach(k => d[k] = f[k].value.trim() || null);
+    if (d.pix_enabled && !(d.pix_key_type && d.pix_key && d.pix_beneficiary && d.pix_city)) return toast('Para ligar o Pix, preencha tipo, chave, beneficiário e cidade.');
+    if (d.checkout_url && (!/^https:\/\/\S+$/.test(d.checkout_url) || /[?&#](access_token|client_secret|secret|token|senha|password|api_key|apikey)=/i.test(d.checkout_url))) return toast('Use o link público de doação (https://), sem tokens.');
+    if (d.card_enabled && !d.checkout_url) return toast('Para ligar o cartão, informe o link de doação.');
+    const b = f.querySelector('button'); b.disabled = true;
+    try {
+      const {data, error} = await NUVEM.sb.rpc('staff_save_donation_settings', {p_parish:NUVEM.parishId, p_dados:d}); if (error) throw error;
+      DOA_ADM.dados = data; DOA.slug = null; toast('Doações salvas');
+    } catch(x){ toast(x?.code === '42501' ? 'Sem permissão para configurar doações.' : 'Não foi possível salvar. Confira os dados.'); }
+    b.disabled = false;
+  });
 }
 
 /* =========================================================
@@ -2053,6 +2187,89 @@ let dzPubEnviado = false;
 const ctaDizimistaHTML = () => vendoAtiva() ? `<div class="cta-diz"><h3>❤️ Quero ser dizimista</h3>
   <p class="small">O dízimo sustenta a missão da ${esc(S.cfg.nome)}: a liturgia, a evangelização e o cuidado com quem mais precisa. Deixe seu contato e a equipe da paróquia conversa com você.</p>
   <button class="btn gold block-w" data-pub="dizimista">Quero ser dizimista</button></div>` : '';
+
+/* =========================================================
+   DOAÇÕES — a Central Paroquial NÃO recebe, NÃO guarda e NÃO intermedeia dinheiro.
+   Pix: chave da própria paróquia (QR Code e "copia e cola" gerados aqui, sem valor definido).
+   Cartão: só um link para o checkout EXTERNO que a paróquia contratou.
+   Configuração por paróquia (supabase/doacoes.sql), feita pelo padre ou suporte. Sem configuração: botão escondido.
+   ========================================================= */
+const DOA = {slug:null, estado:null, dados:null};
+async function carregarDoacoes(){
+  if (DOA.slug === TENANT && DOA.estado) return;
+  DOA.slug = TENANT; DOA.estado = 'carregando'; DOA.dados = null;
+  let d = null;
+  try {
+    const sb = await clienteSb();
+    if (sb){ const {data, error} = await sb.rpc('public_donation_settings', {p_slug:TENANT}); if (error && !tabelaFaltando(error)) throw error; d = error ? null : data; }
+  } catch(e){ d = null; }
+  const pix = d?.pix?.key ? d.pix : null, card = /^https:\/\/\S+$/.test(d?.card?.checkout_url || '') ? d.card : null;
+  DOA.dados = pix || card ? {pix, card} : null; DOA.estado = 'ok';
+  if (S.mode === 'publico' && ['contato', 'doacoes'].includes(S.pubTab)) renderSeguro();
+}
+const ctaDoacaoHTML = () => { if (!vendoAtiva()) return ''; carregarDoacoes();
+  return DOA.dados ? `<button type="button" class="btn ghost block-w cta-doa" data-pub="doacoes">💝 Quero fazer uma doação</button>` : ''; };
+const TIPO_CHAVE = {cpf:'CPF', cnpj:'CNPJ', email:'e-mail', telefone:'telefone', aleatoria:'chave aleatória'};
+// Pix "copia e cola" (BR Code estático do Banco Central, sem valor): o fiel escolhe o valor no app do banco.
+function crc16Pix(s){ let c = 0xFFFF; for (let i = 0; i < s.length; i++){ c ^= s.charCodeAt(i) << 8; for (let j = 0; j < 8; j++) c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF; } return c.toString(16).toUpperCase().padStart(4, '0'); }
+function pixCopiaECola(p){
+  const f = (id, v) => id + String(v.length).padStart(2, '0') + v;
+  const limpa = (t, n) => semAcento(String(t || '')).toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
+  let chave = String(p.key || '').trim();
+  if (p.key_type === 'cpf' || p.key_type === 'cnpj') chave = chave.replace(/\D/g, '');
+  if (p.key_type === 'telefone'){ const d = chave.replace(/\D/g, ''); chave = '+' + (d.startsWith('55') && d.length > 11 ? d : '55' + d); }
+  if (p.key_type === 'email') chave = chave.toLowerCase();
+  const corpo = f('00', '01') + f('26', f('00', 'br.gov.bcb.pix') + f('01', chave)) + f('52', '0000') + f('53', '986') + f('58', 'BR')
+    + f('59', limpa(p.beneficiary, 25) || 'N') + f('60', limpa(p.city, 15) || 'N') + f('62', f('05', '***')) + '6304';
+  return corpo + crc16Pix(corpo);
+}
+// QR Code: biblioteca pequena, carregada só nesta tela. Sem ela (offline), fica o "copia e cola".
+// Versão fixa + integridade (SRI): o navegador recusa o arquivo se ele for alterado no CDN.
+const QR_LIB = {src:'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js', sri:'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'};
+let qrCarregando = null;
+const carregarQR = () => qrCarregando ||= new Promise((ok, falha) => {
+  const s = document.createElement('script'); s.src = QR_LIB.src; s.integrity = QR_LIB.sri; s.crossOrigin = 'anonymous';
+  s.onload = ok; s.onerror = () => { qrCarregando = null; falha(); }; document.head.appendChild(s);
+});
+async function desenharQR(texto){
+  const alvo = () => document.getElementById('pixQR'); // a tela pode ter sido redesenhada enquanto carregava
+  try {
+    if (!window.qrcode) await carregarQR();
+    const qr = window.qrcode(0, 'M'); qr.addData(texto); qr.make();
+    const el = alvo(); if (el) el.innerHTML = qr.createSvgTag({cellSize:4, margin:2, scalable:true, alt:'QR Code Pix'});
+  } catch(e){ const el = alvo(); if (el) el.innerHTML = '<span class="small muted" style="text-align:center;padding:10px">QR Code indisponível agora. Use o código Pix copia e cola abaixo.</span>'; }
+}
+function doacoesPubHTML(){
+  const topo = `<button class="crumb" data-pub="contato">‹ Paróquia</button><h2>Doações</h2>`;
+  if (!vendoAtiva()) return topo + `<div class="empty">Esta paróquia ainda não recebe doações por aqui.</div>`;
+  if (DOA.slug !== TENANT || DOA.estado !== 'ok'){ carregarDoacoes(); return topo + `<div class="status" role="status"><span class="spinner"></span>Carregando…</div>`; }
+  const d = DOA.dados;
+  if (!d) return topo + `<div class="empty">Esta paróquia ainda não configurou doações por aqui. Fale com a secretaria.</div>`;
+  const p = d.pix, c = d.card;
+  return `${topo}<p class="lead">Sua doação ajuda a ${esc(S.cfg.nome || 'paróquia')} a manter a liturgia, a evangelização e o cuidado com quem mais precisa. Obrigado!</p>
+  <div class="doa-grade${p && c ? '' : ' uma'}">
+    ${p ? `<section class="doa-card" aria-labelledby="doaPixT"><h3 id="doaPixT">Pix</h3>
+      <div class="doa-qr" id="pixQR" role="img" aria-label="QR Code Pix para ${esc(p.beneficiary || 'a paróquia')}"><span class="small muted">Gerando QR Code…</span></div>
+      <div class="small muted">Chave Pix${TIPO_CHAVE[p.key_type] ? ` (${TIPO_CHAVE[p.key_type]})` : ''}</div>
+      <div class="doa-chave"><code id="pixChave">${esc(p.key)}</code><button type="button" class="btn sm" id="copiaChave">Copiar chave</button></div>
+      <p class="small" style="margin:0">Beneficiário: <b>${esc(p.beneficiary || '')}</b>${p.city ? `<br>Cidade: ${esc(p.city)}` : ''}</p>
+      <button type="button" class="btn ghost block-w" id="copiaPix">Copiar código Pix (copia e cola)</button>
+      <p class="doa-nota">No app do seu banco, escolha Pix e leia o QR Code ou cole o código. Você escolhe o valor. Confira o nome do beneficiário antes de confirmar.</p></section>` : ''}
+    ${c ? `<section class="doa-card" aria-labelledby="doaCartT"><h3 id="doaCartT">Cartão</h3>
+      <p style="margin:0">Doe com cartão no site seguro de pagamento${c.provider ? ` (${esc(c.provider)})` : ''} escolhido pela paróquia.</p>
+      <a class="btn gold block-w" id="doarCartao" href="${esc(c.checkout_url)}" target="_blank" rel="noopener noreferrer">Doar com cartão</a>
+      <p class="doa-nota">Você sai da Central Paroquial e paga direto no site do provedor. A Central Paroquial não vê nem guarda os dados do seu cartão.</p></section>` : ''}
+  </div>
+  <p class="small muted" style="margin:6px 4px 14px">A Central Paroquial não recebe nem intermedeia doações: o valor vai direto para a paróquia.</p>
+  ${ctaDizimistaHTML()}`;
+}
+function bindDoacoes(root){
+  const p = DOA.dados?.pix; if (!p) return;
+  const cc = pixCopiaECola(p);
+  root.querySelector('#copiaChave')?.addEventListener('click', () => copiar(p.key));
+  root.querySelector('#copiaPix')?.addEventListener('click', () => copiar(cc));
+  if (root.querySelector('#pixQR')) desenharQR(cc);
+}
 function dizimistaPubHTML(){
   if (dzPubEnviado) return `<button class="crumb" data-pub="igreja">‹ Igreja</button><div class="signal green" role="status" style="margin-top:8px"><div style="font-size:1.1rem;font-weight:700">Obrigado!</div>A equipe da paróquia entrará em contato com você.</div><button class="btn ghost block-w" data-pub="igreja">Voltar para o início</button>`;
   const coms = comunidadesAtivas(), minha = minhaComunidade();
@@ -2177,8 +2394,9 @@ function contatoPubHTML(){
   ${window.S24 ? S24.botaoParoquiaHTML() : ''}
   ${minhaBtn()}
   ${ctaDizimistaHTML()}
+  ${ctaDoacaoHTML()}
   <p class="small muted" style="margin:14px 4px">Batismo, casamento, certidões e intenções de missa: fale com a secretaria.</p>
-  ${DIR.vizinhas?.length ? `<h2>Forania ${esc(c.forania)}</h2><p class="lead small">Paróquias vizinhas da mesma forania.</p><div class="list">${DIR.vizinhas.slice(0, 20).map(linhaDir).join('')}</div>` : ''}
+  ${DIR.vizinhas?.length ? `<h2>Forania ${esc(c.forania)}</h2><p class="lead small">Paróquias vizinhas da mesma forania.</p>${gradeDir(DIR.vizinhas.slice(0, 20))}` : ''}
   <button class="btn ghost block-w" data-pub="escolher" style="margin-top:10px">🔎 Encontre outra paróquia</button>`;
 }
 
@@ -2751,25 +2969,35 @@ const semAcento = t => t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const TIPO_DIR = {paroquia_territorial:'Paróquia', paroquia_pessoal:'Paróquia pessoal', paroquia_militar:'Paróquia militar', curato:'Curato', area_pastoral:'Área pastoral', santuario:'Santuário'};
 const siglaRegiao = t => { const x = semAcento(String(t || '')); return (String(t || '').match(/RENS[A-Z]{1,2}/) || [])[0]
   || [['aparecida','RENSA'],['conceicao','RENSC'],['esperanca','RENSE'],['boa viagem','RENSB'],['rosario','RENSER']].find(([k]) => x.includes(k))?.[1] || ''; };
-const DIR = {semBanco:false, fichas:new Map(), busca:{q:null, estado:'nada', lista:[]}, timer:null};
+const DIR = {semBanco:false, semTipo:false, fichas:new Map(), busca:{chave:null, q:null, estado:'nada', lista:[]}, timer:null};
 const PILOTO_REDE = 'Santo Antônio|Jaraguá';
 const daRede = r => ({slug:'rede:' + keyOf(r), name:r.nome, type:r.tipo === 'area' ? 'area_pastoral' : r.tipo === 'santuario' ? 'santuario' : 'paroquia_territorial',
   municipality:r.cidade || null, neighborhood:r.bairro || null, forania:r.forania || null, address:r.end || null, postal_code:r.cep || null, phone:r.tel || null,
   email:r.email || null, pastor_role:r.resp ? r.resp.split(':')[0] : null, pastor_name:r.resp ? r.resp.replace(/^[^:]*:\s*/, '') : null, episcopal_region:'RENSC',
   active:keyOf(r) === PILOTO_REDE && E_PILOTO, tenant_slug:keyOf(r) === PILOTO_REDE && E_PILOTO ? PILOTO : null});
-function buscaRedeLocal(q){
-  const t = semAcento(q.trim()).split(/\s+/).filter(Boolean);
-  const l = t.length ? REDE.filter(r => { const x = semAcento([r.nome, r.bairro, r.cidade, r.forania].join(' ')); return t.every(w => x.includes(w)); }) : REDE.filter(r => keyOf(r) === PILOTO_REDE && E_PILOTO);
-  return l.map(daRede).sort((a, b) => b.active - a.active);
+// Busca sem acento, sem maiúsculas e com abreviações simples (sto, sta, sra, n. s., nsra) — a mesma regra do banco.
+const expandeBusca = t => (' ' + semAcento(String(t || '')).replace(/[^a-z0-9]+/g, ' ') + ' ').replace(/ n s /g, ' nossa senhora ').replace(/ nsra /g, ' nossa senhora ')
+  .replace(/ sto /g, ' santo ').replace(/ sta /g, ' santa ').replace(/ sra /g, ' senhora ').replace(/\s+/g, ' ').trim();
+const passaTipo = (e, tipo) => !tipo || (tipo === 'paroquia' && String(e.type || 'paroquia').startsWith('paroquia')) || (tipo === 'santuario' && !!e.is_sanctuary);
+function buscaRedeLocal(q, tipo){
+  const t = expandeBusca(q).split(' ').filter(Boolean);
+  const l = t.length ? REDE.filter(r => { const x = expandeBusca([r.nome, r.bairro, r.cidade, r.forania, r.tipo === 'santuario' ? 'santuario' : 'paroquia'].join(' ')); return t.every(w => x.includes(w)); }) : REDE.filter(r => keyOf(r) === PILOTO_REDE && E_PILOTO);
+  return l.map(daRede).filter(e => passaTipo(e, tipo)).sort((a, b) => b.active - a.active);
 }
 async function clienteSb(){ for (let i = 0; i < 50 && NUVEM.ativo && !NUVEM.sb; i++) await new Promise(r => setTimeout(r, 200)); return NUVEM.sb; }
-async function buscarDiretorio(q){
+// tipo: null (todos) | 'paroquia' | 'santuario'. Banco sem o diretorio_santuarios.sql: busca sem o filtro e filtra aqui.
+async function buscarDiretorio(q, tipo = null){
   const sb = await clienteSb();
   if (sb && !DIR.semBanco){
-    try { const {data, error} = await sb.rpc('public_directory_search', {p_q:q, p_limit:40}); if (error) throw error; return Array.isArray(data) ? data : []; }
+    try {
+      let {data, error} = await sb.rpc('public_directory_search', {p_q:q, p_limit:40, ...(tipo && !DIR.semTipo ? {p_tipo:tipo} : {})});
+      if (error && tipo && !DIR.semTipo && tabelaFaltando(error)){ DIR.semTipo = true; ({data, error} = await sb.rpc('public_directory_search', {p_q:q, p_limit:40})); }
+      if (error) throw error;
+      return (Array.isArray(data) ? data : []).filter(e => passaTipo(e, tipo));
+    }
     catch(e){ if (!tabelaFaltando(e)) throw e; DIR.semBanco = true; }
   }
-  return buscaRedeLocal(q);
+  return buscaRedeLocal(q, tipo);
 }
 async function carregarFicha(slug){
   if (DIR.fichas.has(slug)) return;
@@ -2791,13 +3019,18 @@ function vendoDir(){
   return DIR.fichas.get(slug) ?? null;
 }
 const vendoRede = () => vendoDir() || null;
-const nomeDir = d => `${!d.type || d.type.startsWith('paroquia') ? 'Paróquia ' : (TIPO_DIR[d.type] || '') + ' '}${d.name}${d.neighborhood && !/^centro$/i.test(d.neighborhood) ? ' – ' + d.neighborhood.split('/')[0].trim() : d.municipality ? ' – ' + d.municipality : ''}`;
+// Paróquia que também é santuário: UM registro, apresentado pelo nome do santuário (ex.: "Santuário Arquidiocesano São Paulo da Cruz").
+const tituloDir = d => d.is_sanctuary && d.sanctuary_name ? d.sanctuary_name : `${!d.type || d.type.startsWith('paroquia') ? 'Paróquia ' : d.type === 'santuario' ? '' : (TIPO_DIR[d.type] || '') + ' '}${d.name}`;
+const nomeDir = d => `${tituloDir(d)}${d.neighborhood && !/^centro$/i.test(d.neighborhood) ? ' – ' + d.neighborhood.split('/')[0].trim() : d.municipality ? ' – ' + d.municipality : ''}`;
 function nomeVendo(){ if (vendoAtiva()) return S.cfg.nome || 'Paróquia'; const d = vendoDir(); return d ? nomeDir(d) : 'Paróquia'; }
-const localDir = d => [d.municipality, d.neighborhood].filter(Boolean).join(' — ');
+const localDir = d => [d.neighborhood, d.municipality].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' · ');
+// Chips: [Paróquia] (ou Curato, Área pastoral…) e, se for santuário, [Santuário Arquidiocesano] / [Santuário Estadual]
+const chipsDir = d => `${d.type && d.type !== 'santuario' ? `<span class="chip neutro">${esc(TIPO_DIR[d.type] || d.type)}</span>` : ''}${d.is_sanctuary || d.type === 'santuario' ? `<span class="chip santuario">${esc(d.sanctuary_kind || 'Santuário')}</span>` : ''}`;
 
 // Minha paróquia e recentes (deste aparelho)
 const atualComoItem = () => ({slug:TENANT, name:(S.cfg.nome || '').replace(/^Paróquia\s+/i, '') || TENANT, municipality:null, neighborhood:null, active:true, tenant_slug:TENANT, rotulo:S.cfg.nome || ''});
-const itemDir = d => ({slug:d.slug, name:d.name, municipality:d.municipality || null, neighborhood:d.neighborhood || null, active:!!d.active, tenant_slug:d.tenant_slug || null, rotulo:nomeDir(d)});
+const itemDir = d => ({slug:d.slug, name:d.name, municipality:d.municipality || null, neighborhood:d.neighborhood || null, forania:d.forania || null, type:d.type || null,
+  is_sanctuary:!!d.is_sanctuary, sanctuary_name:d.sanctuary_name || null, sanctuary_kind:d.sanctuary_kind || null, active:!!d.active, tenant_slug:d.tenant_slug || null, rotulo:nomeDir(d)});
 function lembrar(item){
   const n = lerNav();
   n.recentes = [item, ...n.recentes.filter(x => x.slug !== item.slug && !(item.tenant_slug && x.tenant_slug === item.tenant_slug))].slice(0, 6);
@@ -2819,60 +3052,83 @@ function abrirParoquia(item){
   S.vendo = 'dir:' + item.slug; S.pubTab = 'igreja'; velaStep = 'inicio'; save(); render(); scrollTo(0,0);
 }
 
-let buscaPar = '';
+let buscaPar = '', dirTipo = 'todos';
+const tipoBusca = () => dirTipo === 'todos' ? null : dirTipo;
+const chaveBusca = () => buscaPar.trim() + '|' + dirTipo;
+const buscandoDir = () => !!buscaPar.trim() || dirTipo === 'santuario'; // "Santuários" sem texto lista todos os santuários
+// Cartão do diretório: nome (do santuário, quando for), bairro · cidade, forania, chips e a ação.
 function linhaDir(e){
-  const at = e.active && e.tenant_slug;
-  return `<div class="row dir-row"><div class="grow">
-      <button type="button" class="link-btn dir-nome" data-dir-abrir="${esc(e.slug)}">${esc(e.rotulo || nomeDir(e))}</button>
-      ${localDir(e) ? `<div class="small muted">${esc(localDir(e))}${e.forania ? ' · Forania ' + esc(e.forania) : ''}</div>` : ''}
-      <div class="tagline" style="margin-top:4px">${at ? '<span class="chip">✓ Central Paroquial ativa</span>' : '<span class="chip gold">Central Paroquial ainda não ativada</span>'}${e.type && !String(e.type).startsWith('paroquia_territorial') ? `<span class="chip neutro">${esc(TIPO_DIR[e.type] || e.type)}</span>` : ''}</div></div>
-    ${at ? `<button type="button" class="btn sm" data-dir-abrir="${esc(e.slug)}">Acessar</button>` : `<button type="button" class="btn sm ghost" data-dir-ativar="${esc(e.slug)}">Solicitar ativação</button>`}</div>`;
+  const at = e.active && e.tenant_slug, titulo = e.is_sanctuary || e.type ? tituloDir(e) : (e.rotulo || nomeDir(e));
+  return `<article class="dir-card${at ? ' ativa' : ''}">
+      <button type="button" class="link-btn dir-nome" data-dir-abrir="${esc(e.slug)}">${esc(titulo)}</button>
+      ${localDir(e) ? `<div class="dir-local">${esc(localDir(e))}</div>` : ''}
+      ${e.forania ? `<div class="small muted">Forania ${esc(e.forania)}</div>` : ''}
+      <div class="tagline">${chipsDir(e)}${at ? '<span class="chip">✓ Central Paroquial ativa</span>' : '<span class="chip gold">Central Paroquial ainda não ativada</span>'}</div>
+      <div class="dir-acao">${at ? `<button type="button" class="btn sm" data-dir-abrir="${esc(e.slug)}">Acessar</button>` : `<button type="button" class="btn sm ghost" data-dir-ativar="${esc(e.slug)}">Solicitar ativação</button>`}</div></article>`;
 }
+const gradeDir = l => `<div class="dir-grade">${l.map(linhaDir).join('')}</div>`;
 function resultadosHTML(){
   const b = DIR.busca, q = buscaPar.trim();
-  if (!q) return '';
-  if (b.q !== q || b.estado === 'carregando') return `<div class="status" role="status"><span class="spinner"></span>Procurando paróquias…</div>`;
+  if (!buscandoDir()) return '';
+  if (b.chave !== chaveBusca() || b.estado === 'carregando') return `<div class="status" role="status"><span class="spinner"></span>Procurando…</div>`;
   if (b.estado === 'erro') return `<div class="signal wait" role="status">Não foi possível buscar agora. Tente novamente em alguns instantes.</div>`;
-  return `<h2 style="margin-top:14px">${b.lista.length} resultado${b.lista.length === 1 ? '' : 's'}</h2>${DIR.semBanco ? `<p class="small muted" style="margin:-4px 4px 8px">Por enquanto, só as paróquias da RENSC.</p>` : ''}` + (b.lista.length ? `<div class="list">${b.lista.map(linhaDir).join('')}</div>` : '<div class="empty">Nenhuma paróquia encontrada. Tente outra palavra: nome, bairro, cidade ou forania.</div>');
+  const titulo = q ? `${b.lista.length} resultado${b.lista.length === 1 ? '' : 's'}` : 'Santuários do Catálogo 2026';
+  return `<h2 style="margin-top:14px">${titulo}</h2>${DIR.semBanco ? `<p class="small muted" style="margin:-4px 4px 8px">Por enquanto, só as paróquias da RENSC.</p>` : ''}` + (b.lista.length ? gradeDir(b.lista)
+    : `<div class="empty">Nada encontrado${dirTipo === 'santuario' ? ' entre os santuários' : dirTipo === 'paroquia' ? ' entre as paróquias' : ''}. Tente outra palavra: nome, bairro, cidade ou forania.</div>`);
 }
 function escolherHTML(){
-  const n = lerNav(), q = buscaPar.trim();
+  const n = lerNav(), tipo = tipoBusca(), passa = e => passaTipo(e, tipo);
   // As ativas chegam depois: atualiza só o bloco delas (a busca pode estar com o cursor, e um redesenho esperaria)
   if (!DIR.ativas){ DIR.ativas = []; buscarDiretorio('').then(l => { DIR.ativas = l; const el = document.getElementById('dirAtivas'); if (el && S.pubTab === 'escolher'){ el.innerHTML = ativasHTML(); bindEscolherLinhas(el); } }).catch(() => {}); }
-  const recentes = n.recentes.filter(x => x.slug !== n.minha?.slug);
-  return `<h2>Encontre sua paróquia</h2>
-  <p class="lead small">Pesquise pelo nome da paróquia, do bairro, da cidade ou da forania.</p>
-  <input type="search" id="buscaPar" placeholder="Ex.: São Bernardo, Planalto, Contagem" aria-label="Buscar paróquia" value="${esc(buscaPar)}" autocomplete="off" style="margin-bottom:12px">
+  if (buscandoDir() && DIR.busca.chave !== chaveBusca() && DIR.busca.estado !== 'carregando') setTimeout(dispararBusca, 0);
+  const recentes = n.recentes.filter(x => x.slug !== n.minha?.slug).filter(passa);
+  const filtros = [['todos', 'Todos'], ['paroquia', 'Paróquias'], ['santuario', 'Santuários']];
+  return `<h2>Encontre sua paróquia ou santuário</h2>
+  <p class="lead small">Pesquise por nome, bairro, cidade ou forania.</p>
+  <div class="dir-busca">
+    <input type="search" id="buscaPar" placeholder="Ex.: São Paulo da Cruz, Planalto, Contagem" aria-label="Buscar paróquia ou santuário" value="${esc(buscaPar)}" autocomplete="off" style="margin-bottom:10px">
+    <div class="filtros filtros-dir" role="group" aria-label="Mostrar">${filtros.map(([k, t]) => `<button type="button" data-dirt="${k}" aria-pressed="${dirTipo === k}">${t}</button>`).join('')}</div>
+  </div>
   <div id="dirRes" aria-live="polite">${resultadosHTML()}</div>
-  ${q ? '' : `${n.minha ? `<h2 style="margin-top:6px">Minha paróquia</h2><div class="list">${linhaDir(n.minha)}</div>` : ''}
-    ${recentes.length ? `<h2>Recentes</h2><div class="list">${recentes.map(linhaDir).join('')}</div>` : ''}
+  ${buscandoDir() ? '' : `${n.minha && passa(n.minha) ? `<h2 style="margin-top:6px">Minha paróquia</h2>${gradeDir([n.minha])}` : ''}
+    ${recentes.length ? `<h2>Recentes</h2>${gradeDir(recentes)}` : ''}
     <div id="dirAtivas">${ativasHTML()}</div>`}
-  <p class="small muted" style="margin:10px 4px">${DIR.semBanco || !NUVEM.ativo ? `Por enquanto, a busca inclui as ${REDE.length} paróquias e santuários da RENSC.` : 'Paróquias, curatos e áreas pastorais do Catálogo 2026 da Arquidiocese de Belo Horizonte.'}</p>
+  <p class="small muted" style="margin:10px 4px">${DIR.semBanco || !NUVEM.ativo ? `Por enquanto, a busca inclui as ${REDE.length} paróquias e santuários da RENSC.` : 'Paróquias, santuários, curatos e áreas pastorais do Catálogo 2026 da Arquidiocese de Belo Horizonte.'}</p>
   <button class="btn ghost block-w" id="pickVoltar">Voltar</button>`;
+}
+function dispararBusca(){
+  clearTimeout(DIR.timer);
+  const q = buscaPar.trim(), tipo = tipoBusca(), chave = chaveBusca();
+  DIR.busca = {chave, q, estado:'carregando', lista:[]};
+  const res = document.getElementById('dirRes'); if (res) res.innerHTML = resultadosHTML();
+  DIR.timer = setTimeout(async () => {
+    let l = [], estado = 'ok';
+    try { l = await buscarDiretorio(q, tipo); } catch(e){ estado = 'erro'; }
+    if (chaveBusca() !== chave) return;
+    DIR.busca = {chave, q, estado, lista:l};
+    const r = document.getElementById('dirRes'); if (r){ r.innerHTML = resultadosHTML(); bindDirLinhas(r, todasEscolher); }
+  }, 250);
 }
 function bindDirLinhas(root, lista){
   const achar = slug => lista().find(x => x.slug === slug);
   root.querySelectorAll('[data-dir-abrir]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAbrir); if (e) abrirParoquia(e.rotulo ? e : itemDir(e)); });
   root.querySelectorAll('[data-dir-ativar]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAtivar); if (!e) return; abrirParoquia(e.rotulo ? e : itemDir(e)); setTimeout(() => document.getElementById('ativacao')?.scrollIntoView({block:'start'}), 400); });
 }
-const ativasHTML = () => DIR.ativas?.length ? `<h2>Com a Central Paroquial</h2><div class="list">${DIR.ativas.map(linhaDir).join('')}</div>` : '';
+const ativasHTML = () => { const l = (DIR.ativas || []).filter(e => passaTipo(e, tipoBusca())); return l.length ? `<h2>Com a Central Paroquial</h2>${gradeDir(l)}` : ''; };
 const todasEscolher = () => { const n = lerNav(); return [...(n.minha ? [n.minha] : []), ...n.recentes, ...(DIR.ativas || []), ...DIR.busca.lista]; };
 const bindEscolherLinhas = root => bindDirLinhas(root, todasEscolher);
 function bindEscolher(root){
   const todas = todasEscolher;
   const b = root.querySelector('#buscaPar');
   b.addEventListener('input', () => {
-    buscaPar = b.value; clearTimeout(DIR.timer);
-    const q = buscaPar.trim(); DIR.busca = {q, estado:'carregando', lista:[]};
-    const res = document.getElementById('dirRes'); if (res) res.innerHTML = resultadosHTML();
-    if (!q){ render(); const x = document.getElementById('buscaPar'); x.focus(); return; }
-    DIR.timer = setTimeout(async () => {
-      let l = [], estado = 'ok';
-      try { l = await buscarDiretorio(q); } catch(e){ estado = 'erro'; }
-      if (buscaPar.trim() !== q) return;
-      DIR.busca = {q, estado, lista:l};
-      const r = document.getElementById('dirRes'); if (r){ r.innerHTML = resultadosHTML(); bindDirLinhas(r, todas); }
-    }, 250);
+    const antes = buscandoDir(); buscaPar = b.value;
+    // entrou ou saiu do modo busca: redesenha (some/volta "Minha paróquia", "Recentes"…); senão, só os resultados
+    if (antes !== buscandoDir()){ clearTimeout(DIR.timer); DIR.busca = {chave:null, estado:'nada', lista:[]}; render(); const x = document.getElementById('buscaPar'); x.focus(); x.setSelectionRange(x.value.length, x.value.length); return; } // a busca sai pelo escolherHTML
+    dispararBusca();
+  });
+  root.querySelectorAll('[data-dirt]').forEach(x => x.onclick = () => {
+    if (dirTipo === x.dataset.dirt) return;
+    dirTipo = x.dataset.dirt; clearTimeout(DIR.timer); DIR.busca = {chave:null, estado:'nada', lista:[]}; render();
   });
   bindDirLinhas(root, todas);
   root.querySelector('#pickVoltar').onclick = () => { S.pubTab = 'igreja'; save(); render(); };
@@ -2893,11 +3149,12 @@ function inativaCard(d){
   if (d === null) return `<div class="status" role="status"><span class="spinner"></span>Carregando a paróquia…</div>`;
   if (!d) return `<div class="block"><p style="margin:0 0 10px">Não foi possível abrir esta paróquia agora.</p><button class="btn sm" data-pub="escolher">Encontrar paróquia</button></div>`;
   const fone = d.phone ? String(d.phone).split('/')[0].trim() : '';
-  return `<div class="block"><span class="chip gold">Central Paroquial ainda não ativada</span>
+  return `<div class="block"><div class="tagline" style="display:flex;flex-wrap:wrap;gap:6px">${chipsDir(d)}<span class="chip gold">Central Paroquial ainda não ativada</span></div>
     <h3 style="font-family:var(--serif);font-size:1.25rem;margin:8px 0 6px">${esc(nomeDir(d))}</h3>
     ${d.address ? `<p style="margin:0 0 4px">${esc(d.address)}${d.neighborhood ? ` – ${esc(d.neighborhood)}` : ''}${d.municipality ? `, ${esc(d.municipality)}` : ''}${d.postal_code ? `, ${esc(d.postal_code)}` : ''}</p>` : ''}
     <p class="small" style="margin:0">${d.phone ? `Telefone ${esc(d.phone)}` : ''}${d.email ? `${d.phone ? '<br>' : ''}E-mail <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : ''}</p>
     ${d.pastor_name ? `<p class="small" style="margin:8px 0 0">${esc(d.pastor_role || 'Responsável')}: ${esc(d.pastor_name)}</p>` : ''}
+    ${d.rector_name && d.rector_name !== d.pastor_name ? `<p class="small" style="margin:4px 0 0">Reitor do santuário: ${esc(d.rector_name)}</p>` : ''}
     <p class="small muted" style="margin:8px 0 0">${[d.forania ? 'Forania ' + d.forania : '', d.episcopal_region || ''].filter(Boolean).map(esc).join(' · ')}${d.forania || d.episcopal_region ? ' · ' : ''}Dados do Catálogo 2026 da Arquidiocese</p>
     ${fone ? `<a class="btn block-w" style="margin-top:12px" href="${telLink(fone)}">Ligar para a secretaria</a>` : ''}</div>`;
 }
@@ -3218,6 +3475,16 @@ function acoesHTML(completa = true){
   return `<nav class="acoes-grid" aria-label="O que você quer fazer">${a.map(([k, ic, tit, sub]) =>
     `<button type="button" class="acao" ${k === 's24' ? 'data-s24-abrir' : `data-acao="${k}"`}><span class="ic" aria-hidden="true">${ic}</span><b>${tit}</b><span class="small">${esc(sub)}</span></button>`).join('')}</nav>`;
 }
+/* Acesso rápido: nas subpáginas, uma faixa com os atalhos da Home (sem voltar ao início). */
+const TELAS_ACESSO = ['liturgia', 'rezar', 'intencao', 'velas', 'devocao', 'secretaria', 'doacoes'];
+function acessoRapidoHTML(){
+  if (S.mode !== 'publico' || !TELAS_ACESSO.includes(S.pubTab)) return '';
+  const a = [['liturgia', 'Liturgia'], ['rezar', 'Rezar']];
+  if (vendoAtiva()){ a.push(['intencao', 'Intenção']); a.push(['velas', 'Vela']); }
+  if (window.S24?.disponivel()) a.push(['secretaria', 'Secretaria 24h']);
+  return `<nav class="acesso-rapido" aria-label="Acesso rápido"><span class="ar-t" aria-hidden="true">Acesso rápido</span>${a.map(([k, t]) =>
+    `<button type="button" ${k === 'secretaria' ? 'data-s24-abrir' : `data-acao="${k}"`}${S.pubTab === k ? ' aria-current="page"' : ''}>${t}</button>`).join('')}</nav>`;
+}
 function bindAcoes(root){
   root.querySelectorAll('[data-acao]').forEach(b => b.onclick = () => {
     if (b.dataset.acao === 'rezar') reza = {k:null, passo:0, conta:0, misterios:null};
@@ -3236,17 +3503,22 @@ function eventoHojeCard(e){
 function igrejaPubHTML(){
   const hoje = eventosDeHoje(), dest = destaquesAtivos().slice(0, 2);
   const prox = eventosPublicos().filter(e => !hoje.includes(e))[0];
+  // Celular: uma coluna, na mesma ordem de sempre. Computador: ações em cima; missa, hoje, destaques e
+  // próximo evento à esquerda; notícias e "Assistir" à direita.
   return `<h2 class="sr">Início</h2>
   ${acoesHTML()}
+  <div class="home-grade"><div class="home-princ">
   ${missaHTML()}
   ${hoje.length ? `<h2>Hoje na paróquia</h2>${hoje.map(eventoHojeCard).join('')}` : ''}
   ${dest.map(destaqueCardHTML).join('')}
   ${prox ? `<h2>Próximo evento</h2>${eventoCard(prox)}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver agenda</button>` : ''}
+  </div><div class="home-lat">
   <h2>Notícias da Igreja</h2>
   ${noticiasParoquiaHTML(2)}
   ${noticiasArquidioceseHTML(3)}
   <button class="btn ghost block-w" data-pub="noticias" style="margin-bottom:10px">Ver todas as notícias</button>
-  ${assistirResumoHTML()}`;
+  ${assistirResumoHTML()}
+  </div></div>`;
 }
 function bindIgreja(root){
   bindAcoes(root); bindEventos(root); bindDestaques(root); carregarNoticias(); carregarLiturgia();
@@ -3378,17 +3650,25 @@ function devocaoPubHTML(){
    Chama em CSS (sem GIF), parada para quem pede menos movimento.
    ========================================================= */
 const MAX_VELAS = 50;
+// Poucas velas = velas maiores; muitas = prateleiras de até 10. O brilho do ambiente cresce com o número real.
 function salaVelasHTML(){
-  const n = velasHoje(), vistas = Math.min(n, MAX_VELAS), mais = n - vistas;
-  const velas = Array.from({length:vistas || 1}, (_, i) => `<span class="mv${vistas ? '' : ' apagada'}" style="--d:${((i * 37) % 23) / 10}s"><i></i></span>`).join('');
+  const n = velasHoje(), vistas = Math.min(n, MAX_VELAS), mais = n - vistas, qtd = vistas || 1;
+  const escala = qtd <= 3 ? 2.1 : qtd <= 8 ? 1.65 : qtd <= 20 ? 1.3 : 1;
+  const porFila = qtd <= 8 ? qtd : qtd <= 20 ? Math.ceil(qtd / 2) : 10;
+  const vela = i => `<span class="mv${vistas ? '' : ' apagada'}" style="--d:${((i * 37) % 23) / 10}s"><i></i></span>`;
+  const filas = []; for (let i = 0; i < qtd; i += porFila) filas.push(`<div class="prateleira">${Array.from({length:Math.min(porFila, qtd - i)}, (_, j) => vela(i + j)).join('')}</div>`);
+  const brilho = vistas ? Math.min(1, .25 + vistas / 50 * .75) : .05;
   return `<button class="crumb" data-pub="igreja">‹ Início</button>
-  <section class="sala" aria-labelledby="salaT">
+  <section class="sala" aria-labelledby="salaT" style="--brilho:${brilho.toFixed(2)}">
+    <svg class="sala-cruz" viewBox="0 0 26 36" aria-hidden="true"><path d="M13 2v32M5 11h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>
     <h2 id="salaT">Sala das Velas</h2>
-    <div class="sala-velas" role="img" aria-label="${n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas` : 'Nenhuma vela acesa ainda hoje'}">${velas}</div>
+    <p class="sala-lema">Uma comunidade unida em oração.</p>
+    <div class="sala-velas" style="--s:${escala}" role="img" aria-label="${n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas` : 'Nenhuma vela acesa ainda hoje'}">${filas.join('')}</div>
     <p class="sala-n">${n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas.` : 'Seja o primeiro a acender uma vela hoje.'}</p>
     ${mais > 0 ? `<p class="sala-mais">+${mais} pessoa${mais === 1 ? '' : 's'} rezando conosco.</p>` : ''}
     <button class="btn gold" id="velaIr">Acender minha vela</button>
-    <p class="small" style="margin:12px 0 0;opacity:.85">Os pedidos são vistos só pela equipe da paróquia. Aqui aparece apenas o número de velas.</p>
+    <p class="sala-priv">Seu pedido permanece privado. A equipe da paróquia acolhe as intenções apresentadas.</p>
+    <p class="sala-oracao">Senhor, acolhei as intenções de todos que rezam conosco.</p>
   </section>`;
 }
 function velasPubHTML(){ return velaStep === 'inicio' ? salaVelasHTML() : velaHTML(); }
@@ -3436,8 +3716,8 @@ function agendaPubHTML(){
   <p class="lead small">Eventos da paróquia e das comunidades, missas especiais e as datas da Igreja, num lugar só.</p>
   <div class="filtros" role="group" aria-label="O que mostrar">${filtros.map(([k, t]) => `<button data-agf="${k}" aria-pressed="${agFiltro === k}">${esc(t)}</button>`).join('')}</div>
   ${per.length ? `<h3 class="ag-sec">Em andamento</h3>${per.map(p => `<div class="ag-item ag-periodo"><span class="chip gold">🙏 ${esc(p.tipo)}</span><b>${esc(p.titulo)}</b><div class="small muted">${esc(p.desc)} · termina ${faltaDias(p.fim)}</div>${p.dev ? `<button type="button" class="btn sm ghost" data-dev="${p.dev}">Rezar hoje</button>` : ''}</div>`).join('')}` : ''}
-  ${grupos.length ? grupos.map(g => `<h3 class="ag-dia">${esc(rotDia(g.dia))}</h3>${g.itens.map(i => i.tipo === 'ev' ? eventoCard(i.e) :
-      `<div class="ag-item ag-igreja"><span class="chip neutro">⛪ ${esc(i.x.cat)}</span><b>${esc(i.x.titulo)}</b>${i.x.dev ? `<button type="button" class="btn sm ghost" data-dev="${i.x.dev}">Rezar</button>` : ''}</div>`).join('')}`).join('')
+  ${grupos.length ? `<div class="ag-grade">${grupos.map(g => `<section class="ag-grupo"><h3 class="ag-dia">${esc(rotDia(g.dia))}</h3>${g.itens.map(i => i.tipo === 'ev' ? eventoCard(i.e) :
+      `<div class="ag-item ag-igreja"><span class="chip neutro">⛪ ${esc(i.x.cat)}</span><b>${esc(i.x.titulo)}</b>${i.x.dev ? `<button type="button" class="btn sm ghost" data-dev="${i.x.dev}">Rezar</button>` : ''}</div>`).join('')}</section>`).join('')}</div>`
     : `<div class="empty">${agFiltro === 'igreja' ? 'Nenhuma data especial da Igreja nos próximos dias.' : 'Não há eventos cadastrados para os próximos dias.'}</div>`}
   ${antigos.length ? `<h2>Também nos avisos</h2><div class="list">${antigos.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : ''}
   ${horariosMissaHTML()}
@@ -3465,6 +3745,8 @@ function adicionarAgenda(e){
 /* ---------- roteador ---------- */
 function render(){
   document.body.classList.toggle('painel-app', painelApp());
+  document.body.classList.toggle('pub', S.mode==='publico');
+  if (S.mode==='publico') document.body.dataset.tela = S.pubTab; else delete document.body.dataset.tela;
   if (!(S.mode==='painel' && S.tab==='comunicar')) { publicado = null; if (!removendo) avisoStatus = null; }
   renderHeader();
   if (S.mode==='painel' && NUVEM.ativo && !logado()){
@@ -3484,12 +3766,12 @@ function render(){
     velas:[velasPubHTML, bindVela], devocao:[devocaoPubHTML, r => { bindEventos(r); bindDestaques(r); }], evento:[eventoPubHTML, bindEventoPub], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     secretaria: window.S24 ? [S24.publicoHTML, S24.bindPublico] : [igrejaPubHTML, bindIgreja],
-    contato:[contatoPubHTML, r => bindDirLinhas(r, () => DIR.vizinhas || [])] };
+    contato:[contatoPubHTML, r => bindDirLinhas(r, () => DIR.vizinhas || [])], doacoes:[doacoesPubHTML, bindDoacoes] };
   if (S.mode==='publico'){
     const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='igreja'; save(); render(); scrollTo(0,0); }; });
     map.escolher = [escolherHTML, bindEscolher];
     if (!vendoAtiva()){ map.igreja=[inativaInicioHTML,bindInativa]; map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
-    const [h,b] = map[S.pubTab]; v.innerHTML = h(); b(v); pickBind(v);
+    const [h,b] = map[S.pubTab]; v.innerHTML = acessoRapidoHTML() + h(); b(v); pickBind(v);
     v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; if (S.pubTab !== 'dizimista') dzPubEnviado = false; save(); render(); scrollTo(0,0); }; });
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
     bindAcoes(v); bindDestaques(v);
