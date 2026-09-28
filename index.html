@@ -401,6 +401,8 @@ nav.tabs .so-lateral{display:none}
 .hoje-ev h3{font-family:var(--serif);font-size:1.35rem;margin:0 0 4px;color:#fff}
 .hoje-ev-q{font-size:1.02rem;margin-bottom:12px}
 .hoje-ev .btn{background:#fff;color:#1F5B3F}
+.selo-demo{font-weight:500;letter-spacing:.02em}
+.hoje-ev .selo-demo{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.5)}
 .destaque{background:var(--gold-soft);border:1px solid var(--gold);border-radius:16px;padding:16px 18px;margin:14px 0 10px}
 .destaque-k{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--gold)}
 .destaque h3{font-family:var(--serif);font-size:1.35rem;margin:4px 0 2px}
@@ -1180,7 +1182,7 @@ function comunicarHTML(){
     </div>`;
   }
   const recentes = S.avisos.slice().sort((a,b)=>b.ts-a.ts).slice(0,5);
-  h += `<h2>Publicados recentemente</h2>${avisoStatus ? `<div class="signal ${avisoStatus.tipo}" id="avisoStatus" role="status">${avisoStatus.tipo==='wait'?'<span class="spinner" style="display:inline-block;vertical-align:-3px;margin-right:8px"></span>':''}${esc(avisoStatus.texto)}</div>` : ''}${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b><div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${escopoAviso(a)==='community'?`Só ${esc(comunidadeDe(a.communityId)?.name||'uma comunidade')}, `:''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}" ${removendo?'disabled':''}>Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
+  h += `<h2>Publicados recentemente</h2>${avisoStatus ? `<div class="signal ${avisoStatus.tipo}" id="avisoStatus" role="status">${avisoStatus.tipo==='wait'?'<span class="spinner" style="display:inline-block;vertical-align:-3px;margin-right:8px"></span>':''}${esc(avisoStatus.texto)}</div>` : ''}${recentes.length ? `<div class="list">${recentes.map(a=>`<div class="row"><div class="grow"><b>${esc(a.titulo)}</b> ${selo(a.demo === true)}<div class="small muted">${a.categoria==='igreja'?'Notícia da Igreja, ':''}${escopoAviso(a)==='community'?`Só ${esc(comunidadeDe(a.communityId)?.name||'uma comunidade')}, `:''}${ago(a.ts)}${a.evento?', na agenda':''}</div></div><button class="link-btn" data-del="${a.id}" ${removendo?'disabled':''}>Remover</button></div>`).join('')}</div>` : '<div class="empty">Nenhum aviso publicado ainda.</div>'}`;
   return h;
 }
 function bindComunicar(root){
@@ -1613,13 +1615,19 @@ function eventosPublicos(){
   const base = usaRel() ? rel('events').filter(e => e.public && !e.cancelled && (!e.community_id || comunidadesAtivas().some(c => c.id === e.community_id))) : S.pubRel.events;
   return base.filter(e => Date.parse(e.ends_at || e.starts_at) >= lim).sort((a,b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
 }
+/* Conteúdo de DEMONSTRAÇÃO (supabase/demo_*_seed.sql): etiqueta discreta "Demonstração", para não parecer
+   conteúdo oficial da paróquia. Evento DEMO = descrição termina com [Evento de demonstração]; aviso e intenção
+   DEMO = "demo": true. O texto técnico entre colchetes não é mostrado (fica só no banco). */
+const MARCA_EV_DEMO = /\s*\[Evento de demonstração\]\s*$/, MARCA_AV_DEMO = /\s*\[Aviso de demonstração\]\s*$/;
+const eventoDemo = e => MARCA_EV_DEMO.test(e?.description || '');
+const selo = (demo, extra = '') => demo ? `<span class="chip neutro selo-demo${extra}" title="Conteúdo de demonstração, não é informação oficial da paróquia">Demonstração</span>` : '';
 function eventoCard(e){
-  const c = comunidadeDe(e.community_id), loc = e.location || (c?.address ? c.address : '');
+  const c = comunidadeDe(e.community_id), loc = e.location || (c?.address ? c.address : ''), desc = (e.description || '').replace(MARCA_EV_DEMO, '');
   return `<article class="notice evento">
     ${e.image_url && /^https:\/\//i.test(e.image_url) ? `<img class="ev-img" src="${esc(e.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
-    <div class="news-meta"><span class="chip gold">${esc(quandoEvento(e))}</span>${c ? `<span class="chip">${esc(c.name)}</span>` : '<span class="chip neutro">Toda a paróquia</span>'}</div>
+    <div class="news-meta"><span class="chip gold">${esc(quandoEvento(e))}</span>${c ? `<span class="chip">${esc(c.name)}</span>` : '<span class="chip neutro">Toda a paróquia</span>'}${selo(eventoDemo(e))}</div>
     <h3>${esc(e.title)}</h3>
-    ${e.description ? `<p>${esc(e.description)}</p>` : ''}
+    ${desc ? `<p>${esc(desc)}</p>` : ''}
     ${loc ? `<div class="small muted" style="margin-top:6px">📍 ${esc(loc)}</div>` : ''}
     <div class="acoes"><button type="button" class="btn sm" data-agenda-add="${esc(e.id)}">📅 Adicionar à minha agenda</button></div>
   </article>`;
@@ -1635,7 +1643,7 @@ const escopoAviso = a => a.scope === 'community' && a.communityId ? 'community' 
 function avisoCard(a){
   const c = escopoAviso(a) === 'community' ? comunidadeDe(a.communityId) : null;
   const ev = a.eventId ? eventosPublicos().find(e => e.id === a.eventId) : null;
-  return `<article class="notice"><div class="small muted">${ago(a.ts)}${c ? ` · <span class="chip">${esc(c.name)}</span>` : ''}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
+  return `<article class="notice"><div class="small muted">${ago(a.ts)}${c ? ` · <span class="chip">${esc(c.name)}</span>` : ''} ${selo(a.demo === true)}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.demo === true ? String(a.texto || '').replace(MARCA_AV_DEMO, '') : a.texto)}</p>
     ${a.evento ? `<div class="when"><span class="chip gold">${esc(a.evento.quando)}</span>${a.evento.onde ? `<span class="chip">${esc(a.evento.onde)}</span>` : ''}</div>` : ''}
     ${ev ? `<div class="acoes"><button type="button" class="btn sm" data-agenda-add="${esc(ev.id)}">📅 Adicionar à minha agenda</button></div>` : ''}</article>`;
 }
@@ -1653,7 +1661,7 @@ function agendaAdmHTML(){
       <b class="${e.cancelled?'cancelado':''}">${esc(e.title)}</b>
       <div class="small muted">${esc(quandoEvento(e))}${e.location ? ' · ' + esc(e.location) : ''}</div>
       <div class="tagline" style="margin-top:4px">${c ? `<span class="chip">${esc(c.name)}</span>` : '<span class="chip neutro">Toda a paróquia</span>'}
-        ${e.cancelled ? '<span class="chip gold">Cancelado</span>' : ''}${!e.public ? '<span class="chip neutro">Só a equipe vê</span>' : ''}${e.highlight_home && !e.cancelled ? '<span class="chip gold">Destaque na Home</span>' : ''}</div>
+        ${selo(eventoDemo(e))}${e.cancelled ? '<span class="chip gold">Cancelado</span>' : ''}${!e.public ? '<span class="chip neutro">Só a equipe vê</span>' : ''}${e.highlight_home && !e.cancelled ? '<span class="chip gold">Destaque na Home</span>' : ''}</div>
       <div class="acoes">${!e.cancelled ? `<button class="btn sm ghost" data-ev-edit="${e.id}">Editar</button><button class="btn sm ghost" data-ev-cancel="${e.id}">Cancelar evento</button>`
         : `<button class="btn sm ghost" data-ev-reativar="${e.id}">Reativar</button><button class="link-btn" data-ev-del="${e.id}">Excluir</button>`}</div></div></div>`; };
   return `<h2>Agenda</h2>
@@ -2629,7 +2637,7 @@ function intencoesHTML(){
     h += `<div class="out"><div class="out-head"><h3>${dataBR(data)}, ${esc(hora)}</h3><button class="btn sm ghost" data-copylist="${esc(k)}">Copiar lista</button></div>
       <div class="list" style="border:0;border-radius:0;margin:0">${l.map(i => {
         const msg = `Olá, ${primeiroNome(i.nome)}! A ${S.cfg.nome} recebeu sua intenção (${TIPOS_INT[i.tipo].toLowerCase()}: ${i.por}) para a missa de ${dataBR(i.data)}, às ${i.hora}. Deus abençoe!`;
-        return `<div class="row"><div class="grow"><span class="chip ${i.status==='nova'?'gold':''}">${TIPOS_INT[i.tipo]}</span> <b>${esc(i.por)}</b>
+        return `<div class="row"><div class="grow"><span class="chip ${i.status==='nova'?'gold':''}">${TIPOS_INT[i.tipo]}</span> <b>${esc(i.por)}</b> ${selo(i.demo === true)}
           <div class="small muted">Pedido por ${esc(i.nome)}${i.status==='nova'?', aguardando confirmação':', confirmada'}</div></div>
           ${i.status==='nova' ? (i.whats ? `<a class="btn sm wa" href="${waLink(i.whats, msg)}" target="_blank" rel="noopener" data-conf="${i.id}">Confirmar</a>` : `<button class="btn sm" data-conf="${i.id}">Confirmar</button>`) : ''}
           <button class="link-btn" data-rmint="${i.id}">Remover</button></div>`; }).join('')}</div></div>`;
@@ -3221,7 +3229,7 @@ const hojeSPpub = () => diaSP(new Date().toISOString());
 const eventosDeHoje = () => eventosPublicos().filter(e => diaSP(e.starts_at) === hojeSPpub() && Date.parse(fimEvento(e)) >= now());
 function eventoHojeCard(e){
   const c = comunidadeDe(e.community_id), loc = e.location || c?.name || '';
-  return `<article class="hoje-ev"><h3>${esc(e.title)}</h3>
+  return `<article class="hoje-ev">${eventoDemo(e) ? `<div style="margin-bottom:6px">${selo(true)}</div>` : ''}<h3>${esc(e.title)}</h3>
     <div class="hoje-ev-q"><b>${esc(horaBR(e.starts_at))}</b>${e.ends_at ? ` às ${esc(horaBR(e.ends_at))}` : ''}${loc ? ` · ${esc(loc)}` : ''}</div>
     <button type="button" class="btn sm" data-ev-ver="${esc(e.id)}">Ver detalhes</button></article>`;
 }

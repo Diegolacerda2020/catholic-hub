@@ -285,6 +285,40 @@ for (const [slug, nome] of [['nossa-senhora-das-gracas-ibirite', 'Nossa Senhora 
   B.diretorio = true;
 }
 
+// ================= conteúdo DEMO identificado (não parece oficial) =================
+console.log('== etiqueta "Demonstração"');
+{ // o mesmo formato que o supabase/demo_multitenant_seed.sql grava
+  const salvoEv = B.t.events.slice(), salvoEst = structuredClone(B.estado.data);
+  B.t.events.push(EV('e-demo-hoje', 'Terço em família', hojeAs(23, 45), {description:'Momento de oração do terço aberto a todas as famílias.\n\n[Evento de demonstração]', location:'Local a confirmar'}));
+  B.estado.data.avisos.push({id:1004000000001, ts:Date.now() - 2 * 3600e3, titulo:'Campanha do agasalho', texto:'Doações podem ser entregues na secretaria. [Aviso de demonstração]', evento:null, demo:true});
+  B.estado.data.intencoes.push({id:1004000000011, ts:Date.now(), tipo:'falecidos', por:'Pedro Exemplo Viana (7º dia)', data:new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10), hora:'Horário a confirmar', nome:'Família Exemplo Viana', whats:'', status:'nova', demo:true});
+  const p = await aparelho(); await publico(p);
+  t_('Home: evento DEMO de hoje com a etiqueta', await p.$$eval('.hoje-ev', l => l.find(x => x.innerText.includes('Terço em família'))?.querySelector('.selo-demo')?.textContent === 'Demonstração'));
+  t_('Home: evento real de hoje SEM etiqueta', await p.$$eval('.hoje-ev', l => !l.find(x => x.innerText.includes('Almoço Beneficente')).querySelector('.selo-demo')));
+  await foto(p, 'demo-etiqueta-home-390', false);
+  await clk(p, '#tabs [data-tab="avisos"]'); await esperar(400);
+  const av = await p.$$eval('#view .notice', l => l.map(n => ({t:n.querySelector('h3')?.textContent, demo:!!n.querySelector('.selo-demo'), txt:n.innerText})));
+  t_('Avisos: aviso DEMO com a etiqueta, aviso real sem', av.find(x => x.t === 'Campanha do agasalho')?.demo === true && av.find(x => x.t === 'Aviso de Santo Antônio')?.demo === false, JSON.stringify(av));
+  t_('Avisos: o texto técnico [Aviso de demonstração] não aparece', !av.some(x => x.txt.includes('[Aviso de demonstração]')));
+  await foto(p, 'demo-etiqueta-avisos-390');
+  await clk(p, '#tabs [data-tab="agenda"]'); await esperar(400);
+  const ev = await p.$$eval('.notice.evento', l => l.map(n => ({t:n.querySelector('h3')?.textContent, demo:!!n.querySelector('.selo-demo'), txt:n.innerText})));
+  t_('Agenda: evento DEMO com a etiqueta, eventos reais sem', ev.find(x => x.t === 'Terço em família')?.demo === true && ev.filter(x => x.t !== 'Terço em família').every(x => !x.demo), JSON.stringify(ev.map(x => [x.t, x.demo])));
+  t_('Agenda: o texto técnico [Evento de demonstração] não aparece', !ev.some(x => x.txt.includes('[Evento de demonstração]')));
+  await foto(p, 'demo-etiqueta-agenda-390');
+  t_('Intenções não aparecem na página pública (só no painel)', !(await p.evaluate(() => document.body.innerText.includes('Pedro Exemplo Viana'))));
+  const s = await aparelho({url:'/#painel', largura:1366, altura:768}); await s.type('#l-em', 'secretaria@teste'); await s.type('#l-pw', '123456'); await clk(s, '#l-btn'); await esperar(1200);
+  await s.evaluate(() => document.querySelector('#tabs [data-tab="intencoes"]').click()); await esperar(500);
+  t_('Painel › Intenções: intenção DEMO com a etiqueta', await s.$$eval('#view .row', l => l.find(r => r.innerText.includes('Pedro Exemplo Viana'))?.querySelector('.selo-demo')?.textContent === 'Demonstração'));
+  await foto(s, 'demo-etiqueta-intencoes-painel-1366', false);
+  await s.evaluate(() => document.querySelector('#tabs [data-tab="comunicar"]').click()); await esperar(500);
+  t_('Painel › Publicados recentemente: aviso DEMO com a etiqueta, real sem', await s.$$eval('#view .row', l => { const d = l.find(r => r.innerText.includes('Campanha do agasalho')), r = l.find(x => x.innerText.includes('Aviso de Santo Antônio')); return !!d?.querySelector('.selo-demo') && !r?.querySelector('.selo-demo'); }));
+  await s.evaluate(() => document.querySelector('#tabs [data-tab="agenda"]').click()); await esperar(500);
+  t_('Painel › Agenda: evento DEMO com a etiqueta', await s.$$eval('#view .row', l => !!l.find(r => r.innerText.includes('Terço em família'))?.querySelector('.selo-demo')));
+  t_('etiqueta: sem erros de JS', ![...p.erros, ...s.erros].length, [...p.erros, ...s.erros].join(' | '));
+  B.t.events.length = 0; B.t.events.push(...salvoEv); B.estado.data = salvoEst;
+}
+
 // ================= acessibilidade básica das telas novas =================
 console.log('== acessibilidade básica');
 { const a11y = p => p.evaluate(() => {
