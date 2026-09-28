@@ -97,6 +97,13 @@ NODE_EXTRA_CA_CERTS=scripts/certs/globalsign-rsa-ov-ssl-ca-2018.pem node scripts
 
 Sai com código 1 se alguma fonte estiver mais de 6 h atrás do portal.
 
+**Situação para o piloto (sem mudanças nesta arquitetura agora):**
+- O Worker ainda pode falhar ao acessar a fonte por causa do certificado do servidor da Arquidiocese.
+- O espelho no GitHub pode ficar velho: hoje, ninguém o atualiza automaticamente.
+- O navegador do fiel tem a busca direta na fonte oficial como reserva, e a última lista boa fica no aparelho.
+- No piloto, conferir as notícias da Home **no computador e no celular** (Android e iPhone), comparando com
+  arquidiocesebh.org.br. Se precisar, use `scripts/conferir-noticias.mjs`.
+
 **Para o Worker voltar a ler a fonte sozinho, uma de duas:**
 - a Arquidiocese instala o intermediário certo ("GlobalSign RSA OV SSL CA 2018"). Nenhuma mudança nossa;
 - ou o workflow do espelho vai para a `main` (token com permissão `workflow` ou criado pela interface do GitHub).

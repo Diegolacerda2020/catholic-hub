@@ -1,0 +1,107 @@
+// Roteiro de homologação (docs/HOMOLOGACAO-DIRETORIO.md) rodado de verdade, na ordem, num banco
+// equivalente à produção (PGlite): cada bloco ```sql do roteiro precisa rodar sem erro e dar o esperado.
+// O teste de isolamento (I1) tem que terminar com o erro "RESULTADO…" e não deixar nada gravado.
+import { fileURLToPath } from 'node:url';
+import { PGlite } from '@electric-sql/pglite';
+import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import { STUB, ler } from './banco.mjs';
+
+const REPO = process.env.REPO || fileURLToPath(new URL('../..', import.meta.url));
+const base = f => execSync(`git show bbb34e1:${f}`, {cwd:REPO}).toString();
+let ok = 0, falha = 0; const t = (n, c, x = '') => { c ? ok++ : falha++; console.log(c ? '  ok  ' : '  FALHOU', n, c ? '' : String(x).slice(0, 600)); };
+
+const doc = fs.readFileSync(`${REPO}/docs/HOMOLOGACAO-DIRETORIO.md`, 'utf8');
+// blocos: "**P1." … ```sql …``` ; guarda o rótulo que vem antes de cada bloco
+const blocos = [...doc.matchAll(/(?:\*\*([A-Z]\d)\.[^\n]*\n)?```sql\n([\s\S]*?)```/g)].map(m => ({rot:m[1] || null, sql:m[2]}));
+const achar = rot => blocos.find(b => b.rot === rot)?.sql;
+t('roteiro tem P1–P7, D1–D3, D6, S1–S4, A1, A2, A4–A6 e o bloco de isolamento',
+  ['P1','P2','P3','P4','P5','P6','P7','D1','D2','D3','D6','S1','S2','S3','S4','A1','A2','A4','A5','A6'].every(achar) && blocos.some(b => b.sql.startsWith('do $$')), blocos.map(b => b.rot).join(','));
+
+// banco equivalente à produção: schema de bbb34e1 + dados DEMO + Secretaria 24h aplicada + equipe real
+const db = new PGlite({extensions:{pgcrypto}});
+await db.exec(STUB.replace('create table auth.users (id uuid primary key, email text);', 'create table auth.users (id uuid primary key, email text, aud text, role text);'));
+await db.exec(base('supabase/schema.sql'));
+await db.exec(base('supabase/demo_seed.sql'));
+await db.exec(ler('supabase/secretaria24h.sql'));
+await db.exec(ler('supabase/demo_secretaria_seed.sql'));
+await db.exec(`insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000a1','padre@paroquia'),('00000000-0000-0000-0000-0000000000b1','secretaria@paroquia');
+  insert into parish_users select '00000000-0000-0000-0000-0000000000a1', id, 'padre' from parishes; insert into parish_users select '00000000-0000-0000-0000-0000000000b1', id, 'secretaria' from parishes;
+  update parish_state set data = data || '{"cfg":{"nome":"Paróquia Santo Antônio – Jaraguá","missas":"Domingo: 07h30"},"avisos":[{"id":1,"ts":1,"titulo":"Quermesse"}]}'::jsonb;`);
+const q = async rot => (await db.query(achar(rot))).rows;
+const last = async sql => { const r = await db.exec(sql); return r.at(-1)?.rows || []; };
+
+console.log('== pré-check');
+let r = (await q('P1'))[0];
+t('P1: diretório ainda não existe', r.ja_existe_parish_directory === false && r.ja_existe_directory_id === false && +r.funcoes_do_diretorio === 0, JSON.stringify(r));
+r = (await q('P2'))[0];
+t('P2: pré-requisitos', r.tem_touch_updated_at && r.tem_gen_random_uuid, JSON.stringify(r));
+const idSA = (await q('P3'))[0].id;
+t('P3: 1 tenant', (await q('P3')).length === 1);
+t('P4: equipe listada', (await q('P4')).length === 2);
+const p5 = JSON.stringify(await q('P5')), p6 = JSON.stringify(await q('P6')), p7 = JSON.stringify(await q('P7'));
+t('P5: 12 tabelas com contagem e checksum', JSON.parse(p5).length === 12);
+
+console.log('== diretorio.sql');
+await db.exec(ler('supabase/diretorio.sql'));
+r = (await q('D1'))[0];
+t('D1: estrutura, coluna opcional, nada ligado, FK segura', r.tem_parish_directory && r.tem_directory_id && r.directory_id_opcional === 'YES' && +r.paroquias_ja_ligadas === 0 && r.fk_segura === true, JSON.stringify(r));
+r = (await q('D2'))[0];
+t('D2: RLS ligado, 0 policies, ninguém lê/altera direto', r.rls_ligado && +r.policies === 0 && !r.anon_le && !r.equipe_le && !r.equipe_altera && !r.anon_cria_paroquia, JSON.stringify(r));
+r = await q('D3');
+t('D3: só as duas funções públicas abertas ao visitante', JSON.stringify(r.map(x => [x.proname, x.anon_executa])) === JSON.stringify([['dir_norm', false], ['dir_tenant_slug', false], ['public_directory_entry', true], ['public_directory_search', true]]), JSON.stringify(r));
+t('D4: P5 idêntica', JSON.stringify(await q('P5')) === p5);
+t('D5: P6 idêntica', JSON.stringify(await q('P6')) === p6);
+t('D6: busca vazia', JSON.stringify((await q('D6'))[0].public_directory_search) === '[]');
+
+console.log('== diretorio_seed.sql');
+await db.exec(ler('supabase/diretorio_seed.sql'));
+r = Object.fromEntries((await q('S1')).map(x => [x.type, +x.count]));
+t('S1: 278 por tipo', r.TOTAL === 278 && r.paroquia_territorial === 273 && r.paroquia_pessoal === 2 && r.paroquia_militar === 1 && r.curato === 1 && r.area_pastoral === 1, JSON.stringify(r));
+r = (await q('S2'))[0];
+t('S2: 2026, listed, sem duplicados, 3 sem código', JSON.stringify(r.anos) === '[2026]' && JSON.stringify(r.status) === '["listed"]' && +r.codigos_duplicados === 0 && +r.sem_codigo_no_catalogo === 3 && +r.slugs_duplicados === 0, JSON.stringify(r));
+t('S3: 013, 207, 009 presentes', (await q('S3')).map(x => x.catalog_code).join() === '009,013,207');
+r = await q('S4');
+t('S4: ainda 1 tenant, sem directory_id', r.length === 1 && r[0].slug === 'santo-antonio-jaragua' && r[0].directory_id === null);
+t('S5: P5 idêntica', JSON.stringify(await q('P5')) === p5);
+await db.exec(ler('supabase/diretorio_seed.sql'));
+t('S5: seed 2x continua 278', (await q('S1')).find(x => x.type === 'TOTAL').count == 278);
+
+console.log('== diretorio_ativacao.sql');
+const conf = await last(ler('supabase/diretorio_ativacao.sql'));
+t('ativação: conferência final lista as 3, equipe 0 nas novas', conf.length === 3 && conf.filter(x => +x.equipe === 0).length === 2, JSON.stringify(conf));
+r = await q('A1');
+t('A1: 3 tenants, Santo Antônio com o mesmo id', r.length === 3 && r.find(x => x.slug === 'santo-antonio-jaragua').id === idSA && r.every(x => x.directory_id && x.status === 'active'), JSON.stringify(r));
+t('A2: active 3, listed 275', JSON.stringify((await q('A2')).map(x => [x.status, +x.count])) === '[["active",3],["listed",275]]');
+const p5b = JSON.parse(JSON.stringify(await q('P5'))), p5a = JSON.parse(p5);
+const muda = p5b.filter((x, i) => x.h !== p5a[i].h).map(x => x.t);
+t('A3: só parishes e parish_state mudam (novas linhas)', JSON.stringify(muda) === '["parishes","parish_state"]' && p5b.find(x => x.t === 'parishes').n == 3 && p5b.find(x => x.t === 'parish_state').n == +p5a.find(x => x.t === 'parish_state').n + 2, JSON.stringify(muda));
+t('A3: P7 idêntica (linha de Santo Antônio não mudou)', JSON.stringify(await q('P7')) === p7);
+r = await q('A4');
+t('A4: tenants novos vazios', r.length === 2 && r.every(x => ['comunidades','eventos','dizimistas','contribuicoes','interessados','servicos_s24','solicitacoes','equipe'].every(k => +x[k] === 0) && +x.parish_state === 1), JSON.stringify(r));
+r = await q('A5');
+t('A5: só cfg do catálogo, nada de Santo Antônio', r.length === 2 && r.every(x => x.chaves === 'cfg' && x.tem_algo_de_santo_antonio === false && x.cfg.missas === ''), JSON.stringify(r).slice(0, 300));
+const a6 = blocos.filter(b => /public_directory_search\('', 30\);\s+-- esperado/.test(b.sql))[0]?.sql;
+t('A6: páginas públicas das 3', (await q('A6')).length === 3);
+const busca = (await db.query(`select public_directory_search('', 30) r`)).rows[0].r;
+t('A6: busca sem texto devolve as 3 ativas', busca.length === 3 && busca.every(x => x.active && x.tenant_slug) && !!a6);
+
+console.log('== isolamento (I1)');
+const iso = blocos.find(b => b.sql.startsWith('do $$')).sql;
+let msg = '';
+try { await db.exec(iso); } catch(e){ msg = e.message; }
+console.log(msg.split('\n').map(l => '      ' + l).join('\n'));
+t('I1 termina com o erro-resultado (e por isso desfaz tudo)', msg.startsWith('RESULTADO DO TESTE DE ISOLAMENTO'));
+const linhas = msg.split('\n').filter(l => /^[ABC] \(/.test(l));
+t('I1: A, B e C veem 0 de outras paróquias em todas as tabelas', linhas.length === 3 && linhas.every(l => (l.match(/OUTRAS paróquias: ([^|]+)\|/)[1].match(/=(\d+)/g) || []).every(x => x === '=0')), linhas.join(' // '));
+t('I1: B e C veem os próprios dados de teste', linhas.slice(1).every(l => /PRÓPRIA: events=1 service_requests=1/.test(l)));
+t('I1: visitante sem acesso direto', msg.includes('visitante | sem acesso direto (ok)'));
+t('I1: página pública de B só com o evento de B', msg.includes('eventos: [ISO] Evento B | avisos: 0'));
+const depois = blocos.find(b => b.sql.includes('eventos_iso')).sql;
+r = (await db.query(depois)).rows[0];
+t('I1: nada ficou gravado', +r.eventos_iso === 0 && +r.usuarios_iso === 0 && +r.servicos_iso === 0, JSON.stringify(r));
+t('I1: P5 igual à do pós-ativação', JSON.stringify(await q('P5')) === JSON.stringify(p5b));
+
+console.log(`\n${ok} ok, ${falha} falha(s)`);
+process.exit(falha ? 1 : 0);
