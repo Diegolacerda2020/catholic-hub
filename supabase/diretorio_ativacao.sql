@@ -36,7 +36,6 @@ select p.id, jsonb_build_object('cfg', jsonb_strip_nulls(jsonb_build_object(
   'endereco', concat_ws(' – ', d.address, d.neighborhood, d.municipality || ' – MG' || coalesce(', CEP ' || d.postal_code, '')),
   'telefone', d.phone,
   'email', d.email,
-  'paroco', d.pastor_name,
   'forania', d.forania,
   'regiao', d.episcopal_region_name,
   'missas', '',

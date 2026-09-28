@@ -36,7 +36,7 @@ const antes = await foto();
 const sa0 = (await q1(db, `select id from parishes where slug='santo-antonio-jaragua'`))[0].id;
 
 for (let i = 1; i <= 2; i++){
-  for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']){
+  for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_privacidade.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']){
     const e = await erro(db.exec(ler(f)));
     t(`${f} (${i}ª vez) roda sem erro`, !e, e);
   }
@@ -99,7 +99,21 @@ t('filtro Paróquias também acha São Paulo da Cruz (é paróquia)', r[0].name 
 r = await busca('pampulha santuario');
 t('Igrejinha da Pampulha: santuário independente (não unido à paróquia São Francisco de Assis)', r.some(x => x.type === 'santuario' && /Francisco/.test(x.sanctuary_name)) && (await busca('sao francisco de assis')).filter(x => x.forania === 'Santo Antônio (Pampulha)').length === 2);
 const ficha = (await como(db, null, async () => q1(db, `select public_directory_entry('santa-clara-e-sao-francisco-mineirao') r`)))[0].r;
-t('ficha pública com dados do catálogo', ficha.address === 'Rua Mafalda Guimarães Corrieri, 610' && ficha.pastor_name === 'Pe. Bráulio Francisco Tibúrcio' && ficha.catalog_code === '207' && ficha.active);
+t('ficha pública com dados institucionais do catálogo', ficha.address === 'Rua Mafalda Guimarães Corrieri, 610' && ficha.catalog_code === '207' && ficha.active);
+
+console.log('== privacidade: nenhum nome de responsável no banco nem nas funções públicas');
+const PESSOAIS = /pastor|rector|reitor|paroco|p[aá]roco|vigario|responsavel|clergy|cura_|admin_name/i;
+const colunasDir = (await q1(db, `select column_name from information_schema.columns where table_name='parish_directory'`)).map(x => x.column_name);
+t('parish_directory sem colunas de responsável', !colunasDir.some(c => PESSOAIS.test(c)), colunasDir.join());
+const INSTITUCIONAIS = ['slug','name','type','catalog_code','episcopal_region','episcopal_region_name','forania','municipality','neighborhood','address','postal_code','phone','email','source_year','is_sanctuary','sanctuary_code','sanctuary_name','sanctuary_kind','active','tenant_slug'];
+t('public_directory_entry: só campos institucionais', Object.keys(ficha).every(k => INSTITUCIONAIS.includes(k)), Object.keys(ficha).join());
+const todasBuscas = (await como(db, null, async () => q1(db, `select public_directory_search('paroquia', 50) a, public_directory_search('', 50, 'santuario') b`)))[0];
+t('public_directory_search: só campos institucionais', [...todasBuscas.a, ...todasBuscas.b].every(x => Object.keys(x).every(k => INSTITUCIONAIS.includes(k))));
+const NOMES_ANTIGOS = JSON.parse(execSync(`git show a9ec650:docs/diretorio-importacao.json`, {cwd:REPO}).toString()).diretorio.flatMap(d => [d.pastor_name, d.rector_name]).filter(Boolean);
+const slugsDir = (await q1(db, `select slug from parish_directory`)).map(x => x.slug);
+const tudoPublico = JSON.stringify(await como(db, null, async () => q1(db, `select public_directory_entry(s) e from unnest($1::text[]) s`, [slugsDir])));
+t(`nenhum dos ${new Set(NOMES_ANTIGOS).size} nomes de responsáveis do Catálogo aparece nas 293 fichas públicas`, NOMES_ANTIGOS.length > 250 && !NOMES_ANTIGOS.some(n => tudoPublico.includes(n)));
+t('nenhum nome de responsável guardado em parish_directory (qualquer coluna)', !(await q1(db, `select to_jsonb(d)::text t from parish_directory d`)).some(r => NOMES_ANTIGOS.some(n => r.t.includes(n))));
 
 console.log('== ninguém ativa pela internet');
 for (const [quem, uid] of [['anon', null], ['equipe logada', '00000000-0000-0000-0000-0000000000b1']]){
@@ -124,7 +138,8 @@ for (const slug of ['santa-clara-e-sao-francisco-mineirao', 'nossa-senhora-das-g
   t(`${slug}: sem catálogo da Secretaria 24h (não copiou o de SA)`, (await como(db, null, async () => q1(db, `select public_service_catalog($1) c`, [slug])))[0].c.length === 0);
 }
 const gra = await pub('nossa-senhora-das-gracas-ibirite');
-t('N. Sra. das Graças: endereço/telefone/pároco do catálogo', gra.cfg.endereco === 'Rua Hilário Ferreira Freitas, 166 – Centro – Ibirité – MG, CEP 32400-000' && gra.cfg.telefone === '(31) 99518-0567' && /Willams/.test(gra.cfg.paroco), JSON.stringify(gra.cfg));
+t('N. Sra. das Graças: endereço/telefone institucionais do catálogo, SEM nome de pároco', gra.cfg.endereco === 'Rua Hilário Ferreira Freitas, 166 – Centro – Ibirité – MG, CEP 32400-000' && gra.cfg.telefone === '(31) 99518-0567' && !('paroco' in gra.cfg), JSON.stringify(gra.cfg));
+for (const slug of ['santa-clara-e-sao-francisco-mineirao', 'nossa-senhora-das-gracas-ibirite']){ const s = JSON.stringify(await pub(slug)); t(`${slug}: página pública sem nome de responsável do Catálogo`, !NOMES_ANTIGOS.some(n => s.includes(n))); }
 
 console.log('== isolamento entre as 3 paróquias');
 const SL = {A:'santo-antonio-jaragua', B:'santa-clara-e-sao-francisco-mineirao', C:'nossa-senhora-das-gracas-ibirite'};

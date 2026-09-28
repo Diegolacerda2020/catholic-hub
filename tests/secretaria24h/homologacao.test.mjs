@@ -58,6 +58,8 @@ t('D6: busca vazia', JSON.stringify((await q('D6'))[0].public_directory_search) 
 console.log('== diretorio_santuarios.sql + diretorio_seed.sql');
 await db.exec(ler('supabase/diretorio_santuarios.sql'));
 t('santuários: P5 idêntica (só estrutura)', JSON.stringify(await q('P5')) === p5);
+await db.exec(ler('supabase/diretorio_privacidade.sql'));
+t('privacidade (banco novo): P5 idêntica, nada a limpar', JSON.stringify(await q('P5')) === p5);
 await db.exec(ler('supabase/diretorio_seed.sql'));
 r = Object.fromEntries((await q('S1')).map(x => [x.type, +x.count]));
 t('S1: 293 por tipo', r.TOTAL === 293 && r.paroquia_territorial === 284 && r.paroquia_pessoal === 2 && r.paroquia_militar === 1 && r.curato === 1 && r.area_pastoral === 1 && r.santuario === 4, JSON.stringify(r));
@@ -118,7 +120,25 @@ console.log('== seção 10: atualização de santuários sobre o diretório anti
   const chaves = async () => (await u.query(`select catalog_code, slug, status from parish_directory where catalog_code is not null order by 1`)).rows;
   const slugs0 = await chaves(), p5u = JSON.stringify(await uq('P5'));
   const tenants = async () => JSON.stringify((await u.query(`select id, slug, directory_id from parishes order by slug`)).rows), tenants0 = await tenants();
-  for (let i = 1; i <= 2; i++){ await u.exec(ler('supabase/diretorio_santuarios.sql')); await u.exec(ler('supabase/diretorio_seed.sql')); }
+  // como no banco real: os 2 tenants novos receberam cfg.paroco do catálogo; Santo Antônio tem o dela (cadastrado pela paróquia)
+  const cfgParoco = async () => Object.fromEntries((await u.query(`select p.slug, ps.data->'cfg'->>'paroco' paroco from parishes p join parish_state ps on ps.parish_id = p.id`)).rows.map(x => [x.slug, x.paroco]));
+  await u.exec(`update parish_state set data = data || jsonb_build_object('cfg', coalesce(data->'cfg', '{}'::jsonb) || '{"paroco":"Nome cadastrado pela própria paróquia"}'::jsonb) where parish_id = (select id from parishes where slug='santo-antonio-jaragua')`);
+  const par0 = await cfgParoco();
+  t('U0: Santo Antônio com o nome cadastrado pela própria paróquia', par0['santo-antonio-jaragua'] === 'Nome cadastrado pela própria paróquia');
+  t('U0: tenants novos com cfg.paroco copiado do catálogo (situação a limpar)', !!par0['santa-clara-e-sao-francisco-mineirao'] && !!par0['nossa-senhora-das-gracas-ibirite'], JSON.stringify(Object.keys(par0)));
+  const p5u0 = JSON.stringify(await uq('P5'));
+  for (let i = 1; i <= 2; i++) for (const f of ['supabase/diretorio_santuarios.sql', 'supabase/diretorio_privacidade.sql', 'supabase/diretorio_seed.sql']){
+    let e = null; try { await u.exec(ler(f)); } catch(x){ e = x.message; } t(`U: ${f} (${i}ª vez) sem erro`, !e, e);
+  }
+  const par1 = await cfgParoco();
+  t('privacidade: cfg.paroco do catálogo removido dos 2 tenants novos', !par1['santa-clara-e-sao-francisco-mineirao'] && !par1['nossa-senhora-das-gracas-ibirite']);
+  t('privacidade: Santo Antônio mantém o que a própria paróquia cadastrou', par1['santo-antonio-jaragua'] === 'Nome cadastrado pela própria paróquia');
+  const cols = (await u.query(`select column_name from information_schema.columns where table_name='parish_directory' and column_name in ('pastor_role','pastor_name','rector_name')`)).rows;
+  t('privacidade: colunas de responsável removidas do diretório', cols.length === 0, JSON.stringify(cols));
+  const conf = (await u.exec(ler('supabase/diretorio_privacidade.sql'))).at(-1).rows[0];
+  t('privacidade: conferência do arquivo = 0 / 0', +conf.colunas_de_responsavel === 0 && +conf.tenants_novos_com_paroco === 0, JSON.stringify(conf));
+  const p5u1 = JSON.parse(JSON.stringify(await uq('P5'))), p5a0 = JSON.parse(p5u0);
+  t('privacidade: só parish_state muda (parish_users, auth.users e demais idênticas)', JSON.stringify(p5u1.filter((x, i) => x.h !== p5a0[i].h).map(x => x.t)) === '["parish_state"]');
   const u3 = (await uq('U3'))[0];
   t('U3: 293, active 3, listed 290, 15 santuários (11 também paróquia)', +u3.total === 293 && +u3.active === 3 && +u3.listed === 290 && +u3.santuarios === 15 && +u3.santuario_e_paroquia === 11, JSON.stringify(u3));
   const u4 = (await u.exec(achar('U4'))).map(x => x.rows);
@@ -126,7 +146,7 @@ console.log('== seção 10: atualização de santuários sobre o diretório anti
   const slugs1 = await chaves();
   const mudou = slugs0.filter(a => { const b = slugs1.find(x => x.catalog_code === a.catalog_code); return !b || b.slug !== a.slug || b.status !== a.status; });
   t('U: nenhum slug nem status existente mudou (as 3 ativas continuam ativas)', mudou.length === 0, JSON.stringify(mudou));
-  t('U5: P5 idêntica (parishes, parish_state, parish_users, auth.users…)', JSON.stringify(await uq('P5')) === p5u);
+  t('U5: P5 idêntica à de depois da limpeza de privacidade (parishes, parish_users, auth.users…)', JSON.stringify(await uq('P5')) === JSON.stringify(p5u1) && p5u !== null);
   t('U: tenants idênticos (mesmos ids e directory_id)', await tenants() === tenants0);
 }
 

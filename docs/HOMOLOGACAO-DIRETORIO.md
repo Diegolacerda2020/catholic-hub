@@ -12,7 +12,8 @@ Ordem:
 2. `supabase/diretorio.sql`
 3. pós-check 1 (D1–D6)
 4. `supabase/diretorio_santuarios.sql` (colunas de santuário + busca com filtro)
-5. `supabase/diretorio_seed.sql` (regerado: 293 registros)
+4b. `supabase/diretorio_privacidade.sql` (sem nomes de responsáveis; em banco novo não faz nada)
+5. `supabase/diretorio_seed.sql` (regerado: 293 registros, sem nomes de responsáveis)
 5b. pós-check 2 (S1–S5)
 6. `supabase/diretorio_ativacao.sql`
 7. pós-check 3 (A1–A6)
@@ -155,7 +156,7 @@ from parish_directory;
 
 **S3. As 3 paróquias piloto no catálogo**
 ```sql
-select catalog_code, display_name, slug, municipality, neighborhood, forania, pastor_name, status
+select catalog_code, display_name, slug, municipality, neighborhood, forania, status
 from parish_directory where catalog_code in ('013','207','009') order by catalog_code;
 ```
 
@@ -210,7 +211,7 @@ from parishes p join parish_state ps on ps.parish_id = p.id where p.slug <> 'san
 ```
 Esperado:
 - a única chave é `cfg`;
-- `cfg` tem só nome, endereço, telefone, e-mail, pároco, forania, região, `missas` vazio e `secretaria` vazio;
+- `cfg` tem só nome, endereço, telefone, e-mail, forania, região, `missas` vazio e `secretaria` vazio (sem nome de pároco);
 - `tem_algo_de_santo_antonio = false`.
 
 **A6. Páginas públicas e busca**
@@ -320,7 +321,12 @@ o importador antigo lia só a 7.13. O importador foi corrigido; o seed foi reger
 e a **P5** (checksums).
 
 **U1.** Rodar `supabase/diretorio_santuarios.sql` (colunas novas opcionais, tipo `santuario`, busca com filtro
-Paróquias/Santuários e abreviações). Não altera nenhuma linha.
+Paróquias/Santuários e abreviações). Não altera nenhuma linha. A ficha pública já deixa de mostrar nome de responsável.
+
+**U1b.** Rodar `supabase/diretorio_privacidade.sql` (minimização de dados pessoais). Tira `cfg.paroco` dos 2 tenants
+novos SÓ quando é o nome copiado do Catálogo, e remove as colunas `pastor_role`, `pastor_name` e `rector_name` do diretório.
+A última linha deve mostrar `colunas_de_responsavel 0` e `tenants_novos_com_paroco 0`. Santo Antônio, `parish_users` e
+`auth.users` não mudam. Depois disto, o seed antigo não roda mais (de propósito).
 
 **U2.** Rodar `supabase/diretorio_seed.sql` (regerado). Insere as 15 entradas novas e atualiza as existentes
 pelo código; **não muda slug nem status** (as 3 ativas continuam ativas). `diretorio_ativacao.sql` NÃO precisa

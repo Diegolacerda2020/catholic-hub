@@ -52,9 +52,11 @@ paróquias por forania) confere nome a nome.
 - Forania Santa Efigênia: 7.15 "santa efigenia (santa efigenia)" = ficha Santa Efigênia dos Militares (Cod. 096) — variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)
 
 ## Nomes da relação oficial (7.15) sem ficha na 7.13/7.14 — PENDENTES de decisão manual (não importados)
-- Forania São Gonçalo (RENSA): "sao norberto (bela vista)" — na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado. Possível correspondência, NÃO unida: ficha Sagrado Coração de Jesus (Cod. 333, Icaivera), que também não está na 7.15; ficha São Luiz Gonzaga (Cod. 335, Industrial São Luiz), que também não está na 7.15.
-- Forania São Francisco das Chagas (RENSE): "sagrados coracoes" — na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado. Possível correspondência, NÃO unida: Santuário Arquidiocesano da Saúde e da Paz (Cód. 057), santuário da mesma forania.
+- Forania São Gonçalo (RENSA): "sao norberto (bela vista)" — na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado. Outras fichas sem par na mesma forania (listadas só para conferência; NÃO é correspondência): ficha Sagrado Coração de Jesus (Cod. 333, Icaivera), que também não está na 7.15; ficha São Luiz Gonzaga (Cod. 335, Industrial São Luiz), que também não está na 7.15.
+- Forania São Francisco das Chagas (RENSE): "sagrados coracoes" — na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado. Outras fichas sem par na mesma forania (listadas só para conferência; NÃO é correspondência): Santuário Arquidiocesano da Saúde e da Paz (Cód. 057), santuário da mesma forania.
 - Forania São João Bosco (RENSE): "area pastoral nossa senhora aparecida" — na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado.
+
+Reexame com todas as ocorrências no Catálogo (páginas, endereços, códigos e evidências): `docs/diretorio-pendencias.md`.
 
 ## Fichas da 7.13 que não aparecem na 7.15 (importadas normalmente; a 7.15 parece não ter as criações recentes)
 - Maria, Mãe da Esperança (Cod. —, paroquia_territorial, forania Nossa Senhora da Conceição, bairro Amazonas)
@@ -70,3 +72,12 @@ paróquias por forania) confere nome a nome.
 - `catalog_code`: "Cod." da ficha de **paróquia** (7.13). Nulo para quem só tem ficha de santuário, para a paróquia militar e para a área pastoral (o catálogo não informa).
 - `sanctuary_code`: "Cód." da ficha de **santuário** (7.14).
 - O número de ordem de cada relação ("1.", "2."…) serve só para conferir que nenhum item foi pulado; não é guardado.
+
+## Privacidade (minimização)
+- **Nomes de responsáveis NÃO são importados**: pároco, vigário, reitor, pró-reitor, administrador, cura,
+  assistente, capelão — nem no banco, nem no seed, nem neste relatório, nem no JSON. O diretório guarda só
+  dados institucionais. 289 fichas trazem um responsável no Catálogo; nenhum nome foi guardado.
+- **Contatos retidos para revisão manual** (não publicados, com evidência de serem pessoais; nunca pelo formato):
+  - Sagrado Coração de Jesus (Siríacos Católicos) (Belo Horizonte), Cód. 197: e-mail — e-mail contém o nome do responsável listado
+  O valor não aparece aqui de propósito: confira na ficha do Catálogo pelo código e, se for institucional,
+  inclua à mão depois da revisão.

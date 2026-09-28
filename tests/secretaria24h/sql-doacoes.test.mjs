@@ -24,7 +24,7 @@ await db.exec(STUB);
 await db.exec(base('supabase/schema.sql'));
 await db.exec(base('supabase/demo_seed.sql'));
 await db.exec(ler('supabase/secretaria24h.sql'));
-for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']) await db.exec(ler(f));
+for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_privacidade.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']) await db.exec(ler(f));
 for (let i = 1; i <= 2; i++){ const e = await erro(db.exec(ler('supabase/doacoes.sql'))); t(`doacoes.sql (${i}ª vez) roda sem erro`, !e, e); }
 
 const SL = {A:'santo-antonio-jaragua', B:'santa-clara-e-sao-francisco-mineirao', C:'nossa-senhora-das-gracas-ibirite'};

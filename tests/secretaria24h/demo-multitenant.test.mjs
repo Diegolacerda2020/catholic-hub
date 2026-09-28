@@ -25,7 +25,7 @@ await db.exec(base('supabase/schema.sql'));
 await db.exec(base('supabase/demo_seed.sql'));
 await db.exec(ler('supabase/secretaria24h.sql'));
 await db.exec(ler('supabase/demo_secretaria_seed.sql'));
-for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']) await db.exec(ler(f));
+for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_privacidade.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']) await db.exec(ler(f));
 const PID = {}; for (const s of [SA, SC, NG]) PID[s] = (await rows(`select id from parishes where slug=$1`, [s]))[0].id;
 // equipe real de Santo Antônio + usuários de TESTE para B e C (só neste banco local)
 const U = {[SA]:'00000000-0000-0000-0000-0000000000b1', [SC]:'00000000-0000-0000-0000-00000000bb01', [NG]:'00000000-0000-0000-0000-00000000cc01'};

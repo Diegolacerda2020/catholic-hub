@@ -79,7 +79,7 @@ const FORANIAS = Object.keys(REGS_DA_FORANIA).sort((a, b) => b.length - a.length
 
 // ---------- ficha (7.13 e 7.14): endereço, telefone, pároco… ----------
 const ROTULOS = 'Pároco e Reitor(?: do Santuário [^:]+)?|Párocos Solidários|Pároco|Pàroco|Administrador Paroquial(?: "pro tempore")?|Adm\\. Paroquial(?: [“"]Pro Tempore[”"])?|Adm\\. Pastoral|Cura';
-function campos(corpo){
+function campos(corpo, nomeInstituicao){
   const r = {};
   const MESES = {janeiro:1, fevereiro:2, 'março':3, marco:3, abril:4, maio:5, junho:6, julho:7, agosto:8, setembro:9, outubro:10, novembro:11, dezembro:12};
   const d2 = n => String(n).padStart(2, '0');
@@ -125,12 +125,27 @@ function campos(corpo){
   r.neighborhood = cep && cep[3] ? cep[3].trim().replace(/\s+/g, ' ') : null;
   const em = resto.match(/E-?mail\s*:?\s*([\w.+-]+@\s?[\w-]+(?:\.[\w-]+)*\.[a-z]{2,})/i);
   r.email = em ? em[1].replace(/\s/g, '').toLowerCase() : null;
+  // MINIMIZAÇÃO: nomes de responsáveis (pároco, vigário, reitor, administrador, cura…) NÃO saem desta função:
+  // não vão para o diretório, nem para o seed, nem para o JSON/relatórios. São lidos só aqui, em memória, para
+  // não publicar contato com EVIDÊNCIA de ser pessoal (nunca pelo formato do número/endereço):
+  //   - telefone ou e-mail escrito DEPOIS do rótulo do responsável (está no trecho da pessoa, não da instituição);
+  //   - e-mail com um nome do responsável que não faz parte do nome da instituição.
+  // Nesses casos o contato fica fora (NULL) e vai para a lista de revisão manual (sem o valor e sem o nome).
+  // rótulo de pessoa = palavra do cargo seguida de ":" (ex.: "Pároco:"); "Rua Cura D'Ars" não conta
   const pr = resto.match(new RegExp(`(${ROTULOS})\\s*(?::\\s*|(?=(?:Pe\\.|Frei|Côn\\.|Mons\\.|Dom)\\s))(.*?)(?=\\s+(?:Vigário|Pároco Emérito|Diácono|Pró-Reitor|Reitor)\\b|$)`));
-  const nomePadre = pr ? pr[2].trim().replace(/[.;,]$/, '') : '';
-  r.pastor_role = nomePadre ? (pr[1] === 'Pàroco' ? 'Pároco' : /^Pároco e Reitor/.test(pr[1]) ? 'Pároco e Reitor' : pr[1].replace(/\s*[“"]Pro Tempore[”"]/i, ' "pro tempore"')) : null;
-  r.pastor_name = nomePadre || null;
   const rei = resto.match(/(?<!Pró-)(?<!e )Reitor:\s*(.*?)(?=\s+(?:Pró-Reitor|Pároco|Vigário|Diácono)\b|$)/);
-  r.rector_name = /^Pároco e Reitor/.test(pr?.[1] || '') ? nomePadre : rei ? rei[1].trim().replace(/[.;,]$/, '') : null;
+  const rotulo = resto.search(/(?:Pároco|Pàroco|Párocos Solidários|Administrador(?: Paroquial| Pastoral)?|Adm\.\s*(?:Paroquial|Pastoral)|Reitor|Pró-Reitor|Vigário[^:]{0,30}|Cura|Capelão|Assistente[^:]{0,30}|Diácono[^:]{0,20})\s*(?:[“"][^”"]*[”"]\s*)?:/);
+  const inicioResp = [rotulo, pr ? pr.index : -1].filter(x => x >= 0).sort((a, b) => a - b)[0] ?? -1;
+  const PADRAO = new Set(['padre', 'frei', 'dom', 'mons', 'paroquia', 'paroquial', 'santuario', 'secretaria', 'matriz', 'contato', 'comunidade', 'arquidiocese', 'nossa', 'senhora', 'santa', 'santo', 'jesus', 'maria', 'cristo']);
+  const palavras = t => semAcento(String(t || '')).toLowerCase().split(/[^a-z]+/).filter(w => w.length >= 4 && !PADRAO.has(w));
+  const daInstituicao = new Set(palavras(nomeInstituicao));
+  const semOrdem = t => String(t || '').replace(/,\s*[A-Z][A-Za-z.]{1,12}\s*$/, ''); // ", SSCC", ", OFM": sigla da congregação, não é nome de pessoa
+  const doResponsavel = palavras(`${semOrdem(pr?.[2])} ${semOrdem(rei?.[1])}`).filter(w => !daInstituicao.has(w));
+  r.revisao = [];
+  if (r.phone && inicioResp >= 0 && tel.index > inicioResp){ r.revisao.push({campo:'phone', motivo:'telefone escrito no trecho do responsável, não no da instituição'}); r.phone = null; }
+  if (r.email && inicioResp >= 0 && em.index > inicioResp){ r.revisao.push({campo:'email', motivo:'e-mail escrito no trecho do responsável, não no da instituição'}); r.email = null; }
+  else if (r.email){ const local = semAcento(r.email.split('@')[0]).toLowerCase(); if (doResponsavel.some(w => local.includes(w))) { r.revisao.push({campo:'email', motivo:'e-mail contém o nome do responsável listado'}); r.email = null; } }
+  r.temResponsavel = !!(pr || rei); // só para a estatística (nada do nome)
   return r;
 }
 
@@ -149,7 +164,7 @@ BLOCOS.forEach(([type, titulo], i) => {
   cabs.forEach((m, j) => {
     if (+m[1] !== j + 1) throw new Error(`7.13 ${type}: esperava item ${j + 1}, li ${m[1]} (${m[2]})`); // numeração contínua: nada pulado
     e713.push({secao:'7.13', seq:+m[1], type, nomeCat:m[2].trim().replace(/\s+/g, ' '), regiao:m[3] || null, codigo:m[4] || null,
-      ...campos(trecho.slice(m.index + m[0].length, cabs[j + 1]?.index ?? trecho.length).trim())});
+      ...campos(trecho.slice(m.index + m[0].length, cabs[j + 1]?.index ?? trecho.length).trim(), m[2])});
   });
 });
 
@@ -171,7 +186,7 @@ const e714 = cabsSan.map((m, j) => {
   const kind = /Santuário Estadual/i.test(corpo) ? 'Santuário Estadual' : /^SANTUÁRIO ARQUIDIOCESANO/.test(nomeCat) ? 'Santuário Arquidiocesano' : 'Santuário';
   // nome do padroeiro/título sem "Santuário Arquidiocesano" (e sem o apelido entre parênteses) para comparar com paróquias
   const nucleo = nomeCat.replace(/^SANTUÁRIO\s+(?:ARQUIDIOCESANO\s+|DE\s+)?/, '').replace(/^DA\s+/, '');
-  return {secao:'7.14', seq:+m[1], nomeCat, nucleo, codigo, regiao, kind, ...campos(corpo)};
+  return {secao:'7.14', seq:+m[1], nomeCat, nucleo, codigo, regiao, kind, ...campos(corpo, nomeCat)};
 });
 
 // ---------- 7.15: nomes da relação oficial, casados contra os nomes conhecidos ----------
@@ -282,16 +297,16 @@ function novoSlug(display, c){
   usados.add(slug);
   return slug;
 }
-const vazioSantuario = {is_sanctuary:false, sanctuary_code:null, sanctuary_name:null, sanctuary_kind:null, rector_name:null, sanctuary_since:null};
+const vazioSantuario = {is_sanctuary:false, sanctuary_code:null, sanctuary_name:null, sanctuary_kind:null, sanctuary_since:null};
 // nome de exibição sem o apelido do lugar entre parênteses (o bairro aparece à parte); o original fica em name
-const dadosSantuario = s => ({is_sanctuary:true, sanctuary_code:s.codigo, sanctuary_name:semParenteses(tit(s.nomeCat)).replace(/\s+/g, ' ').trim(), sanctuary_kind:s.kind, rector_name:s.rector_name, sanctuary_since:s.sanctuary_since});
+const dadosSantuario = s => ({is_sanctuary:true, sanctuary_code:s.codigo, sanctuary_name:semParenteses(tit(s.nomeCat)).replace(/\s+/g, ' ').trim(), sanctuary_kind:s.kind, sanctuary_since:s.sanctuary_since});
 e713.forEach((e, i) => {
   const s = Object.entries(uniao714).find(([, a]) => a === i)?.[0];
   const display = tit(e.nomeCat), regiao = regiaoDe(e.regiao, e.forania);
   dir.push({catalog_code:e.codigo, name:e.nomeCat, display_name:display, slug:novoSlug(display, e), type:e.type, episcopal_region:regiao, episcopal_region_name:REGIOES[regiao] || null,
     forania:e.forania, municipality:e.municipality, neighborhood:e.neighborhood, address:e.address, postal_code:e.postal_code, phone:e.phone, email:e.email,
-    pastor_role:e.pastor_role, pastor_name:e.pastor_name, founded_on:e.founded_on, source_year:SOURCE_YEAR,
-    ...(s !== undefined ? dadosSantuario(e714[s]) : vazioSantuario), source_section:s !== undefined ? '7.13+7.14' : '7.13'});
+    founded_on:e.founded_on, source_year:SOURCE_YEAR,
+    ...(s !== undefined ? dadosSantuario(e714[s]) : vazioSantuario), source_section:s !== undefined ? '7.13+7.14' : '7.13', _rev:e.revisao});
 });
 e714.forEach((s, i) => {
   if (uniao714[i] !== undefined) return;
@@ -299,9 +314,13 @@ e714.forEach((s, i) => {
   const display = semParenteses(tit(s.nucleo)).replace(/^Da\s+/, '').replace(/\s+/g, ' ').trim(), regiao = regiaoDe(s.regiao, s.forania);
   dir.push({catalog_code:null, name:s.nomeCat, display_name:display, slug:novoSlug(paroquia ? display : 'Santuário ' + display, s), type:paroquia ? 'paroquia_territorial' : 'santuario',
     episcopal_region:regiao, episcopal_region_name:REGIOES[regiao] || null, forania:s.forania, municipality:s.municipality, neighborhood:s.neighborhood, address:s.address,
-    postal_code:s.postal_code, phone:s.phone, email:s.email, pastor_role:paroquia || s.pastor_name ? s.pastor_role : null, pastor_name:s.pastor_name,
-    founded_on:paroquia ? s.founded_on : null, source_year:SOURCE_YEAR, ...dadosSantuario(s), source_section:paroquia ? '7.14+7.15' : '7.14'});
+    postal_code:s.postal_code, phone:s.phone, email:s.email,
+    founded_on:paroquia ? s.founded_on : null, source_year:SOURCE_YEAR, ...dadosSantuario(s), source_section:paroquia ? '7.14+7.15' : '7.14', _rev:s.revisao});
 });
+// contatos retidos para revisão manual (sem o valor e sem nome de pessoa); depois tira o campo interno
+const revisaoContatos = dir.flatMap(d => (d._rev || []).map(r => ({codigo:d.catalog_code || d.sanctuary_code || null, instituicao:d.sanctuary_name || d.display_name, municipio:d.municipality, campo:r.campo, motivo:r.motivo})));
+dir.forEach(d => delete d._rev);
+const comResponsavelNoCatalogo = [...e713, ...e714].filter(e => e.temResponsavel).length;
 
 // ---------- conferências (falha em vez de seguir com algo estranho) ----------
 const codigos = dir.map(d => d.catalog_code).filter(Boolean), codSan = dir.map(d => d.sanctuary_code).filter(Boolean);
@@ -318,14 +337,15 @@ const resumo = {fonte:path.basename(PDF), paginas:{paroquias:P_PAROQUIAS, santua
     itens_715:R.itens715.length + R.semFicha.length + R.ambiguos.filter(a => a.forania).length, itens_715_casados:R.itens715.length,
     paroquias_no_diretorio:paroquias.length, santuarios_tambem_paroquia:dir.filter(d => d.is_sanctuary && d.type.startsWith('paroquia')).length,
     santuarios_independentes:dir.filter(d => d.type === 'santuario').length, sem_ficha_715:R.semFicha.length, ambiguos:R.ambiguos.length,
-    duplicatas:0, fichas_713_fora_da_715:R.naoCasados713.length},
+    duplicatas:0, fichas_713_fora_da_715:R.naoCasados713.length,
+    contatos_retidos_para_revisao:revisaoContatos.length, fichas_com_responsavel_no_catalogo_nao_importado:comResponsavelNoCatalogo},
   regioes:REGIOES, foranias:FOR715.length,
-  semCampo:Object.fromEntries(['catalog_code','forania','address','postal_code','municipality','neighborhood','phone','email','pastor_name','founded_on'].map(k => [k, faltando(k)]))};
+  semCampo:Object.fromEntries(['catalog_code','forania','address','postal_code','municipality','neighborhood','phone','email','founded_on'].map(k => [k, faltando(k)]))};
 
 // ---------- saída ----------
 const q = v => v == null ? 'null' : typeof v === 'boolean' ? String(v) : `'${String(v).replace(/'/g, "''")}'`;
-const COLS = ['catalog_code','name','display_name','slug','type','episcopal_region','episcopal_region_name','forania','municipality','neighborhood','address','postal_code','phone','email','pastor_role','pastor_name','founded_on','source_year',
-  'is_sanctuary','sanctuary_code','sanctuary_name','sanctuary_kind','rector_name','sanctuary_since','source_section'];
+const COLS = ['catalog_code','name','display_name','slug','type','episcopal_region','episcopal_region_name','forania','municipality','neighborhood','address','postal_code','phone','email','founded_on','source_year',
+  'is_sanctuary','sanctuary_code','sanctuary_name','sanctuary_kind','sanctuary_since','source_section'];
 const ATUALIZA = COLS.filter(c => !['catalog_code','slug'].includes(c)).map(c => `${c} = excluded.${c}`).concat('updated_at = now()').join(', ');
 const val = (d, c) => ['founded_on','sanctuary_since'].includes(c) ? (d[c] ? `'${d[c]}'::date` : 'null') : c === 'source_year' ? d[c] : q(d[c]);
 const linhas = l => l.map(d => `  (${COLS.map(c => val(d, c)).join(', ')})`).join(',\n');
@@ -393,7 +413,9 @@ ${R.variacoes.map(v => `- Forania ${v.forania}: 7.15 "${v.nome715}" = ficha ${ti
 ${R.semFicha.map(s => {
   const possiveis = [...R.naoCasados713.filter(x => x.forania === s.forania).map(x => `ficha ${tit(x.nome)} (Cod. ${x.codigo ?? '—'}, ${x.bairro ?? '—'}), que também não está na 7.15`),
     ...R.santuariosIndependentes.filter(x => x.forania === s.forania).map(x => `${tit(x.santuario)} (Cód. ${x.sanctuary_code ?? '—'}), santuário da mesma forania`)];
-  return `- Forania ${s.forania} (${s.regiao}): "${s.nome}" — ${s.motivo}.${possiveis.length ? ' Possível correspondência, NÃO unida: ' + possiveis.join('; ') + '.' : ''}`; }).join('\n') || '- nenhum'}
+  return `- Forania ${s.forania} (${s.regiao}): "${s.nome}" — ${s.motivo}.${possiveis.length ? ' Outras fichas sem par na mesma forania (listadas só para conferência; NÃO é correspondência): ' + possiveis.join('; ') + '.' : ''}`; }).join('\n') || '- nenhum'}
+
+Reexame com todas as ocorrências no Catálogo (páginas, endereços, códigos e evidências): \`docs/diretorio-pendencias.md\`.
 
 ## Fichas da 7.13 que não aparecem na 7.15 (importadas normalmente; a 7.15 parece não ter as criações recentes)
 ${R.naoCasados713.map(s => `- ${tit(s.nome)} (Cod. ${s.codigo ?? '—'}, ${s.type}, forania ${s.forania ?? '—'}, bairro ${s.bairro ?? '—'})`).join('\n') || '- nenhuma'}
@@ -406,6 +428,15 @@ ${R.foraDoEscopo.map(s => `- Forania ${s.forania}: ${s.nome}`).join('\n') || '- 
 - \`catalog_code\`: "Cod." da ficha de **paróquia** (7.13). Nulo para quem só tem ficha de santuário, para a paróquia militar e para a área pastoral (o catálogo não informa).
 - \`sanctuary_code\`: "Cód." da ficha de **santuário** (7.14).
 - O número de ordem de cada relação ("1.", "2."…) serve só para conferir que nenhum item foi pulado; não é guardado.
+
+## Privacidade (minimização)
+- **Nomes de responsáveis NÃO são importados**: pároco, vigário, reitor, pró-reitor, administrador, cura,
+  assistente, capelão — nem no banco, nem no seed, nem neste relatório, nem no JSON. O diretório guarda só
+  dados institucionais. ${comResponsavelNoCatalogo} fichas trazem um responsável no Catálogo; nenhum nome foi guardado.
+- **Contatos retidos para revisão manual** (não publicados, com evidência de serem pessoais; nunca pelo formato):
+${revisaoContatos.map(r => `  - ${r.instituicao}${r.municipio ? ' (' + r.municipio + ')' : ''}${r.codigo ? ', Cód. ' + r.codigo : ''}: ${r.campo === 'phone' ? 'telefone' : 'e-mail'} — ${r.motivo}`).join('\n') || '  - nenhum'}
+  O valor não aparece aqui de propósito: confira na ficha do Catálogo pelo código e, se for institucional,
+  inclua à mão depois da revisão.
 `;
 fs.writeFileSync(path.join(REPO, 'docs', 'diretorio-reconciliacao.md'), md);
 console.log(JSON.stringify(resumo.numeros, null, 1));

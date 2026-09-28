@@ -36,8 +36,6 @@ create table if not exists parish_directory (
   postal_code text check (postal_code ~ '^[0-9]{5}-[0-9]{3}$'),
   phone text check (length(phone) <= 120),
   email text check (length(email) <= 200),
-  pastor_role text check (length(pastor_role) <= 80),
-  pastor_name text check (length(pastor_name) <= 200),
   founded_on date,
   source_year integer check (source_year between 2000 and 2100),
   status text not null default 'listed' check (status in ('listed','onboarding','active','suspended')),
@@ -106,7 +104,7 @@ as $$
     'slug', d.slug, 'name', d.display_name, 'type', d.type, 'catalog_code', d.catalog_code,
     'episcopal_region', d.episcopal_region, 'episcopal_region_name', d.episcopal_region_name, 'forania', d.forania,
     'municipality', d.municipality, 'neighborhood', d.neighborhood, 'address', d.address, 'postal_code', d.postal_code,
-    'phone', d.phone, 'email', d.email, 'pastor_role', d.pastor_role, 'pastor_name', d.pastor_name, 'source_year', d.source_year,
+    'phone', d.phone, 'email', d.email, 'source_year', d.source_year,
     'active', dir_tenant_slug(d.id, d.status) is not null, 'tenant_slug', dir_tenant_slug(d.id, d.status))
   from parish_directory d
   where d.slug = p_slug;

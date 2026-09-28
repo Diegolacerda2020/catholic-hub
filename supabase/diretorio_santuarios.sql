@@ -6,12 +6,14 @@
 --
 -- O que muda:
 --   parish_directory: colunas NOVAS e opcionais (is_sanctuary, sanctuary_code, sanctuary_name, sanctuary_kind,
---   rector_name, sanctuary_since, source_section) e o tipo 'santuario'. Nenhuma linha existente é alterada aqui.
+--   sanctuary_since, source_section). Nome de reitor NÃO é guardado (minimização de dados pessoais) e o tipo 'santuario'. Nenhuma linha existente é alterada aqui.
 --   public_directory_search: aceita o filtro de tipo (paróquias/santuários), entende abreviações simples
 --   (sto, sta, sra, n.s.) e procura também pelo nome do santuário. public_directory_entry: devolve os campos novos.
 -- Não mexe em parishes, parish_state, usuários nem em nenhuma outra tabela. Pode rodar 2x.
 --
--- Ordem: diretorio.sql (já aplicado) → ESTE arquivo → diretorio_seed.sql (regerado) → diretorio_ativacao.sql (já aplicado; não precisa rodar de novo).
+-- Ordem: diretorio.sql (já aplicado) → ESTE arquivo → diretorio_privacidade.sql → diretorio_seed.sql (regerado) →
+-- diretorio_ativacao.sql (já aplicado; não precisa rodar de novo).
+-- public_directory_entry passa a NÃO devolver nome de pároco/responsável (já nesta etapa).
 --
 -- Risco: baixo. As colunas novas têm valor padrão ou aceitam nulo; a regra de tipo é trocada por outra que aceita
 -- tudo o que já existe e mais 'santuario'. A função de busca é recriada (DROP + CREATE da mesma função com um
@@ -23,7 +25,6 @@ alter table parish_directory add column if not exists is_sanctuary boolean not n
 alter table parish_directory add column if not exists sanctuary_code text;
 alter table parish_directory add column if not exists sanctuary_name text;
 alter table parish_directory add column if not exists sanctuary_kind text;
-alter table parish_directory add column if not exists rector_name text;
 alter table parish_directory add column if not exists sanctuary_since date;
 alter table parish_directory add column if not exists source_section text;
 
@@ -38,7 +39,7 @@ begin
   if not exists (select 1 from pg_constraint where conrelid = 'parish_directory'::regclass and conname = 'parish_directory_sanctuary_ck') then
     alter table parish_directory add constraint parish_directory_sanctuary_ck check (
       (sanctuary_code is null or sanctuary_code ~ '^[0-9]{1,4}$')
-      and length(coalesce(sanctuary_name, '')) <= 200 and length(coalesce(sanctuary_kind, '')) <= 60 and length(coalesce(rector_name, '')) <= 200
+      and length(coalesce(sanctuary_name, '')) <= 200 and length(coalesce(sanctuary_kind, '')) <= 60
       and (source_section is null or source_section in ('7.13','7.14','7.13+7.14','7.14+7.15'))
       and (type <> 'santuario' or is_sanctuary));
   end if;
@@ -102,9 +103,8 @@ as $$
     'slug', d.slug, 'name', d.display_name, 'type', d.type, 'catalog_code', d.catalog_code,
     'episcopal_region', d.episcopal_region, 'episcopal_region_name', d.episcopal_region_name, 'forania', d.forania,
     'municipality', d.municipality, 'neighborhood', d.neighborhood, 'address', d.address, 'postal_code', d.postal_code,
-    'phone', d.phone, 'email', d.email, 'pastor_role', d.pastor_role, 'pastor_name', d.pastor_name, 'source_year', d.source_year,
+    'phone', d.phone, 'email', d.email, 'source_year', d.source_year,
     'is_sanctuary', d.is_sanctuary, 'sanctuary_code', d.sanctuary_code, 'sanctuary_name', d.sanctuary_name, 'sanctuary_kind', d.sanctuary_kind,
-    'rector_name', d.rector_name,
     'active', dir_tenant_slug(d.id, d.status) is not null, 'tenant_slug', dir_tenant_slug(d.id, d.status))
   from parish_directory d
   where d.slug = p_slug;
