@@ -138,7 +138,25 @@ Sai com código 1 se alguma fonte estiver mais de 6 h atrás do portal.
 | santuario | 4 | independentes: Rosário (Brumadinho), Saúde e Paz, Schoenstatt, São Francisco (Pampulha) |
 
 Capelas e capelanias ficam fora. Pendências de decisão manual (3 nomes da 7.15 sem ficha segura, 1 caso
-ambíguo): ver `docs/diretorio-reconciliacao.md`.
+ambíguo): ver `docs/diretorio-reconciliacao.md` e o reexame com evidências em `docs/diretorio-pendencias.md`.
+
+**Privacidade (minimização).** O diretório guarda e mostra só dados **institucionais**: nome, tipo, endereço,
+bairro, município, CEP, telefone e e-mail da instituição, forania, região, condição de paróquia/santuário e
+status na Central. **Nomes de responsáveis** (pároco, vigário, reitor, administrador, cura…) **não são
+importados**, nem no banco, nem no seed, nem no JSON/relatórios, nem na lista RENSC embutida no `index.html`.
+Contato com evidência de ser pessoal (escrito no trecho do responsável, ou e-mail com o nome dele) fica fora e
+vai para revisão manual (hoje: 1, Cód. 197). "Responsável listado no Catálogo" não tem relação com
+"usuário autorizado da Central" (`parish_users`). O campo "Pároco" de Ajustes continua existindo: só aparece
+na página se a própria paróquia preencher.
+
+**Contato da Central Paroquial** (`config.js → contato`; só contatos da plataforma):
+suporte.thunderdynamics@gmail.com · WhatsApp (31) 99750-9221 (`5531997509221`).
+- Busca sem resultado: "Não encontrou sua paróquia?" [Solicitar inclusão pelo WhatsApp] [Enviar e-mail].
+- Instituição listada: "Você representa esta paróquia ou santuário?" [Solicitar ativação] [Enviar e-mail],
+  com nome e cidade na mensagem. Instituição ativa: sem esse convite.
+- Rodapé discreto em todas as páginas públicas: "Falar com a Central Paroquial: WhatsApp · E-mail". No
+  diretório, também a fonte ("Dados institucionais de referência: Catálogo 2026 — Arquidiocese de Belo
+  Horizonte.") e o aviso de plataforma independente. O PDF não é publicado.
 
 **Campos NULL porque não constam no catálogo:**
 
@@ -152,8 +170,9 @@ ambíguo): ver `docs/diretorio-reconciliacao.md`.
 | bairro | 4 |
 | telefone | 8 |
 | e-mail | 24 |
-| pároco/administrador | 4 |
 | data de criação | 1 |
+
+(Nomes de responsáveis não são importados; ver "Privacidade" acima.)
 
 - **Status:** `listed` (290) · `onboarding` · `active` (3) · `suspended`.
 - **3 ativas** (códigos do catálogo):
@@ -165,7 +184,7 @@ ambíguo): ver `docs/diretorio-reconciliacao.md`.
   | 009 | Nossa Senhora das Graças – Centro (Ibirité) | `nossa-senhora-das-gracas-ibirite` | nova |
 
   As duas novas começam **vazias**. O `parish_state` inicial tem só dados do catálogo (nome, endereço,
-  telefone, e-mail, pároco, forania, região). Não têm horários de missa, comunidades, avisos, eventos,
+  telefone, e-mail, forania, região; sem nome de pároco). Não têm horários de missa, comunidades, avisos, eventos,
   dizimistas, contribuições, intenções nem catálogo da Secretaria 24h; onde falta, aparece "Informações serão
   publicadas em breve.". Não há usuário de equipe: criar e vincular é passo manual (ver `docs/UX-PAINEL.md`,
   seção PASCOM; mesmo roteiro, com o papel certo).
@@ -176,9 +195,8 @@ ambíguo): ver `docs/diretorio-reconciliacao.md`.
 - Cartões: nome (o do santuário, quando for), "bairro · cidade", forania e chips [Paróquia]
   [Santuário Arquidiocesano]. Ex.: "Santuário Arquidiocesano São Paulo da Cruz / Barreiro de Baixo · Belo Horizonte".
 - Ativa: "✓ Central Paroquial ativa" + [Acessar], que abre `?p=slug` (mesmo código, outro contexto).
-- Listed: "Central Paroquial ainda não ativada" + [Solicitar ativação]. Abre a ficha do catálogo e a mensagem
-  "A ativação da Central Paroquial deve ser solicitada pelo pároco, administrador paroquial ou responsável
-  autorizado." [Entrar em contato], com o contato de `config.js → contato`.
+- Listed: "Central Paroquial ainda não ativada" + [Solicitar ativação]. Abre a ficha institucional e o convite
+  "Você representa esta paróquia ou santuário?" com WhatsApp e e-mail da Central (ver "Contato" acima).
 - **Ninguém ativa pela internet:** não existe função pública que mude status ou crie tenant.
 - **Trocar paróquia** (tocar no nome no cabeçalho): Minha paróquia · Recentes · Buscar · Com a Central
   Paroquial. Ficam guardados só no aparelho.
@@ -231,12 +249,15 @@ Roteiro completo, com pré e pós-checks: `docs/HOMOLOGACAO-DIRETORIO.md`.
    `parishes.directory_id`.
 2. `supabase/diretorio_santuarios.sql` (**nova**): colunas opcionais de santuário, tipo `santuario`, busca
    com filtro e abreviações.
+2b. `supabase/diretorio_privacidade.sql` (**nova**): remove `pastor_role`, `pastor_name` e `rector_name` do
+   diretório e o `cfg.paroco` copiado do Catálogo nos 2 tenants novos (só se ainda for o valor copiado).
 3. `supabase/diretorio_seed.sql`: carga do catálogo (regerada, 293). Pode rodar de novo: atualiza dados do
    catálogo e nunca mexe em slug, status ou tenant.
 4. `supabase/diretorio_ativacao.sql`: 3 ativas + 2 tenants novos + `parish_state` inicial.
 5. `supabase/doacoes.sql` (**nova**, independente): configuração de doações por paróquia; começa vazia.
 
-**Banco real hoje** (já com o diretório antigo): rodar só 2 e 3 (seção 10 do roteiro) e, se quiser, 5.
+**Banco real hoje** (já com o diretório antigo): rodar só 2, 2b e 3 (seção 10 do roteiro) e, se quiser, 5.
 
-Testes locais: `sql-diretorio.test.mjs` (99), `sql-doacoes.test.mjs` (35), `homologacao.test.mjs` (45, inclui
-a atualização sobre o diretório antigo), `polimento.test.mjs` (128, navegador, 5 larguras).
+Testes locais: `sql-diretorio.test.mjs` (108), `sql-doacoes.test.mjs` (35), `homologacao.test.mjs` (59, inclui
+a atualização e a limpeza de privacidade sobre o diretório antigo), `polimento.test.mjs` (navegador, 5
+larguras), `privacidade.test.mjs` (nomes, contatos, inclusão/ativação, 5 larguras).
