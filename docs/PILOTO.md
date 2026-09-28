@@ -112,23 +112,33 @@ Sai com código 1 se alguma fonte estiver mais de 6 h atrás do portal.
 
 - **`parish_directory`** é o catálogo oficial e pesquisável. **`parishes`** continua só com as paróquias
   ativadas (tenants). As demais paróquias NÃO viram tenant.
-- **Importação:** `node scripts/importar-catalogo.mjs [docs/catalogo-01.07.26.pdf]`. Lê a seção 7.13 do
-  Catálogo 2026 com `pdftotext` e gera `supabase/diretorio_seed.sql` e `docs/diretorio-importacao.json`. Só
-  importa o que está no catálogo; o que falta vira NULL. Confere a numeração de cada bloco (falha se pular
-  algum item) e usa a seção 7.15 para achar forania/região quando o item não traz.
+- **Importação:** `node scripts/importar-catalogo.mjs [docs/catalogo-01.07.26.pdf]`. Lê as seções 7.13
+  (paróquias), 7.14 a) (santuários) e 7.15 (relação oficial por forania) do Catálogo 2026 com `pdftotext` e
+  gera `supabase/diretorio_seed.sql`, `docs/diretorio-importacao.json` e `docs/diretorio-reconciliacao.md`
+  (relatório nome a nome). Só importa o que está no catálogo; o que falta vira NULL.
+- **Correção desta rodada:** São Paulo da Cruz e mais 10 paróquias que também são santuário têm ficha **só
+  na 7.14**; o importador antigo lia só a 7.13, por isso sumiam. Agora entram, com um registro só.
+- **Códigos:** `catalog_code` = "Cod." da ficha de paróquia (7.13); `sanctuary_code` = "Cód." da ficha de
+  santuário (7.14). O número de ordem das listas não é guardado. Na paróquia-santuário sem ficha na 7.13, o
+  código de paróquia fica NULL (o catálogo não dá) e o de santuário é preenchido.
+- **Regra de união** (santuário × paróquia): mesmo código, ou mesmo CEP + endereço + município; e a
+  instituição precisa estar na relação oficial de paróquias (7.15). Homônimo com endereço diferente **não** é
+  unido (ex.: Igrejinha da Pampulha × Paróquia São Francisco de Assis).
 - **O PDF** (32 MB, da Arquidiocese) fica fora do git (`.gitignore`).
 
-**278 entradas importadas:**
+**293 registros** (287 paróquias):
 
 | Tipo | Qtde | Observação |
 |---|---:|---|
-| paroquia_territorial | 273 | |
+| paroquia_territorial | 284 | 273 da 7.13 + 11 que também são santuário (`is_sanctuary`) |
 | paroquia_pessoal | 2 | Maronitas e Siríacos |
 | paroquia_militar | 1 | N. Sra. de Loreto, sem código no catálogo |
 | curato | 1 | Divino Espírito Santo: **não** é paróquia |
 | area_pastoral | 1 | Rainha dos Mártires, sem código: **não** é paróquia |
+| santuario | 4 | independentes: Rosário (Brumadinho), Saúde e Paz, Schoenstatt, São Francisco (Pampulha) |
 
-Ficaram fora: santuários, capelas e capelanias (seção 7.14). Os santuários que são paróquia já estão na lista.
+Capelas e capelanias ficam fora. Pendências de decisão manual (3 nomes da 7.15 sem ficha segura, 1 caso
+ambíguo): ver `docs/diretorio-reconciliacao.md`.
 
 **Campos NULL porque não constam no catálogo:**
 
@@ -145,7 +155,7 @@ Ficaram fora: santuários, capelas e capelanias (seção 7.14). Os santuários q
 | pároco/administrador | 4 |
 | data de criação | 1 |
 
-- **Status:** `listed` (275) · `onboarding` · `active` (3) · `suspended`.
+- **Status:** `listed` (290) · `onboarding` · `active` (3) · `suspended`.
 - **3 ativas** (códigos do catálogo):
 
   | Código | Paróquia | Tenant (`?p=`) | Situação |
@@ -160,8 +170,11 @@ Ficaram fora: santuários, capelas e capelanias (seção 7.14). Os santuários q
   publicadas em breve.". Não há usuário de equipe: criar e vincular é passo manual (ver `docs/UX-PAINEL.md`,
   seção PASCOM; mesmo roteiro, com o papel certo).
 
-**Encontre sua paróquia.**
-- Busca por nome, bairro, município ou forania, sem acento e sem diferença de maiúsculas.
+**Encontre sua paróquia ou santuário.**
+- Busca por nome, bairro, município ou forania, sem acento, sem diferença de maiúsculas e com abreviações
+  simples (sto, sta, sra, n. s.). Filtros Todos / Paróquias / Santuários.
+- Cartões: nome (o do santuário, quando for), "bairro · cidade", forania e chips [Paróquia]
+  [Santuário Arquidiocesano]. Ex.: "Santuário Arquidiocesano São Paulo da Cruz / Barreiro de Baixo · Belo Horizonte".
 - Ativa: "✓ Central Paroquial ativa" + [Acessar], que abre `?p=slug` (mesmo código, outro contexto).
 - Listed: "Central Paroquial ainda não ativada" + [Solicitar ativação]. Abre a ficha do catálogo e a mensagem
   "A ativação da Central Paroquial deve ser solicitada pelo pároco, administrador paroquial ou responsável
@@ -180,16 +193,50 @@ Ficaram fora: santuários, capelas e capelanias (seção 7.14). Os santuários q
   Antônio, intercedei" na oração da vela (usa o padroeiro cadastrado).
 - Equipe de outra paróquia que entra pela página errada é levada para `?p=<paróquia dela>#painel`.
 
+## Página pública responsiva
+
+- Só pela **largura** da tela (sem user-agent): celular ≤767 · tablet 768–1199 · computador ≥1200.
+- Celular: igual a antes (uma coluna, barra de seções embaixo).
+- Tablet/computador: barra de seções no topo e largura por tela: Home ~1180, Agenda/Diretório/Velas
+  ~1240, formulários ~880, leitura devocional ~760, Doações ~1000. Home em duas colunas (≥1024): ações em
+  cima; missa, hoje, destaques e próximo evento à esquerda; notícias e "Assistir" à direita. Agenda em grade
+  de dias; diretório em 2 (tablet) ou 3 (computador) colunas de cartões.
+- **Acesso rápido** nas subpáginas (Liturgia, Rezar, Intenção, Vela, Devocional, Secretaria 24h, Doações):
+  faixa com Liturgia · Rezar · Intenção · Vela · Secretaria 24h.
+- **Sala das Velas:** capela escura com arco, cruz e prateleiras; brilho e tamanho das velas seguem o
+  número REAL (poucas = maiores); até 50 desenhadas, depois "+N pessoas rezando conosco". Chama em CSS,
+  parada com "reduzir movimento". Nenhum nome ou pedido aparece.
+
+## Doações
+
+- Botão "💝 Quero fazer uma doação" na aba Paróquia, logo abaixo de "Quero ser dizimista". **Só aparece se
+  a paróquia configurou** Pix e/ou cartão. Hoje: desligado nas 3.
+- **A plataforma não recebe, não guarda e não intermedeia dinheiro.**
+  - Pix: chave da paróquia, QR Code e "copia e cola" (BR Code estático, sem valor) gerados no aparelho,
+    [Copiar chave], beneficiário e cidade. Não há botão "Abrir Pix": não existe link padrão que abra o app
+    de qualquer banco; o caminho é ler o QR Code ou colar o código.
+  - Cartão: [Doar com cartão] abre em outra aba o checkout EXTERNO que a paróquia contratou. Nenhum campo
+    de cartão existe na Central.
+- Configuração: Painel › Ajustes › Doações, **só padre e suporte**. Secretaria e PASCOM não veem nem gravam
+  (garantido também no banco). Só dados públicos: chave Pix, tipo, beneficiário, cidade, nome do serviço e
+  link https (recusa links com token). Qualquer outro campo é recusado pelo banco.
+- Fora do escopo (não implementado): processamento de cartão, checkout transparente, webhooks,
+  conciliação, recorrência, split, taxas, carteira.
+
 ## Migrações (NÃO executadas)
 
-Ordem no SQL Editor, depois do que já está em produção:
+Roteiro completo, com pré e pós-checks: `docs/HOMOLOGACAO-DIRETORIO.md`.
 
 1. `supabase/diretorio.sql`: estrutura. Única mudança em tabela existente: coluna opcional
    `parishes.directory_id`.
-2. `supabase/diretorio_seed.sql`: carga do catálogo (gerada). Pode rodar de novo: atualiza dados do
-   catálogo e nunca mexe em status/tenant.
-3. `supabase/diretorio_ativacao.sql`: 3 ativas + 2 tenants novos + `parish_state` inicial. Revisão manual.
+2. `supabase/diretorio_santuarios.sql` (**nova**): colunas opcionais de santuário, tipo `santuario`, busca
+   com filtro e abreviações.
+3. `supabase/diretorio_seed.sql`: carga do catálogo (regerada, 293). Pode rodar de novo: atualiza dados do
+   catálogo e nunca mexe em slug, status ou tenant.
+4. `supabase/diretorio_ativacao.sql`: 3 ativas + 2 tenants novos + `parish_state` inicial.
+5. `supabase/doacoes.sql` (**nova**, independente): configuração de doações por paróquia; começa vazia.
 
-Teste local equivalente à produção: `tests/secretaria24h/sql-diretorio.test.mjs` (78 verificações). Roda
-cada arquivo 2x; confere que nada existente mudou; 278 por tipo; 3 ativas; busca; nenhuma ativação pela
-internet; tenants vazios; isolamento de equipe e da página pública em 11 tabelas e nas funções.
+**Banco real hoje** (já com o diretório antigo): rodar só 2 e 3 (seção 10 do roteiro) e, se quiser, 5.
+
+Testes locais: `sql-diretorio.test.mjs` (99), `sql-doacoes.test.mjs` (35), `homologacao.test.mjs` (45, inclui
+a atualização sobre o diretório antigo), `polimento.test.mjs` (128, navegador, 5 larguras).
