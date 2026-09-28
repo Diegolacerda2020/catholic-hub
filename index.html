@@ -2405,20 +2405,40 @@ function noticiasPubHTML(){
 const ARQ_SITE = 'https://arquidiocesebh.org.br/noticias/';
 const NOTICIAS_API = CONF.noticiasApi || (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname) ? '' : '/api/noticias');
 const NOTICIAS_ESPELHO = CONF.noticiasEspelho || 'https://raw.githubusercontent.com/Diegolacerda2020/catholic-hub/dados/noticias.json';
-let NOTICIAS = {estado:'inicial', dados:null, em:0};
+const NOTICIAS_OFICIAL = CONF.noticiasOficial ?? 'https://arquidiocesebh.org.br/wp-json/wp/v2/noticias?per_page=20';
+const NOTICIAS_KEY = 'central-paroquial-noticias';
+let NOTICIAS = {estado:'inicial', dados:null, em:0, meta:null};
 const linkArq = u => { try { const x = new URL(u); return x.origin === 'https://arquidiocesebh.org.br' ? x.href : ''; } catch(e){ return ''; } };
+/* Notícias da Arquidiocese. Ordem (a mais nova vence; a Home nunca quebra por causa disto):
+   1. /api/noticias (Worker: API oficial → RSS → HTML → espelho);
+   2. se o Worker só tiver o espelho ou uma lista com mais de 2 h: a API oficial direto deste navegador
+      (o portal libera CORS, e o navegador completa o certificado que o servidor deles manda errado);
+   3. o espelho no GitHub; 4. a última lista boa guardada neste aparelho.
+   NOTICIAS.meta guarda fonte, obtidoEm, atualizadoEm e idade (para o suporte ver no console; o fiel não vê). */
+const idadeMin = d => d?.atualizadoEm ? Math.round((now() - Date.parse(d.atualizadoEm)) / 60000) : Infinity;
+const maisNova = d => (d?.itens || []).reduce((m, i) => i.data > m ? i.data : m, '');
+async function lerJson(url, ms = 8000){ const r = await fetch(url, {headers:{accept:'application/json'}, signal:AbortSignal.timeout?.(ms)}); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+async function noticiasOficiais(){
+  const [{deApi, priorizar}, lista] = await Promise.all([import('./worker/noticias.js'), lerJson(NOTICIAS_OFICIAL)]);
+  const itens = priorizar(deApi(lista));
+  if (!itens.length) throw new Error('lista vazia');
+  return {fonte:'navegador:api', atualizadoEm:new Date().toISOString(), itens};
+}
 async function carregarNoticias(){
   if (NOTICIAS.estado === 'carregando' || now() - NOTICIAS.em < 10*60e3) return;
   NOTICIAS.estado = 'carregando';
+  const ok = d => Array.isArray(d?.itens) && d.itens.length ? d : null;
+  const tentativas = [];
   let dados = null;
-  for (const fonte of [NOTICIAS_API, NOTICIAS_ESPELHO].filter(Boolean)){
-    try {
-      const r = await fetch(fonte, {headers:{accept:'application/json'}});
-      const d = await r.json();
-      if (Array.isArray(d?.itens) && d.itens.length){ dados = d; break; }
-    } catch(e){}
+  if (NOTICIAS_API){ try { dados = ok(await lerJson(NOTICIAS_API)); } catch(e){ tentativas.push('api: ' + e.message); } }
+  if (!dados || String(dados.fonte).startsWith('espelho') || idadeMin(dados) > 120){
+    try { const d = await noticiasOficiais(); if (!dados || maisNova(d) >= maisNova(dados)) dados = d; } catch(e){ tentativas.push('oficial: ' + e.message); }
   }
-  NOTICIAS = {estado: dados ? 'ok' : 'erro', dados: dados || NOTICIAS.dados, em: now()};
+  if (!dados && NOTICIAS_ESPELHO){ try { dados = ok(await lerJson(NOTICIAS_ESPELHO)); if (dados) dados.fonte = 'espelho:' + (dados.fonte || ''); } catch(e){ tentativas.push('espelho: ' + e.message); } }
+  if (dados) { try { localStorage.setItem(NOTICIAS_KEY, JSON.stringify(dados)); } catch(e){} }
+  else { try { dados = ok(JSON.parse(localStorage.getItem(NOTICIAS_KEY))); if (dados) dados = {...dados, fonte:'aparelho:' + dados.fonte}; } catch(e){} }
+  NOTICIAS = {estado: dados ? 'ok' : 'erro', dados: dados || NOTICIAS.dados, em: now(),
+    meta: dados ? {fonte:dados.fonte, obtidoEm:dados.obtidoEm || null, atualizadoEm:dados.atualizadoEm || null, idadeMin:idadeMin(dados), maisNova:maisNova(dados), falhas:tentativas} : {falhas:tentativas}};
   if (S.mode === 'publico' && ['igreja','noticias'].includes(S.pubTab)) renderSeguro();
 }
 function noticiasArquidioceseHTML(limite){
@@ -2435,7 +2455,7 @@ function noticiasArquidioceseHTML(limite){
     <h3><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.titulo)}</a></h3>
     ${n.resumo ? `<p>${esc(n.resumo)}</p>` : ''}
     <a class="news-cta" href="${esc(n.url)}" target="_blank" rel="noopener" aria-label="Ler no site da Arquidiocese: ${esc(n.titulo)}">Ler no site da Arquidiocese →</a>
-  </article>`).join('') + (NOTICIAS.dados?.desatualizado ? `<p class="small muted news-fonte">A fonte está fora do ar; mostrando as últimas notícias obtidas.</p>` : '') + fonte;
+  </article>`).join('') + fonte;
 }
 
 

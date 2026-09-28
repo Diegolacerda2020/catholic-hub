@@ -40,7 +40,7 @@ export function linkNoticia(u){
 const imagemSegura = u => { try { const x = new URL(String(u).trim()); return x.origin === BASE ? x.href : ''; } catch(e){ return ''; } };
 const dataBR = iso => iso ? iso.slice(8,10)+'/'+iso.slice(5,7)+'/'+iso.slice(0,4) : '';
 
-// prioridade: 0 = RENSC, 1 = geral da Arquidiocese, 2 = demais regiões/categorias
+// prioridade (só desempate no mesmo dia): 0 = RENSC, 1 = geral da Arquidiocese, 2 = demais regiões/categorias
 function classificar(classes){
   const reg = classes.map(c => (c.match(/^regiao-([\w-]+)$/) || [])[1]).find(Boolean);
   if (reg) return {rotulo: REGIOES[reg] || reg.toUpperCase(), prioridade: reg === 'rensc' ? 0 : 2};
@@ -85,7 +85,9 @@ export function deHtml(html){
 export function priorizar(itens){
   const vistos = new Set();
   return itens.filter(i => !vistos.has(i.url) && vistos.add(i.url))
-    .sort((a, b) => a.prioridade - b.prioridade || b.data.localeCompare(a.data))
+    // Mais recente primeiro. Antes, a RENSC vinha sempre no topo e notícia de 3 semanas atrás
+    // aparecia acima das publicadas hoje.
+    .sort((a, b) => b.data.localeCompare(a.data) || a.prioridade - b.prioridade)
     .slice(0, MAX_ITENS);
 }
 
