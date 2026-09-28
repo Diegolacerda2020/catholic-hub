@@ -22,7 +22,7 @@ const indexAntes = execSync(`git show ${ANTES}:index.html`, {cwd:REPO});
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
   const js = (d, st = 200) => { res.writeHead(st, {'content-type':'application/json', 'access-control-allow-origin':'*'}); res.end(JSON.stringify(d)); };
-  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua", noticiasOficial:"/teste/oficial.json", noticiasEspelho:"", contato:{email:""}};`); }
+  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua", noticiasOficial:"/teste/oficial.json", noticiasEspelho:"", contato:{email:"suporte.thunderdynamics@gmail.com", whatsapp:"5531997509221"}};`); }
   if (u.pathname === '/api/noticias' || u.pathname === '/api/liturgia'){ res.writeHead(404); return res.end(); }
   if (u.pathname === '/teste/oficial.json') return js([{Link:'https://arquidiocesebh.org.br/noticias/a/', Resumo:'Notícia de teste da Arquidiocese', DataRegistro:new Date().toISOString().slice(0, 19), class_list:[], Imagem:''}]);
   if (u.pathname === '/antes.html'){ res.writeHead(200, {'content-type':TIPOS['.html']}); return res.end(indexAntes); }
@@ -108,8 +108,8 @@ console.log('== diretório: paróquias e santuários');
   await clk(p, '[data-dirt="todos"]'); await esperar(300);
   await buscar(p, 'sao paulo da cruz');
   await p.evaluate(() => document.querySelector('#dirRes [data-dir-abrir]').click()); await esperar(900); t = await texto(p);
-  t_('ficha de São Paulo da Cruz: nome do santuário, chips e Catálogo 2026', t.includes('Santuário Arquidiocesano São Paulo da Cruz') && t.includes('Santuário Arquidiocesano') && t.includes('Paróquia') && t.includes('Catálogo 2026'));
-  t_('ficha: [Solicitar ativação] sem contato inventado', t.includes('Solicitar ativação') && t.includes('O contato para ativação será divulgado em breve.'));
+  t_('ficha de São Paulo da Cruz: nome do santuário, chips e a fonte (Catálogo 2026)', t.includes('Santuário Arquidiocesano São Paulo da Cruz') && t.includes('Santuário Arquidiocesano') && t.includes('Paróquia') && t.includes('Dados institucionais de referência: Catálogo 2026 — Arquidiocese de Belo Horizonte.'));
+  t_('ficha: CTA de ativação com o contato da Central', t.includes('Você representa esta paróquia ou santuário?') && !!(await p.$('#ativacao [data-cp="whatsapp"]')));
   const hc = await p.evaluate(() => document.querySelector('header.top').innerText);
   t_('cabeçalho: "Santuário Arquidiocesano São Paulo da Cruz – Barreiro de Baixo"', hc.includes('Santuário Arquidiocesano São Paulo da Cruz – Barreiro de Baixo'), hc);
   await foto(p, 'ficha-sao-paulo-da-cruz-390');

@@ -24,7 +24,7 @@ const SRV = {noticias:'espelho'};
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x');
   const js = (d, st = 200) => { res.writeHead(st, {'content-type':'application/json', 'access-control-allow-origin':'*'}); res.end(JSON.stringify(d)); };
-  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua", noticiasOficial:"/teste/oficial.json", noticiasEspelho:"", contato:{email:"contato@central.exemplo"}};`); }
+  if (u.pathname === '/config.js'){ res.writeHead(200, {'content-type':TIPOS['.js']}); return res.end(`window.CENTRAL_CONFIG = {supabase:{url:"https://fake.supabase.co", anonKey:"x"}, parishSlug:"santo-antonio-jaragua", noticiasOficial:"/teste/oficial.json", noticiasEspelho:"", contato:{email:"suporte.thunderdynamics@gmail.com", whatsapp:"5531997509221"}};`); }
   if (u.pathname === '/api/noticias') return SRV.noticias === 'espelho' ? js(ESPELHO_VELHO) : (res.writeHead(404), res.end());
   if (u.pathname === '/api/liturgia'){ res.writeHead(404); return res.end(); }
   if (u.pathname === '/teste/oficial.json') return js(OFICIAL_HOJE);
@@ -225,8 +225,8 @@ let ctxFiel;
   t_('paróquia listed: "Central Paroquial ainda não ativada" + [Solicitar ativação]', t.includes('Bom Pastor') && t.includes('Central Paroquial ainda não ativada') && !!(await p.$('[data-dir-ativar]')));
   await p.evaluate(() => document.querySelector('[data-dir-ativar]').click()); await esperar(900);
   t = await texto(p);
-  t_('Solicitar ativação: mensagem de responsável autorizado + [Entrar em contato]', t.includes('A ativação da Central Paroquial deve ser solicitada pelo pároco, administrador paroquial ou responsável autorizado.') && !!(await p.$('#ativacao a[href^="mailto:contato@central.exemplo"]')));
-  t_('ficha da listed vem do Catálogo 2026 (endereço, pároco)', t.includes('Praça da Comunidade, 94') && t.includes('Pe. Mateus Lopes'));
+  t_('Solicitar ativação: "Você representa esta paróquia ou santuário?" + WhatsApp e e-mail da Central', t.includes('Você representa esta paróquia ou santuário?') && !!(await p.$('#ativacao a[href^="https://wa.me/5531997509221"]')) && !!(await p.$('#ativacao a[href^="mailto:suporte.thunderdynamics@gmail.com"]')));
+  t_('ficha da listed: endereço institucional do Catálogo, SEM nome de pároco', t.includes('Praça da Comunidade, 94') && !t.includes('Mateus Lopes') && !/Pároco:|Reitor:/.test(t));
   t_('nenhuma ativação automática (nada gravado)', !B.log.some(x => /directory|parishes/.test(x) && !x.startsWith('rpc:public_directory')));
   await foto(p, 'solicitar-ativacao-390');
   await clk(p, '#voltarAtual'); await esperar(400);
@@ -245,7 +245,7 @@ let ctxFiel;
   await clk(p, '#tabs [data-tab="avisos"]'); await esperar(300);
   t_('Santa Clara: avisos vazios', (await texto(p)).includes('Nenhum aviso no momento.'));
   await clk(p, '#tabs [data-tab="contato"]'); await esperar(400); t = await texto(p);
-  t_('Santa Clara: dados do catálogo (endereço e pároco)', t.includes('Rua Mafalda Guimarães Corrieri, 610') && t.includes('Pe. Bráulio Francisco Tibúrcio'));
+  t_('Santa Clara: endereço institucional do catálogo, SEM nome de pároco', t.includes('Rua Mafalda Guimarães Corrieri, 610') && !t.includes('Bráulio') && !/Pároco:/.test(t));
   await foto(p, 'paroquia-santa-clara-390');
   await p.evaluate(() => { S.pubTab = 'velas'; velaStep = 'inicio'; render(); }); await esperar(300);
   t_('Santa Clara: Sala das Velas com as velas DELA (0), não as de Santo Antônio', (await texto(p)).includes('Seja o primeiro a acender uma vela hoje.'));

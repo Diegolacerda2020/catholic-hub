@@ -19,7 +19,7 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
   const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[], diretorio, doacoes:{}, doacoesMigrado:true};
   // Tenants novos: estado próprio, só com dados do catálogo (como o diretorio_ativacao.sql)
   const cfgDir = d => ({nome:'Paróquia ' + d.display_name + ' – ' + (d.neighborhood && !/^centro$/i.test(d.neighborhood) ? d.neighborhood : d.municipality),
-    endereco:[d.address, d.neighborhood, d.municipality + ' – MG, CEP ' + d.postal_code].filter(Boolean).join(' – '), telefone:d.phone, email:d.email, paroco:d.pastor_name, forania:d.forania, regiao:d.episcopal_region_name, missas:'', secretaria:''});
+    endereco:[d.address, d.neighborhood, d.municipality + ' – MG, CEP ' + d.postal_code].filter(Boolean).join(' – '), telefone:d.phone, email:d.email, forania:d.forania, regiao:d.episcopal_region_name, missas:'', secretaria:''});
   B.estados = {'p-1':B.estado};
   for (const [slug, pid] of [[SC, 'p-2'], [NG, 'p-3']]) B.estados[pid] = {data:{cfg:cfgDir(DIR.find(d => d.slug === slug))}, updated_at:new Date().toISOString()};
   const pidDe = uid => Object.values(usuarios).find(u => u.id === uid)?.pid || PID;
@@ -61,7 +61,7 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
         const ativo = d => TENANTS[d.slug] ? d.slug : null;
         const pub = d => ({slug:d.slug, name:d.display_name, type:d.type, municipality:d.municipality, neighborhood:d.neighborhood, forania:d.forania, episcopal_region:d.episcopal_region,
           is_sanctuary:!!d.is_sanctuary, sanctuary_name:d.sanctuary_name || null, sanctuary_kind:d.sanctuary_kind || null, active:!!ativo(d), tenant_slug:ativo(d)});
-        if (q.fn === 'public_directory_entry'){ const d = DIR.find(x => x.slug === q.args.p_slug); return {data:d ? {...pub(d), address:d.address, postal_code:d.postal_code, phone:d.phone, email:d.email, pastor_role:d.pastor_role, pastor_name:d.pastor_name, catalog_code:d.catalog_code, episcopal_region_name:d.episcopal_region_name, sanctuary_code:d.sanctuary_code || null, rector_name:d.rector_name || null} : null}; }
+        if (q.fn === 'public_directory_entry'){ const d = DIR.find(x => x.slug === q.args.p_slug); return {data:d ? {...pub(d), address:d.address, postal_code:d.postal_code, phone:d.phone, email:d.email, catalog_code:d.catalog_code, episcopal_region_name:d.episcopal_region_name, sanctuary_code:d.sanctuary_code || null} : null}; }
         // mesma regra do supabase/diretorio_santuarios.sql: abreviações simples, filtro de tipo e relevância pelo nome
         const exp = t => (' ' + norm(t).replace(/[^a-z0-9]+/g, ' ') + ' ').replace(/ n s /g, ' nossa senhora ').replace(/ nsra /g, ' nossa senhora ').replace(/ sto /g, ' santo ').replace(/ sta /g, ' santa ').replace(/ sra /g, ' senhora ').replace(/\s+/g, ' ');
         const frase = exp(String(q.args.p_q || '').slice(0, 80)).trim(), w = frase.split(' ').filter(Boolean), tipo = q.args.p_tipo || null;

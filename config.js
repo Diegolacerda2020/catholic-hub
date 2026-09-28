@@ -16,7 +16,8 @@ window.CENTRAL_CONFIG = {
   parishSlug: 'santo-antonio-jaragua',
   // Paróquia padrão acima. As outras paróquias ativas abrem pelo endereço: ?p=<slug>.
 
-  // Contato do botão "Entrar em contato" em "Solicitar ativação" (paróquias ainda não ativadas).
-  // Preencha um dos dois; vazio, a página diz que o contato será divulgado em breve.
-  contato: { email: '', whatsapp: '' }
+  // Contato da CENTRAL PAROQUIAL (a plataforma/suporte), usado em "Solicitar inclusão", "Solicitar ativação" e
+  // no rodapé. Só contatos da plataforma: nunca telefone pessoal de padre, secretário ou usuário da paróquia.
+  // whatsapp com DDI+DDD, só números.
+  contato: { email: 'suporte.thunderdynamics@gmail.com', whatsapp: '5531997509221' }
 };
