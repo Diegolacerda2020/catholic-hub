@@ -13,7 +13,7 @@ Sistema simples para uma paróquia se comunicar com paroquianos e dizimistas: pa
 - **Comunidades:** página de cada comunidade e "★ Tornar esta minha comunidade" (guardado só no aparelho, sem conta).
 - **Avisos:** avisos de toda a paróquia (sempre) e, primeiro, os da minha comunidade.
 - **Paróquia:** contato, secretaria, paróquias vizinhas e Quero ser dizimista.
-- **Secretaria 24h:** o fiel faz solicitações a qualquer hora e acompanha pelo protocolo; a equipe responde no horário da secretaria (**Mais → Secretaria 24h** no painel). Veja [`docs/SECRETARIA24H.md`](docs/SECRETARIA24H.md).
+- **Secretaria 24h:** o fiel faz solicitações a qualquer hora e acompanha pelo protocolo; a equipe responde no horário da secretaria (no painel: **Início** e menu lateral; no celular, **Mais → Secretaria 24h**). Veja [`docs/SECRETARIA24H.md`](docs/SECRETARIA24H.md).
 
 **Painel (padre, secretaria, PASCOM)**, barra com **Comunicar · Agenda · Dizimistas · Intenções · Mais** (Mensagens, Pessoas, Comunidades, Uso, Ajustes):
 
@@ -122,6 +122,7 @@ A chave da IA fica só no servidor do Supabase, nunca no `config.js` nem no GitH
 - `wrangler.jsonc` e `.assetsignore`: deploy no Cloudflare Workers (publica só `index.html`, `config.js` e `secretaria24h.js`/`.css`).
 - `supabase/schema.sql`: tabelas, regras de acesso (RLS) e funções da página pública (idempotente).
 - `docs/MVP2.md`: arquitetura desta versão.
+- `docs/UX-PAINEL.md`: painel responsivo (celular/tablet/computador), Início por papel, avisos, 🔔 e a decisão sobre Web Push.
 - `secretaria24h.js`, `secretaria24h.css`, `supabase/secretaria24h.sql` e `tests/secretaria24h/`: Secretaria 24h ([`docs/SECRETARIA24H.md`](docs/SECRETARIA24H.md)).
 - `supabase/README.md`: passo a passo do banco e dos usuários.
 
