@@ -13,5 +13,10 @@ window.CENTRAL_CONFIG = {
     url: 'https://jstxktdvfflxgbruajpg.supabase.co',
     anonKey: 'sb_publishable_43THHdwdV9hXKZ1oH5NYsw_U3kV0EoD'
   },
-  parishSlug: 'santo-antonio-jaragua'
+  parishSlug: 'santo-antonio-jaragua',
+  // Paróquia padrão acima. As outras paróquias ativas abrem pelo endereço: ?p=<slug>.
+
+  // Contato do botão "Entrar em contato" em "Solicitar ativação" (paróquias ainda não ativadas).
+  // Preencha um dos dois; vazio, a página diz que o contato será divulgado em breve.
+  contato: { email: '', whatsapp: '' }
 };

@@ -413,7 +413,7 @@ function bindPublico(root){
   root.querySelectorAll('[data-s24-servico]').forEach(b => b.onclick = () => { P.tela = 'form'; P.code = b.dataset.s24Servico; render(); scrollTo(0,0); });
   root.querySelector('#s24Tentar')?.addEventListener('click', () => { carregarCatalogo(true); render(); });
   root.querySelector('[data-s24-intencao]')?.addEventListener('click', () => {
-    S.pubTab = 'agenda'; save(); render();
+    S.pubTab = 'intencao'; save(); render(); scrollTo(0,0);
     const f = document.getElementById('intF');
     if (f){ f.scrollIntoView({block:'start'}); f.querySelector('select,input')?.focus({preventScroll:true}); } else scrollTo(0,0);
   });
@@ -751,6 +751,7 @@ const telaIndisp = volta => () => `<button class="crumb" data-pub="${volta}">‹
 
 window.S24 = {
   cardHomeHTML: seguro(cardHomeHTML, () => ''),
+  disponivel: seguro(disponivel, () => false), // ação "Secretaria 24h" na Home pública
   botaoParoquiaHTML: seguro(botaoParoquiaHTML, () => ''),
   publicoHTML: seguro(publicoHTML, () => { P.tela = 'inicio'; return telaIndisp('igreja')(); }),
   bindPublico: seguro(bindPublico, () => {}),

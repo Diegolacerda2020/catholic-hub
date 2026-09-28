@@ -386,6 +386,58 @@ nav.tabs .so-lateral{display:none}
   .ini-rapidas{grid-template-columns:1fr}
   .ini-colunas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 24px;align-items:start}
 }
+
+/* =========================================================
+   Página pública: ações da Home, evento de hoje, destaques litúrgicos, Sala das Velas, Agenda, diretório
+   ========================================================= */
+.acoes-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 12px}
+.acoes-grid .acao:last-child:nth-child(odd){grid-column:1/-1}
+.acao{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 12px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:96px;color:inherit}
+.acao:hover{border-color:var(--lit)}
+.acao .ic{font-size:1.5rem;line-height:1}
+.acao b{font-size:1.02rem;line-height:1.2;margin-top:4px;color:var(--lit)}
+.acao .small{color:var(--muted);line-height:1.3}
+.hoje-ev{background:var(--lit);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:10px}
+.hoje-ev h3{font-family:var(--serif);font-size:1.35rem;margin:0 0 4px;color:#fff}
+.hoje-ev-q{font-size:1.02rem;margin-bottom:12px}
+.hoje-ev .btn{background:#fff;color:#1F5B3F}
+.destaque{background:var(--gold-soft);border:1px solid var(--gold);border-radius:16px;padding:16px 18px;margin:14px 0 10px}
+.destaque-k{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.destaque h3{font-family:var(--serif);font-size:1.35rem;margin:4px 0 2px}
+.destaque p{margin:0}
+.destaque .acoes{margin-top:12px}
+.devocao .destaque-k{margin:4px 4px 0}
+.devocao h2{margin-top:2px}
+.tempo-lit{display:flex;align-items:center;gap:8px;margin-top:6px;font-weight:700;font-size:1.05rem}
+.sala{background:#141c17;color:#F4EEDF;border-radius:18px;padding:22px 18px;text-align:center;margin-bottom:10px}
+.sala h2{color:#fff;margin:0 0 14px}
+.sala-velas{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 12px;max-width:420px;margin:0 auto 16px;padding:8px 0}
+.mv{position:relative;width:14px;height:34px;border-radius:3px 3px 2px 2px;background:linear-gradient(90deg,#e4d9c0,#f8f1e0 45%,#d9cba8);margin-top:18px}
+.mv i{position:absolute;left:50%;bottom:100%;width:10px;height:16px;margin-left:-5px;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
+  background:radial-gradient(ellipse at 50% 72%,#fffbe0 0%,#ffd766 35%,#ff9d24 65%,rgba(255,130,20,0) 75%);filter:drop-shadow(0 0 6px rgba(255,190,80,.75));transform-origin:50% 90%}
+.mv.apagada i{display:none}
+.mv.apagada{opacity:.55}
+@media (prefers-reduced-motion:no-preference){.mv i{animation:tremula 2.4s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+  @keyframes tremula{0%{transform:scale(1) rotate(-2deg);opacity:.92}50%{transform:scale(1.06,1.12) rotate(1.5deg);opacity:1}100%{transform:scale(.96,1.04) rotate(-1deg);opacity:.95}}}
+.sala-n{font-family:var(--serif);font-size:1.25rem;margin:0 0 4px;color:#fff}
+.sala-mais{margin:0 0 10px;color:#ffd766;font-weight:700}
+.sala .btn{margin-top:10px}
+.ag-dia{font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
+.ag-sec{font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin:14px 4px 8px}
+.ag-item{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ag-item b{flex:1 1 60%;min-width:0}
+.ag-item .small{flex-basis:100%}
+.ag-periodo{border-color:var(--gold)}
+.dir-nome{color:var(--ink);font-weight:700;font-size:1rem;padding:0;text-align:left}
+.dir-row{align-items:center}
+@media (min-width:600px){.acoes-grid{grid-template-columns:repeat(3,1fr)}.acoes-grid .acao:last-child:nth-child(odd){grid-column:auto}}
+/* computador: a página pública ganha largura de leitura (o painel tem o próprio layout) */
+@media (min-width:900px){
+  body:not(.painel-app) .app{max-width:760px}
+  body:not(.painel-app) nav.tabs{max-width:760px}
+  .acoes-grid{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+  .acoes-grid .acao{min-height:120px}
+}
 </style>
 <link rel="stylesheet" href="secretaria24h.css">
 </head>
@@ -432,7 +484,24 @@ nav.tabs .so-lateral{display:none}
    Dados ficam neste aparelho (localStorage). Na versão
    hospedada, o mesmo formato vai para o banco (Supabase).
    ========================================================= */
-const KEY = 'central-paroquial-v02';
+/* ---------- qual paróquia (tenant) ----------
+   O mesmo código serve todas as paróquias ativas. A paróquia vem do endereço (?p=slug); senão, da
+   "minha paróquia" guardada neste aparelho; senão, da paróquia padrão do config.js. Cada paróquia tem o
+   próprio estado neste aparelho (nada de uma aparece na outra) e trocar de paróquia recarrega a página. */
+const NAV_KEY = 'central-paroquial-navegacao'; // minha paróquia e recentes: valem para o aparelho, não para uma paróquia
+const SLUG_OK = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const PILOTO = (window.CENTRAL_CONFIG || {}).parishSlug || 'santo-antonio-jaragua';
+function lerNav(){ try { const n = JSON.parse(localStorage.getItem(NAV_KEY)); return n && typeof n === 'object' ? {minha:n.minha || null, recentes:Array.isArray(n.recentes) ? n.recentes.slice(0, 6) : []} : {minha:null, recentes:[]}; } catch(e){ return {minha:null, recentes:[]}; } }
+function gravarNav(n){ try { localStorage.setItem(NAV_KEY, JSON.stringify(n)); } catch(e){} }
+const TENANT = (() => {
+  const p = new URLSearchParams(location.search).get('p');
+  if (p && SLUG_OK.test(p)) return p;
+  const m = lerNav().minha;
+  return m?.tenant_slug && SLUG_OK.test(m.tenant_slug) ? m.tenant_slug : PILOTO;
+})();
+const E_PILOTO = TENANT === PILOTO; // só a paróquia piloto tem conteúdo inicial de exemplo
+const KEY = 'central-paroquial-v02' + (E_PILOTO ? '' : '@' + TENANT); // a piloto mantém a chave antiga
+const ATIVA = 'atual'; // S.vendo: a paróquia desta página; 'dir:<slug>' = uma paróquia do diretório ainda não ativa
 const DIAS = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const now = () => Date.now();
@@ -444,8 +513,17 @@ let seqId = 0;
 const novoId = () => now()*1000 + (seqId++ % 1000); // único entre aparelhos (S.nextId repetia)
 const MISSAS = 'Terça-feira: 19h30\nQuarta-feira: 19h30\nQuinta-feira: 19h30\nPrimeira sexta-feira do mês: 19h30\nSábado: 18h00\nDomingo: 07h30, 09h30 e 18h00';
 
+// Paróquia nova começa vazia: nada da piloto (nome, horários, textos, exemplos) vai para ela.
+const CFG_VAZIA = () => ({nome:'', padroeiro:'', endereco:'', telefone:'', whats:'', email:'', paroco:'', forania:'', regiao:'', secretaria:'', missas:'',
+  tom:'acolhedor', emoji:true, assinatura:'Deus abençoe!', youtube:'', rec:{}, pix:''});
 function seed(){
   const t0 = new Date();
+  const s = seedPiloto(t0);
+  if (E_PILOTO) return s;
+  return {...s, cfg:CFG_VAZIA(), pessoas:[], avisos:[], intencoes:[],
+    modelos:{...s.modelos, aniversario:'Querido(a) {nome}, a {paroquia} celebra com você a graça de mais um ano de vida! Que Deus abençoe você e sua família. Feliz aniversário! 🎂🙏'}};
+}
+function seedPiloto(t0){
   return {
     mode:'painel', tab:'inicio', pubTab:'igreja', operador:'Secretaria',
     cfg:{
@@ -509,7 +587,7 @@ const PAPEIS = {padre:'Padre', secretaria:'Secretaria', pascom:'PASCOM', admin:'
 const BASE_KEY = KEY+'-base';
 const NUVEM = {
   ativo: !!(CONF.supabase?.url && CONF.supabase?.anonKey),
-  slug: CONF.parishSlug || 'santo-antonio-jaragua',
+  slug: TENANT,
   sb:null, sessao:null, parishId:null, papel:null, estado:'off',
   base:null, baseTs:null, velasPub:null, timer:null, salvando:false, deNovo:false, renderPendente:false
 };
@@ -626,6 +704,7 @@ async function atualizarPublico(){
   if (error || !data) return;
   const antes = JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub, S.pubRel]);
   if (data.cfg && Object.keys(data.cfg).length) S.cfg = {...S.cfg, ...data.cfg};
+  if (!S.cfg.nome && data.name) S.cfg.nome = data.name;
   S.avisos = data.avisos || [];
   NUVEM.velasPub = data.velasHoje ?? 0;
   // Banco ainda sem o MVP 2: a função antiga não traz comunidades/eventos, e a página segue sem eles.
@@ -658,6 +737,8 @@ async function entrarComSessao(sessao){
   if (error) throw error;
   const vinc = v.find(x => x.parishes?.slug === NUVEM.slug) || v[0];
   if (!vinc){ NUVEM.estado = 'semVinculo'; render(); return; }
+  const slugV = vinc.parishes?.slug;
+  if (slugV && slugV !== NUVEM.slug && SLUG_OK.test(slugV)){ location.replace(location.pathname + '?p=' + encodeURIComponent(slugV) + '#painel'); return; }
   NUVEM.parishId = vinc.parish_id; NUVEM.papel = vinc.role;
   S.operador = PAPEIS[vinc.role] || 'Secretaria';
   const b = lerBase(); // se houver alterações feitas sem internet, elas são juntadas ao que está no banco
@@ -802,8 +883,11 @@ function relSeed(){ // só no modo demonstração (sem banco): nomes de exemplo,
 function normalizar(){
   S.pubRel ??= {communities:[], events:[]}; S.minhaCom ??= null;
   if (!NUVEM.ativo) S.rel ??= relSeed();
-  S.draft.tipo ||= 'paroquia'; S.modelos.entradaDizimo ??= MODELO_ENTRADA; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= []; S.minha ??= 'Santo Antônio|Jaraguá'; S.vendo ??= S.minha; S.pedidosAtivacao ??= []; S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
-  S.cfg.missas ||= MISSAS; S.log ??= []; S.pessoas ??= []; S.avisos ??= [];
+  S.draft.tipo ||= 'paroquia'; S.modelos.entradaDizimo ??= MODELO_ENTRADA; S.cfg.youtube ??= ''; S.intencoes ??= []; S.velas ??= [];
+  if (!S.vendo || S.vendo === 'Santo Antônio|Jaraguá' || S.vendo === S.minha) S.vendo = ATIVA; // formato antigo: a lista REDE
+  S.cfg.pix ??= ''; if (!S.cfg.rec){ S.cfg.rec = {gilson: S.cfg.rosario!==false, hesed:true}; delete S.cfg.rosario; } S.draft.link ??= '';
+  if (E_PILOTO) S.cfg.missas ||= MISSAS; else S.cfg.missas ??= '';
+  S.log ??= []; S.pessoas ??= []; S.avisos ??= [];
   if (S.enviadosHoje?.dia !== isoDay(new Date())) { S.enviadosHoje = {dia:isoDay(new Date()), ids:[]}; save(); }
 }
 normalizar();
@@ -853,7 +937,8 @@ function renderHeader(){
   else { hn.innerHTML = `${esc(nomeVendo())}<span class="caret" aria-hidden="true">trocar ▾</span>`; hn.classList.add('pick'); hn.setAttribute('aria-label', 'Paróquia: '+nomeVendo()+'. Trocar ou pesquisar outra paróquia'); }
   document.getElementById('hdrSub').textContent = S.mode==='painel'
     ? `Painel da paróquia, ${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`
-    : `Forania ${vendoAtiva() ? S.cfg.forania : (r?.forania||'')} · RENSC${S.vendo===S.minha?' · Minha paróquia':''}`;
+    : [(vendoAtiva() ? S.cfg.forania : r?.forania) ? 'Forania ' + (vendoAtiva() ? S.cfg.forania : r.forania) : '', siglaRegiao(vendoAtiva() ? S.cfg.regiao : r?.episcopal_region), eMinha() ? 'Minha paróquia' : ''].filter(Boolean).join(' · ');
+  document.title = 'Central Paroquial — ' + ((S.mode==='painel' ? S.cfg.nome : nomeVendo()) || 'Paróquia');
   document.getElementById('mPainel').setAttribute('aria-pressed', S.mode==='painel');
   document.getElementById('mPublico').setAttribute('aria-pressed', S.mode==='publico');
   document.getElementById('opRow').hidden = S.mode!=='painel' || (NUVEM.ativo && !logado());
@@ -867,7 +952,7 @@ function renderHeader(){
 }
 document.getElementById('btnSair').onclick = () => sair();
 document.getElementById('mPainel').onclick = () => { S.mode='painel'; save(); render(); scrollTo(0,0); };
-document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = S.minha; if (S.pubTab in SUBTELAS_PUB) S.pubTab = 'igreja'; dzPubEnviado = false; save(); render(); scrollTo(0,0); };
+document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = ATIVA; if (S.pubTab in SUBTELAS_PUB) S.pubTab = 'igreja'; dzPubEnviado = false; save(); render(); scrollTo(0,0); };
 document.getElementById('hdrName').onclick = () => { if (S.mode!=='publico') return; S.pubTab='escolher'; buscaPar=''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); };
 document.getElementById('op').onchange = e => { S.operador = e.target.value; save(); toast('Usando como: '+e.target.selectedOptions[0].text); };
 
@@ -901,7 +986,8 @@ const tabsFor = () => S.mode==='painel'
   ? [...navItens().filter(([k]) => BARRA.includes(k)), ['mais','Mais']]
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja'};
+const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja',
+  liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda'};
 // Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
 const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
   ['dizimistas','Dizimistas','Cadastro, acompanhamento do dízimo e interessados'],
@@ -1101,7 +1187,7 @@ function bindComunicar(root){
   root.querySelector('#goAjustes')?.addEventListener('click', () => { S.tab='ajustes'; save(); render(); scrollTo(0,0); document.getElementById('c-mis')?.focus(); });
   const ta = root.querySelector('#txt');
   ta.addEventListener('input', () => { S.draft.texto = ta.value; save(); });
-  root.querySelector('#verPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=S.minha; S.pubTab = publicado.categoria==='igreja' ? 'igreja' : 'avisos'; publicado = null; save(); render(); scrollTo(0,0); });
+  root.querySelector('#verPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=ATIVA; S.pubTab = publicado.categoria==='igreja' ? 'igreja' : 'avisos'; publicado = null; save(); render(); scrollTo(0,0); });
   root.querySelectorAll('input[name=tipo]').forEach(r => r.onchange = () => { S.draft.tipo = r.value; S.draft.out = null; S.draft.cardUrl = null; save(); render(); });
   root.querySelectorAll('input[name=escopo]').forEach(r => r.onchange = () => { S.draft.scope = r.value; if (r.value==='community' && !comunidadeDe(S.draft.communityId)) S.draft.communityId = comunidadesAtivas()[0]?.id || null; save(); render(); });
   root.querySelector('#escCom')?.addEventListener('change', e => { S.draft.communityId = e.target.value; save(); });
@@ -1535,15 +1621,13 @@ function eventoCard(e){
     <h3>${esc(e.title)}</h3>
     ${e.description ? `<p>${esc(e.description)}</p>` : ''}
     ${loc ? `<div class="small muted" style="margin-top:6px">📍 ${esc(loc)}</div>` : ''}
-    <div class="acoes"><a class="btn sm" href="${esc(googleAgendaUrl(e))}" target="_blank" rel="noopener">Adicionar ao Google Agenda</a>
-      <button class="btn sm ghost" data-ics="${esc(e.id)}">Adicionar à agenda</button></div>
+    <div class="acoes"><button type="button" class="btn sm" data-agenda-add="${esc(e.id)}">📅 Adicionar à minha agenda</button></div>
   </article>`;
 }
 function bindEventos(root){
-  root.querySelectorAll('[data-ics]').forEach(b => b.onclick = () => {
-    const e = eventosPublicos().find(x => x.id === b.dataset.ics) || rel('events').find(x => x.id === b.dataset.ics);
-    if (e) baixarIcs(e);
-  });
+  const achar = id => eventosPublicos().find(x => x.id === id) || rel('events').find(x => x.id === id);
+  root.querySelectorAll('[data-agenda-add]').forEach(b => b.onclick = () => { const e = achar(b.dataset.agendaAdd); if (e) adicionarAgenda(e); });
+  root.querySelectorAll('[data-ev-ver]').forEach(b => b.onclick = () => { S.evVendo = b.dataset.evVer; S.pubTab = 'evento'; save(); render(); scrollTo(0,0); });
 }
 
 /* avisos por comunidade: avisos antigos, sem scope, valem para toda a paróquia */
@@ -1553,7 +1637,7 @@ function avisoCard(a){
   const ev = a.eventId ? eventosPublicos().find(e => e.id === a.eventId) : null;
   return `<article class="notice"><div class="small muted">${ago(a.ts)}${c ? ` · <span class="chip">${esc(c.name)}</span>` : ''}</div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p>
     ${a.evento ? `<div class="when"><span class="chip gold">${esc(a.evento.quando)}</span>${a.evento.onde ? `<span class="chip">${esc(a.evento.onde)}</span>` : ''}</div>` : ''}
-    ${ev ? `<div class="acoes"><a class="btn sm" href="${esc(googleAgendaUrl(ev))}" target="_blank" rel="noopener">Adicionar ao Google Agenda</a></div>` : ''}</article>`;
+    ${ev ? `<div class="acoes"><button type="button" class="btn sm" data-agenda-add="${esc(ev.id)}">📅 Adicionar à minha agenda</button></div>` : ''}</article>`;
 }
 
 /* painel: lista, criar, editar, cancelar */
@@ -2058,69 +2142,36 @@ function avisosPubHTML(){
   ${outras ? `<p class="small muted" style="margin:0 4px 12px">Há ${outras} aviso${outras===1?'':'s'} de outras comunidades. <button class="link-btn" style="color:var(--lit);padding:0" data-pub="comunidades">Ver comunidades</button></p>` : ''}
   ${contatoBtn()}`;
 }
-let agFiltro = 'todos';
-function agendaPubHTML(){
-  const linhas = S.cfg.missas.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const i=l.indexOf(':'); return i>0?[l.slice(0,i),l.slice(i+1).trim()]:['',l]; });
-  const minha = minhaComunidade(), todos = eventosPublicos();
-  const evs = agFiltro === 'minha' && minha ? todos.filter(e => !e.community_id || e.community_id === minha.id) : todos;
-  const antigos = S.avisos.filter(a => a.evento && !a.eventId).sort((a,b)=>b.ts-a.ts); // eventos que vieram só de avisos (antes da agenda)
-  return `<h2>Agenda da paróquia</h2>
-  ${minha && todos.length ? `<div class="filtros" role="group" aria-label="Quais eventos"><button data-agf="todos" aria-pressed="${agFiltro!=='minha'}">Todos</button><button data-agf="minha" aria-pressed="${agFiltro==='minha'}">Paróquia + ${esc(minha.name)}</button></div>` : ''}
-  ${evs.length ? evs.map(e => eventoCard(e)).join('') : '<div class="empty">Nenhum evento marcado por enquanto.</div>'}
-  ${antigos.length ? `<h2>Também nos avisos</h2><div class="list">${antigos.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : ''}
-  <h2>Horário de missas</h2>${linhas.length ? `<div class="list">${linhas.map(([d,h])=>{ const p = proximaPrimeira(d);
-    return `<div class="row"><div class="grow"><b>${esc(d)}</b>${p?`<div class="small muted">Próxima: ${DIAS[p.getDay()]}, ${pad(p.getDate())}/${pad(p.getMonth()+1)}</div>`:''}</div><span>${esc(h)}</span></div>`; }).join('')}</div>`
-    : `<div class="block"><p style="margin:0 0 10px">Os horários ainda não foram publicados nesta página. Confirme com a secretaria.</p>${contatoBtn()}</div>`}
-  ${comunidadesAtivas().some(c => c.mass_schedule) ? `<p class="small muted" style="margin:0 4px 12px">Horários das comunidades: <button class="link-btn" style="color:var(--lit);padding:0" data-pub="comunidades">ver em Comunidades</button></p>` : ''}
-  ${intencaoFormHTML()}`;
-}
-function bindAgendaPub(root){
-  bindIntencaoForm(root); bindEventos(root);
-  root.querySelectorAll('[data-agf]').forEach(b => b.onclick = () => { agFiltro = b.dataset.agf; render(); });
-}
 const REDE = [{"nome":"Imaculado Coração de Maria","bairro":"","cidade":"","forania":"Nossa Senhora da Paz","end":"Rua Fides, 287","cep":"","tel":"(31) 3425-5828","email":"paroquiaicm@yahoo.com.br","resp":"Pároco: Pe. José Geraldo Lisboa","tipo":"paroquia"},{"nome":"Nossa Senhora da Paz","bairro":"Cachoeirinha","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Cônego Santana, 545","cep":"31130-450","tel":"(31) 3422-1424","email":"senhoradapazbh@gmail.com","resp":"Pároco: Pe. Antônio Moacir Rocha","tipo":"paroquia"},{"nome":"Nossa Senhora do Santíssimo Sacramento","bairro":"Santa Cruz","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Francisco Alevato, 125","cep":"31155-220","tel":"(31) 3317-9177","email":"pnsssmosacramento125@yahoo.com.br","resp":"Pároco: Mons. Raimundo Nonato de Oliveira","tipo":"paroquia"},{"nome":"Santa Inês","bairro":"Ermelinda","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Av. Pinheiros, 1040","cep":"31250-330","tel":"(31) 3428-3079","email":"santaines2015@gmail.com","resp":"Pároco: Pe. Carlos Roberto Cremonezi","tipo":"paroquia"},{"nome":"Senhor Bom Jesus","bairro":"Senhor Bom Jesus","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Praça Senhor Bom Jesus, 15","cep":"31230-620","tel":"(31) 3442-2375","email":"santuariosenhorbomjesus@yahoo.com.br","resp":"Administrador Paroquial: Pe. Marco Túlio Andrade Martins","tipo":"paroquia"},{"nome":"São Cristóvão","bairro":"São Cristóvão","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Praça São Cristóvão, s/nº","cep":"31210-750","tel":"(31) 97222-7160","email":"ps.cristovao@hotmail.com","resp":"Pároco: Pe. Felipe Lemos de Queirós","tipo":"paroquia"},{"nome":"São Lucas","bairro":"Palmares","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Nicolina Pacheco, 255","cep":"31155-680","tel":"(31) 3426-8974","email":"paroquiasaolucasbh@gmail.com","resp":"Pároco: Pe. Wanderley Martins da Cunha","tipo":"paroquia"},{"nome":"São Pio X","bairro":"Santa Cruz","cidade":"Belo Horizonte","forania":"Nossa Senhora da Paz","end":"Rua Ester de Lima, 251","cep":"31155-170","tel":"(31) 3424-2098","email":"paroquiapiox@yahoo.com.br","resp":"","tipo":"paroquia"},{"nome":"Divina Misericórdia e São João Paulo II","bairro":"Céu Azul","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua Maria Vieira Magalhães, 45 - 3271-6888/97249-2841","cep":"31585-240","tel":"","email":"secretaria@dmisericordiasaojoaop2.com","resp":"Pároco: Pe. José Adilson Pontes","tipo":"paroquia"},{"nome":"Jesus de Nazaré","bairro":"Pedra Branca","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Francisco Joaquim Coelho, 59","cep":"33925-140","tel":"(31) 3455-7438","email":"paroquiajnazar@yahoo.com.br","resp":"Pároco: Pe. Pedro Custódio da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora da Piedade","bairro":"Justinópolis","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Praça da Igreja, s/nº","cep":"33900-760","tel":"(31) 3638-1500","email":"paroquiapiedade@hotmail.com","resp":"Pároco: Pe. Fernando Geraldo da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora de Guadalupe","bairro":"Céu Azul","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua Maria Gertrudes Santos, 23","cep":"31578-300","tel":"(31) 3496-3924","email":"pnsguadalupeceuazul@gmail.com -","resp":"Pároco: Pe. Mário Lúcio Fernandes da Silva","tipo":"paroquia"},{"nome":"Sagrada Família","bairro":"Areias","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Praça Nossa Senhora de Santana, s/nº","cep":"33920-030","tel":"(31) 3632-5936","email":"paroquiasfrneves@gmail.com","resp":"Pároco: Frei Jaime Eduardo Ribeiro, OFM","tipo":"paroquia"},{"nome":"Santo Inácio de Loyola e São Judas Tadeu","bairro":"Maria Helena","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Santo Inácio de Loyola, 376","cep":"33930-460","tel":"(31) 3456-8103","email":"santoinacioesaojudas@hotmail.com","resp":"Pároco: Pe. Roberto Rubens da Silva","tipo":"paroquia"},{"nome":"Santíssimo Sacramento","bairro":"Justinópolis/Botafogo II","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Av. Paquetá, s/n","cep":"33902-390","tel":"(31) 3638-3041","email":"pssmosacramento@outlook.com","resp":"Pároco: Pe. Paulo César da Silva","tipo":"paroquia"},{"nome":"São Gaspar Bertoni","bairro":"Lagoa","cidade":"Belo Horizonte","forania":"Nossa Senhora da Piedade","end":"Rua José Sabino Maciel, 15","cep":"31578-060","tel":"(31) 3456-4810","email":"gasparbertonibh@gmail.com","resp":"Pároco: Pe. Josemar Oliveira Novais, CSS","tipo":"paroquia"},{"nome":"São José","bairro":"Justinópolis/São José","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Visconde do Rio Branco, 140","cep":"33935-210","tel":"(31) 99065-9597","email":"paroquiasaojose230@hotmail.com","resp":"Pároco: Pe. Ricardo Henrique de Oliveira","tipo":"paroquia"},{"nome":"São João Batista","bairro":"São João de Deus","cidade":"Ribeirão das Neves","forania":"Nossa Senhora da Piedade","end":"Rua Monte Carlo, 87","cep":"33943-290","tel":"(31) 3191-4917","email":"paroquiasjbatista2015@gmail.com","resp":"Pároco: Pe. Gerard Joseph Ferreira","tipo":"paroquia"},{"nome":"Nossa Senhora da Conceição","bairro":"Centro","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Praça Francisco Viana, 26","cep":"33600-000","tel":"(31) 3661-3241","email":"pnsraconceicao@gmail.com","resp":"Administrador Paroquial: Pe. Vanderlan Gomes da Paz,","tipo":"paroquia"},{"nome":"Nossa Senhora das Graças","bairro":"Santos Dumont","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Nossa Senhora das Graças, 230","cep":"33400-000","tel":"(31) 3681-5203","email":"pnsradasgracas84@gmail.com","resp":"Pároco: Pe. Ronaldo Teixeira Brito","tipo":"paroquia"},{"nome":"Rainha dos Mártires","bairro":"Vargem do Lobo/ Newton Pinto Alves","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Av. Moacir Fernandes Afonso. 240","cep":"33239-018","tel":"","email":"","resp":"Administrador Pastoral: Pe. Dênis de Oliveira","tipo":"area"},{"nome":"Santo Antônio","bairro":"Lagoa de Sto. Antônio","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Praça José dos Anjos Silva, s/nº","cep":"33600-000","tel":"(31) 3661-3113","email":"paroquiasantoantoniopl@gmail.com","resp":"Administrador Paroquial: Pe. Ângelo Márcio de Paula","tipo":"paroquia"},{"nome":"Santuário Arquidiocesano Nossa Senhora da Saúde","bairro":"Centro","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Praça Dr. Lund, 160","cep":"33230-076","tel":"(31) 3681-1510","email":"pnsrasaude@gmail.com","resp":"Reitor: Pe. Ednei Almeida Costa","tipo":"santuario"},{"nome":"São José","bairro":"Centro","cidade":"Confins","forania":"Nossa Senhora da Saúde","end":"Rua São José, 721","cep":"33500-000","tel":"(31) 3665-4655","email":"paroquiasaojosedeconfins@gmail.com","resp":"Pároco: Pe. José Genildo Bezerra da Silva","tipo":"paroquia"},{"nome":"São Paulo Missionário","bairro":"Vila Maria","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Joana Fernandes Afonso,85","cep":"33400-000","tel":"(31) 3687-2049","email":"paroquiasaopaulomissionario@gmail.com","resp":"Pároco: Pe. Luís Gustavo de Oliveira","tipo":"paroquia"},{"nome":"São Sebastião","bairro":"Centro","cidade":"Pedro Leopoldo","forania":"Nossa Senhora da Saúde","end":"Rua Comendador Antônio Alves, 1426","cep":"33600-000","tel":"(31) 3661-1148","email":"p.ssebastiaopl@hotmail.com","resp":"Pároco: Pe. Tadeu Oliveira Santos Pôrto","tipo":"paroquia"},{"nome":"São Sebastião","bairro":"Várzea","cidade":"Lagoa Santa","forania":"Nossa Senhora da Saúde","end":"Rua Melo Viana, 492","cep":"33400-000","tel":"(31) 3681-0664","email":"pssebastiaols@hotmail.com","resp":"Pároco: Pe. Robson Fernando Reis","tipo":"paroquia"},{"nome":"Nossa Senhora da Conceição Aparecida","bairro":"Conj. Liberdade","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Av. E, nº 825","cep":"33822-850","tel":"(31) 99500-6065","email":"panscarneves@gmail.com","resp":"Pároco: Paulo Bastos de Araújo, CCVE","tipo":"paroquia"},{"nome":"Nossa Senhora das Neves","bairro":"Centro","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Etelvina Maria de Souza, 5","cep":"33805-030","tel":"(31) 3625-0495","email":"paroquiadeneves@gmail.com","resp":"Pároco: Pe. Eribaldo Pereira Santos","tipo":"paroquia"},{"nome":"Nossa Senhora das Vitórias e Santo Antônio","bairro":"Sevilha B","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Araçuaí, 82","cep":"33840-650","tel":"(31) 99303-6981","email":"paroquiavitoriaeantonio@gmail.com","resp":"Pároco: Pe. João Paulo Ponciano de Farias","tipo":"paroquia"},{"nome":"Nossa Senhora do Rosário","bairro":"Santa Martinha","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Coletor José Lago,357","cep":"33860-560","tel":"(31) 3624-2882","email":"pnossasenhoradorosario@yahoo.com","resp":"Administrador Paroquial: Pe. Rafael Rosário Pinto dos","tipo":"paroquia"},{"nome":"Sagrada Família de Nazaré","bairro":"Sevilha A","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua Moacir Menezes, 2250","cep":"33855-180","tel":"(31) 98956-8304","email":"paroquiasagradafamiliadenazare@gmail.com","resp":"Pároco: Pe. Jorge Paulo Ponciano de Farias","tipo":"paroquia"},{"nome":"São Francisco de Assis","bairro":"Veneza","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Rua São Francisco de Assis, 988","cep":"33820-120","tel":"(31) 3625-2087","email":"saofranciscoveneza@hotmail.com","resp":"Pároco: Pe. Jaciel Dias de Andrade, CR","tipo":"paroquia"},{"nome":"São Judas Tadeu","bairro":"San Genaro","cidade":"Ribeirão das Neves","forania":"Nossa Senhora das Neves","end":"Av. Ruth Brandão Azevedo,1407","cep":"33825-362","tel":"(31) 97149-3572","email":"saojudastadeuneves@yahoo.com.br","resp":"Pároco: Pe. Antônio Carlos Ferreira de Souza","tipo":"paroquia"},{"nome":"Cristo Rei","bairro":"Bom Sucesso","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Av. B, 120","cep":"33200-000","tel":"(31) 3453-7248","email":"","resp":"Pároco: Pe. Reinaldo Alves de Freitas","tipo":"paroquia"},{"nome":"Espírito Santo Consolador","bairro":"Jardim Encantado","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua João Cataldo Pinto,260","cep":"33200-000","tel":"(31) 3621-3386","email":"pesc.vespasiano@gmail.com","resp":"Pároco: Pe. Márcio Antônio da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Morro Alto","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua H, nº 167","cep":"33200-000","tel":"(31) 3621-7013","email":"paroquiasenhoraaparecida@outlook.com","resp":"Pároco: Pe. Luiz Antônio Maciel, SM","tipo":"paroquia"},{"nome":"Nossa Senhora de Lourdes","bairro":"Lourdes","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Praça Professora Júlia Chalita, 64","cep":"33200-000","tel":"(31) 3621-1583","email":"contato@nslourdes.com.br","resp":"Pároco: Pe. Lauro Elias de Oliveira","tipo":"paroquia"},{"nome":"São José","bairro":"Jardim da Glória","cidade":"Vespasiano","forania":"Nossa Senhora de Lourdes","end":"Rua Nilo Peçanha, 905","cep":"33200-000","tel":"(31) 3621-5938","email":"matrizdesaojose@gmail.com","resp":"Pároco: Pe. Marcelino de Sousa Santos, INJ","tipo":"paroquia"},{"nome":"São José","bairro":"Centro","cidade":"São José da Lapa","forania":"Nossa Senhora de Lourdes","end":"Praça Vereador Dumas Chalita, s/nº","cep":"33350-000","tel":"(31) 3623-1497","email":"paroquiasaojosedalapa@arquidiocesebh.org.br","resp":"Párocos Solidários: Pe. Adilson Gomes Máximo","tipo":"paroquia"},{"nome":"Bom Jesus e Nossa Senhora Aparecida","bairro":"Bom Jesus","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Praça Joaquim Tibúrcio Henriques, 20","cep":"33015-450","tel":"(31) 99895-5957","email":"pbjnsa@gmail.com","resp":"","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Bom Destino","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua das Palmeiras, nº 370","cep":"33060-070","tel":"(31) 3691-2741","email":"paroquiansa.83@gmail.com","resp":"Administrador Paroquial: Pe. Lucas Henrique Aguiar","tipo":"paroquia"},{"nome":"Santa Teresinha do Menino Jesus","bairro":"Baronesa","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua Alemanha, 219","cep":"33115-300","tel":"(31) 3636-3417","email":"pstmeninojesus@yahoo.com.br","resp":"Pároco: Pe. Cláudio José da Silva","tipo":"paroquia"},{"nome":"Santíssima Trindade","bairro":"Conjunto Cristina","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Av. Antônio de Pinho Tavares, 397","cep":"33145-160","tel":"(31) 98490-8038","email":"parsantri@yahoo.com.br","resp":"Pároco: Pe. Carlos Miguel de Brum Lopes, SJ","tipo":"paroquia"},{"nome":"São Benedito","bairro":"São Benedito","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua Pará de Minas, 871","cep":"33120-530","tel":"(31) 3637-1236","email":"paroquiasaobeneditosantaluzia@gmail.com","resp":"Pároco: Pe. Nelson Severino de Souza","tipo":"paroquia"},{"nome":"São João Batista","bairro":"São João Batista","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Praça São João Batista, 120","cep":"33030-790","tel":"(31) 3641-1684","email":"paroq.saojoao@hotmail.com","resp":"Párocos Solidários: Pe. Marcos Antônio Gomes","tipo":"paroquia"},{"nome":"São Raimundo Nonato","bairro":"São Benedito/Asteca","cidade":"Santa Luzia","forania":"Santa Luzia","end":"Rua São Geraldo, 602","cep":"33120-150","tel":"(31) 3637-6484","email":"paroquiasaoraimundononato@yahoo.com.br","resp":"Pároco: Pe. João Francisco de Lucena","tipo":"paroquia"},{"nome":"Cristo Operário","bairro":"Planalto","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Prof. Tristão da Cunha, 103","cep":"31720-520","tel":"(31) 3494-1444","email":"paroquiacristooperario@hotmail.com","resp":"Pároco: Pe. Antônio Marcos Monteiro","tipo":"paroquia"},{"nome":"Nossa Senhora da Divina Providência","bairro":"","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Av. Exp. Benvindo Belém de Lima, 1038","cep":"","tel":"(31) 3047-1332","email":"nsdivinaprovidencia@gmail.com","resp":"Pároco: Pe. Geraldo Dionízio Bazílio, FDP","tipo":"paroquia"},{"nome":"Nossa Senhora da Misericórdia","bairro":"Planalto","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Nilo Aparecida Pinto, 341","cep":"31720-100","tel":"(31) 3495-4511","email":"secretaria@paroquiansm.com.br","resp":"Administrador Paroquial: Pe. Geovani Antônio Dias, MI","tipo":"paroquia"},{"nome":"Nossa Senhora do Belo Ramo","bairro":"Jaqueline","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Senhora do Belo Ramo,26","cep":"31748-143","tel":"(31) 3454-2519","email":"nossasenhoradobeloramo@gmail.com","resp":"Pároco: Pe. José Geraldo de Souza","tipo":"paroquia"},{"nome":"Santa Catarina Labouré","bairro":"Dona Clara","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Praça Santa Catarina Labouré, s/nº","cep":"31260-220","tel":"(31) 3491-9824","email":"paroquiascl@yahoo.com","resp":"Pároco: Pe. José Antônio Pereira das Neves","tipo":"paroquia"},{"nome":"Santo Antônio","bairro":"Jaraguá","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Praça Santo Antônio, 2","cep":"31270-860","tel":"(31) 3427-2866","email":"santoantoniopampulha@yahoo.com.br","resp":"Pároco: Pe. Antônio Roberto de Oliveira Fernandes","tipo":"paroquia"},{"nome":"Santos Pastorinhos Francisco e Jacinta Marto","bairro":"Etelvina Carneiro","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Lírios do Campo, 700","cep":"31746-120","tel":"(31) 3454-5841","email":"pfjmarto@hotmail.com","resp":"Pároco: Pe. Jorge Antônio de Castro","tipo":"paroquia"},{"nome":"Santuário Arquidiocesano São Francisco de Assis","bairro":"São Luiz/Pampulha","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Av. Dr. Otacílio Negrão de Lima, 3000","cep":"31365-450","tel":"(31) 98876-3047","email":"","resp":"Reitor: Pe. Gladstone Elias de Souza","tipo":"santuario"},{"nome":"São Bernardo","bairro":"São Bernardo","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Cecília Pinto, 95","cep":"31741-310","tel":"(31) 3494-6035","email":"paroquiasaobernardo@yahoo.com.br","resp":"Pároco: Pe. Antônio Carlos Canuto de Melo, SDN","tipo":"paroquia"},{"nome":"São Francisco de Assis","bairro":"São Francisco","cidade":"Belo Horizonte","forania":"Santo Antônio (Pampulha)","end":"Rua Pe. Leopoldo Mertens, 1121","cep":"31255-200","tel":"(31) 3441-1198","email":"psfa1959@gmail.com","resp":"Pároco: Pe. Rogério Eustáquio Fernandes","tipo":"paroquia"},{"nome":"Imaculado Coração de Maria e Santo Antônio","bairro":"São João Batista/Venda Nova","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Desembargador Onofre Mendes Júnior, 10","cep":"31535-510","tel":"(31) 3452-4645","email":"picmasa7@yahoo.com.br","resp":"Pároco: Pe. Carlos Roberto Costa","tipo":"paroquia"},{"nome":"Nossa Senhora Aparecida","bairro":"Mantiqueira","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Praça Manoel Batista Baia, 22","cep":"31660-190","tel":"(31) 3450-4955","email":"paroquiansa@yahoo.com.br","resp":"Pároco: Pe. Francisco Fernandes de Oliveira","tipo":"paroquia"},{"nome":"Nossa Senhora de Fátima e São Miguel","bairro":"Rio Branco","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Comendador Artur Viana, 405","cep":"31530-550","tel":"(31) 3450-8219","email":"paroquiansfsm@hotmail.com","resp":"Pároco: Pe. Eloísio Vieira da Silva","tipo":"paroquia"},{"nome":"Nossa Senhora do Sagrado Coração","bairro":"Santa Branca","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Marcos Lopes de Almeida, 70","cep":"31565-020","tel":"(31) 3441-1185","email":"","resp":"Pároco: Pe. Antônio Francisco da Silva","tipo":"paroquia"},{"nome":"Santa Cecília","bairro":"Jardim Europa","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Dresde, 37","cep":"31620-170","tel":"(31) 3453-6262","email":"paroquia@paroquiasantacecilia.org","resp":"Pároco: Frei Fábio Soares da Silva, OFMConv","tipo":"paroquia"},{"nome":"Santa Mônica","bairro":"Santa Mônica","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Dorival Machado, 420","cep":"31525-150","tel":"(31) 3452-3405","email":"snt.monica.bh@gmail.com","resp":"Pároco: Pe. Rubens Sérgio Nascimento de Araújo","tipo":"paroquia"},{"nome":"Santo Antônio","bairro":"Venda Nova","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua da Matriz, 27","cep":"31515-020","tel":"(31) 3457-4684","email":"santoantoniovendanova@gmail.com","resp":"Párocos Solidários: Pe. Célio Silva Diniz","tipo":"paroquia"},{"nome":"São Geraldo","bairro":"Piratininga","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Pedra de Anil, 118","cep":"31570-610","tel":"(31) 3453-2421","email":"psaogeraldo@yahoo.com.br","resp":"Pároco: Pe. João Evangelista Sobrinho","tipo":"paroquia"},{"nome":"São Sebastião e Santa Edwiges","bairro":"Minas Caixa","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Capitão Sérgio Pires, 171","cep":"31615-640","tel":"(31) 3451-4938","email":"saosebastiaoesantaedwiges@hotmail.com","resp":"Pároco: Pe. José Haroldo Corrêa Pinto","tipo":"paroquia"},{"nome":"São Sebastião e São Vicente","bairro":"Santa Amélia","cidade":"Belo Horizonte","forania":"Santo Antônio (Venda Nova)","end":"Rua Joaquim Raimundo Braga, 117","cep":"31555-380","tel":"(31) 2127-4871","email":"sec.sebastiao@psssv.org","resp":"Administrador Paroquial: Pe. Higo Dias de Oliveira","tipo":"paroquia"},{"nome":"Nossa Senhora da Anunciação","bairro":"São Gabriel","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Cabedelo, 15","cep":"31980-500","tel":"(31) 3493-3033","email":"pnsanunciacao@hotmail.com","resp":"Pároco: Pe. Filipe Silva Pereira Gouvêa","tipo":"paroquia"},{"nome":"Nossa Senhora da Paz","bairro":"Guarani","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Aniry, 94","cep":"31840-170","tel":"(31) 3433-0476","email":"pnspaz@hotmail.com","resp":"Pároco: Pe. Francisco Esteves Pimenta","tipo":"paroquia"},{"nome":"Pai Misericordioso","bairro":"Paulo VI","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Cana Caiana, 48","cep":"31995-270","tel":"(31) 3435-6699","email":"paroquiapaimisericordioso@hotmail.com","resp":"Pároco: Pe. Gentil José Soares da Silva, CM","tipo":"paroquia"},{"nome":"Santa Maria de Nazaré","bairro":"Nazaré","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Diógenes, 640","cep":"31990-210","tel":"(31) 3434-3109","email":"paroquiasantamariadenazare@hotmail.com","resp":"Pároco: Pe. Glayson Dias dos Santos","tipo":"paroquia"},{"nome":"São Domingos","bairro":"Conjunto Ribeiro de Abreu","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Serra da Boa Esperança, 91","cep":"31872-310","tel":"(31) 3434-1418","email":"paroquiasaodomingosbh@gmail.com","resp":"Pároco: Pe. Cícero Machado Ribeiro, MSC","tipo":"paroquia"},{"nome":"São Francisco Xavier","bairro":"Tupi","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua José Lins do Rego, 444","cep":"31842-350","tel":"(31) 3309-9677","email":"comunicacao@psfx.org.br","resp":"","tipo":"paroquia"},{"nome":"São José Operário","bairro":"Aarão Reis","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Oliveira Fortes, 25","cep":"31814-320","tel":"(31) 3445-2777","email":"saojoseo@yahoo.com","resp":"Pároco: Pe. Marco Antônio Gonçalves Porto","tipo":"paroquia"},{"nome":"Todos os Santos","bairro":"Providência","cidade":"Belo Horizonte","forania":"São José Operário","end":"Rua Madre dos Anjos, 29","cep":"31814-030","tel":"(31) 3433-4759","email":"patosan@bol.com.br","resp":"Pároco: Pe. Carlos Antônio Vilela Mota","tipo":"paroquia"},{"nome":"Cristo Crucificado","bairro":"Goiânia","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Maria da Conceição Bonfim, 351","cep":"31950-540","tel":"(31) 3432-7179","email":"pxtoc@hotmail.com","resp":"Pároco: Pe. André de Souza, CRSP","tipo":"paroquia"},{"nome":"Maria, Mãe do Senhor","bairro":"Nossa Senhora de Fátima","cidade":"Sabará","forania":"São Paulo Apóstolo","end":"Rua Cláudio, 414","cep":"34600-380","tel":"(31) 3673-2792","email":"pmm.senhor@yahoo.com.br","resp":"Administrador Paroquial: Pe. Cleber Brito Santos","tipo":"paroquia"},{"nome":"Nossa Senhora das Vitórias","bairro":"Jardim Vitória","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua José de Lima Géo, 85","cep":"31970-300","tel":"(31) 3493-3232","email":"paroquianossasenhoradasvitorias@yahoo.com.br","resp":"Pároco: Pe. Ricardo Barbosa Corrêa","tipo":"paroquia"},{"nome":"Santa Maria, Mãe de Deus","bairro":"União","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Francisca Leão Corrêa, 47","cep":"31170-450","tel":"(31) 3486-7719","email":"santamariamaededeus@arquidiocesebh.org.br","resp":"Pároco: Pe Edecildo José Antônio Prado da Silva","tipo":"paroquia"},{"nome":"São Marcos","bairro":"São Marcos","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Edson Luis de Miranda, 119","cep":"31910-400","tel":"(31) 3432-1080","email":"paroquiasaomarcos2@gmail.com","resp":"","tipo":"paroquia"},{"nome":"São Paulo Apóstolo","bairro":"São Paulo","cidade":"Belo Horizonte","forania":"São Paulo Apóstolo","end":"Rua Angola, 271","cep":"31910-060","tel":"(31) 3432-1280","email":"paroquiasp2020@gmail.com","resp":"Pároco: Pe. Guilherme do Carmo Neto","tipo":"paroquia"}];
 const telLink = t => 'tel:+55'+(digits(t).length<=9 ? '31'+digits(t) : digits(t));
 function contatoBtn(){
   const c = S.cfg, msg = 'Olá! Vim pela página da '+c.nome+'.';
+  if (!c.whats && !c.telefone) return '';
   return c.whats ? `<a class="btn wa block-w" href="${waLink(c.whats,msg)}" target="_blank" rel="noopener">Falar com a secretaria no WhatsApp</a>`
                  : `<a class="btn block-w" href="${telLink(c.telefone)}">Ligar para a secretaria ${esc(c.telefone)}</a>`;
 }
-let buscaRede = '';
-function redeItem(r){
-  const ativa = keyOf(r)===ATIVA;
-  return `<div class="row" style="align-items:flex-start"><div class="grow"><button class="link-btn" style="color:var(--ink);font-weight:700;font-size:1rem;padding:0;text-align:left" data-pick="${esc(keyOf(r))}">${esc(r.nome)} ›</button>${r.bairro?` <span class="muted">(${esc(r.bairro)})</span>`:''}
-    <div class="small muted">${esc(r.end)}${r.cidade?`, ${esc(r.cidade)}`:''}</div>
-    ${r.resp?`<div class="small muted">${esc(r.resp)}</div>`:''}
-    <div class="tagline" style="margin-top:4px">${ativa?'<span class="chip">✓ Página ativa</span>':'<span class="chip gold">Página ainda não ativada</span>'}${r.tipo==='santuario'?'<span class="chip">Santuário</span>':''}${r.tipo==='area'?'<span class="chip">Área pastoral</span>':''}</div></div>
-    ${r.tel?`<a class="btn sm ghost" href="${telLink(r.tel)}" aria-label="Ligar para ${esc(r.nome)}">Ligar</a>`:''}</div>`;
-}
 function contatoPubHTML(){
   const c = S.cfg;
-  const irmas = REDE.filter(r => r.forania===c.forania && !(r.nome==='Santo Antônio' && r.bairro==='Jaraguá'));
-  const q = buscaRede.trim().toLowerCase();
-  const reg = REDE.filter(r => !q || (r.nome+' '+r.bairro+' '+r.cidade+' '+r.forania).toLowerCase().includes(q));
-  const porFor = {}; reg.forEach(r => (porFor[r.forania] ||= []).push(r));
-  return `<h2>${esc(c.nome)}</h2>
+  if (!DIR.vizinhas && c.forania){
+    DIR.vizinhas = [];
+    buscarDiretorio(c.forania).then(l => { DIR.vizinhas = l.filter(x => x.forania === c.forania && x.tenant_slug !== TENANT && x.slug !== 'rede:' + PILOTO_REDE); if (S.mode === 'publico' && S.pubTab === 'contato') renderSeguro(); }).catch(() => {});
+  }
+  const dados = [c.telefone ? 'Telefone ' + esc(c.telefone) : '', c.email ? `E-mail <a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''].filter(Boolean).join('<br>');
+  return `<h2>${esc(c.nome || 'Paróquia')}</h2>
   <div class="block">
-    <p style="margin:0 0 6px">${esc(c.endereco)}</p>
-    <p class="small" style="margin:0">Telefone ${esc(c.telefone)}${c.email?`<br>E-mail <a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}</p>
-    ${c.paroco?`<p class="small" style="margin:8px 0 0">Pároco: <b>${esc(c.paroco)}</b></p>`:''}
-    <p class="small muted" style="margin:8px 0 0">Forania ${esc(c.forania)}<br>${esc(c.regiao)}<br>Arquidiocese de Belo Horizonte</p>
+    ${c.endereco ? `<p style="margin:0 0 6px">${esc(c.endereco)}</p>` : ''}${dados ? `<p class="small" style="margin:0">${dados}</p>` : ''}${!c.endereco && !dados ? `<p style="margin:0">${PREPARANDO}</p>` : ''}
+    ${c.paroco ? `<p class="small" style="margin:8px 0 0">Pároco: <b>${esc(c.paroco)}</b></p>` : ''}
+    <p class="small muted" style="margin:8px 0 0">${[c.forania ? 'Forania ' + esc(c.forania) : '', esc(c.regiao || ''), 'Arquidiocese de Belo Horizonte'].filter(Boolean).join('<br>')}</p>
   </div>
   <h2>Secretaria paroquial</h2>
-  ${c.secretaria?`<div class="block"><p style="margin:0;white-space:pre-line">${esc(c.secretaria)}</p></div>`:''}
+  <div class="block"><p style="margin:0;white-space:pre-line">${c.secretaria ? esc(c.secretaria) : PREPARANDO}</p></div>
   ${contatoBtn()}
   ${window.S24 ? S24.botaoParoquiaHTML() : ''}
   ${minhaBtn()}
   ${ctaDizimistaHTML()}
   <p class="small muted" style="margin:14px 4px">Batismo, casamento, certidões e intenções de missa: fale com a secretaria.</p>
-  <h2>Forania ${esc(c.forania)}</h2>
-  <p class="lead small">Paróquias vizinhas da mesma forania.</p>
-  <div class="list">${irmas.map(redeItem).join('')}</div>
-  <h2>Região Episcopal</h2>
-  <p class="lead small">${REDE.length} paróquias e santuários da ${esc(c.regiao)}, conforme o Catálogo 2026 da Arquidiocese.</p>
-  <input type="text" id="buscaRede" placeholder="Buscar por nome, bairro ou cidade" aria-label="Buscar paróquia" value="${esc(buscaRede)}" style="margin-bottom:10px">
-  ${Object.keys(porFor).sort().map(f => `<details class="fold" ${q?'open':''}><summary>Forania ${esc(f)} (${porFor[f].length})</summary><div class="list" style="margin:0 12px 12px">${porFor[f].map(redeItem).join('')}</div></details>`).join('') || '<div class="empty">Nenhuma paróquia encontrada.</div>'}`;
+  ${DIR.vizinhas?.length ? `<h2>Forania ${esc(c.forania)}</h2><p class="lead small">Paróquias vizinhas da mesma forania.</p><div class="list">${DIR.vizinhas.slice(0, 20).map(linhaDir).join('')}</div>` : ''}
+  <button class="btn ghost block-w" data-pub="escolher" style="margin-top:10px">🔎 Encontre outra paróquia</button>`;
 }
 
 
@@ -2347,7 +2398,7 @@ function rezaHTML(){
 }
 function bindRezar(root){
   root.querySelectorAll('[data-rezar]').forEach(b => b.onclick = () => { reza = {k:b.dataset.rezar, passo:0, conta:0, misterios:null}; S.pubTab = 'rezar'; render(); scrollTo(0,0); });
-  root.querySelector('#rzVela')?.addEventListener('click', () => { velaStep = 'form'; render(); scrollTo(0,0); });
+  root.querySelector('#rzVela')?.addEventListener('click', () => { S.pubTab = 'velas'; velaStep = 'inicio'; save(); render(); scrollTo(0,0); });
   root.querySelectorAll('[data-mist]').forEach(b => b.onclick = () => { reza.misterios = b.dataset.mist; render(); });
   root.querySelector('#rzConta')?.addEventListener('click', e => { // só atualiza o contador, sem redesenhar a tela
     const c = oracaoGuiada(reza.k).passos[reza.passo].contador;
@@ -2360,37 +2411,6 @@ function bindRezar(root){
     if (reza.passo >= oracaoGuiada(reza.k).passos.length - 1){ reza = {k:null, passo:0, conta:0, misterios:null}; S.pubTab = 'igreja'; render(); scrollTo(0,0); toast('Deus te abençoe! 🙏'); return; }
     reza.passo++; reza.conta = 0; render(); scrollTo(0,0);
   });
-}
-function igrejaPubHTML(){
-  if (velaStep === 'form') return velaHTML();
-  const hoje = new Date(), t = tempoLiturgico(hoje), festa = festaDoDia(hoje), ativa = vendoAtiva();
-  const evs = ativa ? eventosHome() : [];
-  return (velaStep === 'acesa' ? velaHTML() : '') + `<section class="hoje">
-    <div class="par">${esc(nomeVendo())}</div>
-    <h2>Hoje na Igreja</h2>
-    <div class="data">${cap(DIAS[hoje.getDay()])}, ${hoje.getDate()} de ${MESES[hoje.getMonth()]}</div>
-    <div class="tempo"><span class="cor-dot" style="background:${COR[t.cor]}" aria-hidden="true"></span>${t.nome} · Cor litúrgica: ${t.cor}</div>
-    ${festa ? `<div class="festa">${esc(festa)}</div>` : ''}
-  </section>
-  ${liturgiaHTML(t, festa)}
-  ${rezarGridHTML()}
-  ${ativa ? missaHTML() : ''}
-  ${ativa && window.S24 ? S24.cardHomeHTML() : ''}
-  ${evs.length ? `<h2>${evs.length > 1 ? 'Próximos eventos' : 'Próximo evento'}</h2>${evs.map(e => eventoCard(e)).join('')}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver Agenda</button>` : ''}
-  ${ativa ? minhaComunidadeHTML() : ''}
-  ${ctaDizimistaHTML()}
-  <h2>Notícias da Igreja</h2>
-  ${noticiasParoquiaHTML(2)}
-  ${noticiasArquidioceseHTML(3)}
-  <button class="btn ghost block-w" data-pub="noticias" style="margin-bottom:10px">Ver todas as notícias</button>
-  ${assistirResumoHTML()}
-  ${calendarioHTML()}`;
-}
-function bindIgreja(root){
-  bindVela(root); bindEventos(root); bindRezar(root); carregarNoticias(); carregarLiturgia();
-  root.querySelectorAll('[data-com]').forEach(b => b.onclick = () => { S.comVendo = b.dataset.com; S.pubTab = 'comunidade'; save(); render(); scrollTo(0,0); });
-  root.querySelector('#homeCom')?.addEventListener('change', e => { if (!e.target.value) return; S.minhaCom = e.target.value; save(); render(); toast('Agora esta é a sua comunidade'); });
-  root.querySelector('#homeTrocar')?.addEventListener('click', () => { S.minhaCom = null; save(); render(); document.getElementById('homeCom')?.focus(); });
 }
 function noticiasPubHTML(){
   return `<button class="crumb" data-pub="igreja">‹ Igreja</button><h2 style="margin-top:4px">Notícias da Igreja</h2>${noticiasParoquiaHTML(50)}${noticiasArquidioceseHTML()}`;
@@ -2405,7 +2425,9 @@ function noticiasPubHTML(){
 const ARQ_SITE = 'https://arquidiocesebh.org.br/noticias/';
 const NOTICIAS_API = CONF.noticiasApi || (location.protocol === 'file:' || /\.github\.io$/.test(location.hostname) ? '' : '/api/noticias');
 const NOTICIAS_ESPELHO = CONF.noticiasEspelho || 'https://raw.githubusercontent.com/Diegolacerda2020/catholic-hub/dados/noticias.json';
-const NOTICIAS_OFICIAL = CONF.noticiasOficial ?? 'https://arquidiocesebh.org.br/wp-json/wp/v2/noticias?per_page=20';
+// O portal devolve o cabeçalho CORS com a origem de quem pediu e guarda isso em cache: sem a origem na URL,
+// uma resposta guardada para outro site bloquearia a nossa. Com "cp=<nosso host>", cada site tem a sua entrada.
+const NOTICIAS_OFICIAL = CONF.noticiasOficial ?? ('https://arquidiocesebh.org.br/wp-json/wp/v2/noticias?per_page=20&cp=' + encodeURIComponent(location.host || 'app'));
 const NOTICIAS_KEY = 'central-paroquial-noticias';
 let NOTICIAS = {estado:'inicial', dados:null, em:0, meta:null};
 const linkArq = u => { try { const x = new URL(u); return x.origin === 'https://arquidiocesebh.org.br' ? x.href : ''; } catch(e){ return ''; } };
@@ -2431,7 +2453,7 @@ async function carregarNoticias(){
   const tentativas = [];
   let dados = null;
   if (NOTICIAS_API){ try { dados = ok(await lerJson(NOTICIAS_API)); } catch(e){ tentativas.push('api: ' + e.message); } }
-  if (!dados || String(dados.fonte).startsWith('espelho') || idadeMin(dados) > 120){
+  if (NOTICIAS_OFICIAL && (!dados || String(dados.fonte).startsWith('espelho') || idadeMin(dados) > 120)){
     try { const d = await noticiasOficiais(); if (!dados || maisNova(d) >= maisNova(dados)) dados = d; } catch(e){ tentativas.push('oficial: ' + e.message); }
   }
   if (!dados && NOTICIAS_ESPELHO){ try { dados = ok(await lerJson(NOTICIAS_ESPELHO)); if (dados) dados.fonte = 'espelho:' + (dados.fonte || ''); } catch(e){ tentativas.push('espelho: ' + e.message); } }
@@ -2635,7 +2657,7 @@ function bindIntencoes(root){
 const PARA_VELA = {mim:'Por mim', alguem:'Por alguém', almas:'Pelas almas que não têm quem reze por elas', gracas:'Em ação de graças'};
 const ORACAO_VELA = {
   mim:'Senhor, acolhe o meu pedido e ilumina o meu caminho. Que esta pequena luz seja sinal da minha confiança em Ti. Amém.',
-  alguem:'Senhor, apresento-Te quem eu amo. Cuida, protege e abençoa com a Tua luz. Santo Antônio, intercedei. Amém.',
+  alguem:'Senhor, apresento-Te quem eu amo. Cuida, protege e abençoa com a Tua luz. {padroeiro}Amém.',
   almas:'Dai-lhes, Senhor, o descanso eterno, e brilhe para elas a Vossa luz. Descansem em paz. Amém.',
   gracas:'Obrigado, Senhor, por tudo o que recebi. Que esta luz seja o meu louvor e a minha gratidão. Amém.'
 };
@@ -2664,7 +2686,7 @@ function velaHTML(){
     const alvo = velaUlt.para==='alguem' && velaUlt.por ? ` por ${esc(velaUlt.por)}` : velaUlt.para==='almas' ? ' pelas almas' : velaUlt.para==='gracas' ? ' em ação de graças' : '';
     return `<div class="vela-hero" role="status">${candle(true)}<h3>Sua vela está acesa${alvo}</h3>
       <p class="small">Ficará acesa até ${DIAS[ate.getDay()]}, às ${pad(ate.getHours())}h${pad(ate.getMinutes())}.</p>
-      <p class="prayer">${ORACAO_VELA[velaUlt.para]}</p>
+      <p class="prayer">${esc(ORACAO_VELA[velaUlt.para].replace('{padroeiro}', S.cfg.padroeiro ? S.cfg.padroeiro + ', intercedei. ' : ''))}</p>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
         <a class="btn wa" href="${waShare('Acendi uma vela na página da '+c.nome+'. Acenda você também e reze comigo. 🕯️')}" target="_blank" rel="noopener">Convidar alguém</a>
         <button class="btn ghost" style="color:#F4EEDF;border-color:#F4EEDF" id="velaNova">Acender outra</button></div></div>`;
@@ -2675,7 +2697,7 @@ function velaHTML(){
     <button class="btn gold" id="velaIr">Acender uma vela</button></div>`;
 }
 function bindVela(root){
-  root.querySelector('#velaIr')?.addEventListener('click', () => { velaStep='form'; render(); document.getElementById('view').scrollIntoView(); });
+  root.querySelector('#velaIr')?.addEventListener('click', () => { velaStep='form'; render(); scrollTo(0,0); });
   root.querySelector('#velaVoltar')?.addEventListener('click', () => { velaStep='inicio'; render(); });
   root.querySelector('#velaNova')?.addEventListener('click', () => { velaStep='form'; render(); });
   root.querySelector('#copyPix')?.addEventListener('click', () => { copiar(S.cfg.pix); });
@@ -2710,88 +2732,196 @@ function bindVelasPainel(root){
 }
 
 
-/* ---------- escolher / trocar de paróquia ---------- */
-const ATIVA = 'Santo Antônio|Jaraguá';
+/* ---------- encontrar / trocar de paróquia (Diretório Arquidiocesano) ----------
+   Qualquer pessoa ENCONTRA qualquer paróquia do Catálogo 2026. Só as ativas na plataforma abrem a
+   Central Paroquial; as outras mostram a ficha do catálogo e como pedir a ativação (ninguém ativa sozinho).
+   Sem o banco novo (supabase/diretorio.sql ainda não aplicado) ou no modo demonstração, a busca usa a
+   lista REDE deste arquivo (só a RENSC). */
 const keyOf = r => r.nome+'|'+r.bairro;
 const vendoAtiva = () => S.vendo === ATIVA;
-const vendoRede = () => REDE.find(r => keyOf(r)===S.vendo) || null;
-const nomeRede = r => { const b = (r.bairro||'').split('/')[0]; return `${r.tipo==='santuario'?'':'Paróquia '}${r.nome}${b && !r.nome.includes(b) ? ' – '+b : ''}`; };
-function nomeVendo(){ if (vendoAtiva()) return S.cfg.nome; const r = vendoRede(); return r ? nomeRede(r) : S.cfg.nome; }
-const semAcento = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const semAcento = t => t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const TIPO_DIR = {paroquia_territorial:'Paróquia', paroquia_pessoal:'Paróquia pessoal', paroquia_militar:'Paróquia militar', curato:'Curato', area_pastoral:'Área pastoral', santuario:'Santuário'};
+const siglaRegiao = t => { const x = semAcento(String(t || '')); return (String(t || '').match(/RENS[A-Z]{1,2}/) || [])[0]
+  || [['aparecida','RENSA'],['conceicao','RENSC'],['esperanca','RENSE'],['boa viagem','RENSB'],['rosario','RENSER']].find(([k]) => x.includes(k))?.[1] || ''; };
+const DIR = {semBanco:false, fichas:new Map(), busca:{q:null, estado:'nada', lista:[]}, timer:null};
+const PILOTO_REDE = 'Santo Antônio|Jaraguá';
+const daRede = r => ({slug:'rede:' + keyOf(r), name:r.nome, type:r.tipo === 'area' ? 'area_pastoral' : r.tipo === 'santuario' ? 'santuario' : 'paroquia_territorial',
+  municipality:r.cidade || null, neighborhood:r.bairro || null, forania:r.forania || null, address:r.end || null, postal_code:r.cep || null, phone:r.tel || null,
+  email:r.email || null, pastor_role:r.resp ? r.resp.split(':')[0] : null, pastor_name:r.resp ? r.resp.replace(/^[^:]*:\s*/, '') : null, episcopal_region:'RENSC',
+  active:keyOf(r) === PILOTO_REDE && E_PILOTO, tenant_slug:keyOf(r) === PILOTO_REDE && E_PILOTO ? PILOTO : null});
+function buscaRedeLocal(q){
+  const t = semAcento(q.trim()).split(/\s+/).filter(Boolean);
+  const l = t.length ? REDE.filter(r => { const x = semAcento([r.nome, r.bairro, r.cidade, r.forania].join(' ')); return t.every(w => x.includes(w)); }) : REDE.filter(r => keyOf(r) === PILOTO_REDE && E_PILOTO);
+  return l.map(daRede).sort((a, b) => b.active - a.active);
+}
+async function clienteSb(){ for (let i = 0; i < 50 && NUVEM.ativo && !NUVEM.sb; i++) await new Promise(r => setTimeout(r, 200)); return NUVEM.sb; }
+async function buscarDiretorio(q){
+  const sb = await clienteSb();
+  if (sb && !DIR.semBanco){
+    try { const {data, error} = await sb.rpc('public_directory_search', {p_q:q, p_limit:40}); if (error) throw error; return Array.isArray(data) ? data : []; }
+    catch(e){ if (!tabelaFaltando(e)) throw e; DIR.semBanco = true; }
+  }
+  return buscaRedeLocal(q);
+}
+async function carregarFicha(slug){
+  if (DIR.fichas.has(slug)) return;
+  DIR.fichas.set(slug, null); // carregando
+  let f = false;
+  try {
+    const sb = await clienteSb();
+    if (sb && !DIR.semBanco){ const {data, error} = await sb.rpc('public_directory_entry', {p_slug:slug}); if (error) throw error; f = data || false; }
+  } catch(e){ if (tabelaFaltando(e)) DIR.semBanco = true; }
+  DIR.fichas.set(slug, f);
+  if (S.mode === 'publico') renderSeguro();
+}
+// Paróquia do diretório que está sendo vista (ainda não ativa). null = carregando; false = não encontrada.
+function vendoDir(){
+  if (vendoAtiva()) return null;
+  const slug = S.vendo.slice(4);
+  if (slug.startsWith('rede:')){ const r = REDE.find(x => keyOf(x) === slug.slice(5)); return r ? daRede(r) : false; }
+  if (!DIR.fichas.has(slug)) carregarFicha(slug);
+  return DIR.fichas.get(slug) ?? null;
+}
+const vendoRede = () => vendoDir() || null;
+const nomeDir = d => `${!d.type || d.type.startsWith('paroquia') ? 'Paróquia ' : (TIPO_DIR[d.type] || '') + ' '}${d.name}${d.neighborhood && !/^centro$/i.test(d.neighborhood) ? ' – ' + d.neighborhood.split('/')[0].trim() : d.municipality ? ' – ' + d.municipality : ''}`;
+function nomeVendo(){ if (vendoAtiva()) return S.cfg.nome || 'Paróquia'; const d = vendoDir(); return d ? nomeDir(d) : 'Paróquia'; }
+const localDir = d => [d.municipality, d.neighborhood].filter(Boolean).join(' — ');
+
+// Minha paróquia e recentes (deste aparelho)
+const atualComoItem = () => ({slug:TENANT, name:(S.cfg.nome || '').replace(/^Paróquia\s+/i, '') || TENANT, municipality:null, neighborhood:null, active:true, tenant_slug:TENANT, rotulo:S.cfg.nome || ''});
+const itemDir = d => ({slug:d.slug, name:d.name, municipality:d.municipality || null, neighborhood:d.neighborhood || null, active:!!d.active, tenant_slug:d.tenant_slug || null, rotulo:nomeDir(d)});
+function lembrar(item){
+  const n = lerNav();
+  n.recentes = [item, ...n.recentes.filter(x => x.slug !== item.slug && !(item.tenant_slug && x.tenant_slug === item.tenant_slug))].slice(0, 6);
+  if (n.minha && (n.minha.slug === item.slug || (item.tenant_slug && n.minha.tenant_slug === item.tenant_slug))) n.minha = item;
+  gravarNav(n);
+}
+function eMinha(){
+  const m = lerNav().minha;
+  if (!m) return vendoAtiva() && E_PILOTO; // como antes: sem escolha, a piloto é a "minha"
+  return vendoAtiva() ? m.tenant_slug === TENANT : m.slug === S.vendo.slice(4);
+}
+function abrirParoquia(item){
+  lembrar(item);
+  if (item.active && item.tenant_slug){
+    if (item.tenant_slug === TENANT){ S.vendo = ATIVA; S.pubTab = 'igreja'; save(); render(); scrollTo(0,0); return; }
+    location.href = location.pathname + '?p=' + encodeURIComponent(item.tenant_slug); // outra paróquia ativa: recarrega com o contexto dela
+    return;
+  }
+  S.vendo = 'dir:' + item.slug; S.pubTab = 'igreja'; velaStep = 'inicio'; save(); render(); scrollTo(0,0);
+}
+
 let buscaPar = '';
+function linhaDir(e){
+  const at = e.active && e.tenant_slug;
+  return `<div class="row dir-row"><div class="grow">
+      <button type="button" class="link-btn dir-nome" data-dir-abrir="${esc(e.slug)}">${esc(e.rotulo || nomeDir(e))}</button>
+      ${localDir(e) ? `<div class="small muted">${esc(localDir(e))}${e.forania ? ' · Forania ' + esc(e.forania) : ''}</div>` : ''}
+      <div class="tagline" style="margin-top:4px">${at ? '<span class="chip">✓ Central Paroquial ativa</span>' : '<span class="chip gold">Central Paroquial ainda não ativada</span>'}${e.type && !String(e.type).startsWith('paroquia_territorial') ? `<span class="chip neutro">${esc(TIPO_DIR[e.type] || e.type)}</span>` : ''}</div></div>
+    ${at ? `<button type="button" class="btn sm" data-dir-abrir="${esc(e.slug)}">Acessar</button>` : `<button type="button" class="btn sm ghost" data-dir-ativar="${esc(e.slug)}">Solicitar ativação</button>`}</div>`;
+}
+function resultadosHTML(){
+  const b = DIR.busca, q = buscaPar.trim();
+  if (!q) return '';
+  if (b.q !== q || b.estado === 'carregando') return `<div class="status" role="status"><span class="spinner"></span>Procurando paróquias…</div>`;
+  if (b.estado === 'erro') return `<div class="signal wait" role="status">Não foi possível buscar agora. Tente novamente em alguns instantes.</div>`;
+  return `<h2 style="margin-top:14px">${b.lista.length} resultado${b.lista.length === 1 ? '' : 's'}</h2>${DIR.semBanco ? `<p class="small muted" style="margin:-4px 4px 8px">Por enquanto, só as paróquias da RENSC.</p>` : ''}` + (b.lista.length ? `<div class="list">${b.lista.map(linhaDir).join('')}</div>` : '<div class="empty">Nenhuma paróquia encontrada. Tente outra palavra: nome, bairro, cidade ou forania.</div>');
+}
 function escolherHTML(){
-  const q = semAcento(buscaPar.trim());
-  const minha = REDE.find(r => keyOf(r)===S.minha);
-  let lista;
-  if (q) lista = REDE.filter(r => semAcento(r.nome+' '+r.bairro+' '+r.cidade+' '+r.forania).includes(q));
-  else { const fo = (vendoRede()||minha)?.forania; lista = REDE.filter(r => r.forania===fo); }
-  const row = r => { const k = keyOf(r), at = k===ATIVA;
-    return `<button class="pick-row" data-pick="${esc(k)}"><span class="grow"><b>${esc(r.nome)}</b>${r.bairro?` <span class="muted">(${esc(r.bairro)})</span>`:''}
-      <span class="small muted" style="display:block">${esc(r.cidade||'')}${r.cidade?' · ':''}Forania ${esc(r.forania)}</span>
-      <span class="tagline" style="margin-top:3px">${at?'<span class="chip">✓ Página ativa</span>':'<span class="chip gold">Página ainda não ativada</span>'}${k===S.minha?'<span class="chip">Minha paróquia</span>':''}${k===S.vendo?'<span class="chip">Vendo agora</span>':''}</span></span><span class="muted" aria-hidden="true">›</span></button>`; };
-  return `<h2>Escolher paróquia</h2>
-  <p class="lead small">Pesquise pelo nome da paróquia, do bairro ou da cidade.</p>
-  <input type="text" id="buscaPar" placeholder="Ex.: São Bernardo, Planalto, Vespasiano" aria-label="Pesquisar paróquia" value="${esc(buscaPar)}" style="margin-bottom:12px">
-  ${!q && minha ? `<h2 style="margin-top:6px">Minha paróquia</h2><div class="list">${row(minha)}</div>` : ''}
-  <h2 style="margin-top:14px">${q ? `${lista.length} resultado${lista.length===1?'':'s'}` : `Forania ${esc((vendoRede()||minha)?.forania||'')}`}</h2>
-  ${lista.length ? `<div class="list">${lista.slice(0,60).map(row).join('')}</div>` : '<div class="empty">Nenhuma paróquia encontrada.</div>'}
-  <p class="small muted" style="margin:10px 4px">Por enquanto, a busca inclui as ${REDE.length} paróquias e santuários da Região Episcopal Nossa Senhora da Conceição (RENSC). As demais regiões da Arquidiocese entram nas próximas etapas.</p>
+  const n = lerNav(), q = buscaPar.trim();
+  // As ativas chegam depois: atualiza só o bloco delas (a busca pode estar com o cursor, e um redesenho esperaria)
+  if (!DIR.ativas){ DIR.ativas = []; buscarDiretorio('').then(l => { DIR.ativas = l; const el = document.getElementById('dirAtivas'); if (el && S.pubTab === 'escolher'){ el.innerHTML = ativasHTML(); bindEscolherLinhas(el); } }).catch(() => {}); }
+  const recentes = n.recentes.filter(x => x.slug !== n.minha?.slug);
+  return `<h2>Encontre sua paróquia</h2>
+  <p class="lead small">Pesquise pelo nome da paróquia, do bairro, da cidade ou da forania.</p>
+  <input type="search" id="buscaPar" placeholder="Ex.: São Bernardo, Planalto, Contagem" aria-label="Buscar paróquia" value="${esc(buscaPar)}" autocomplete="off" style="margin-bottom:12px">
+  <div id="dirRes" aria-live="polite">${resultadosHTML()}</div>
+  ${q ? '' : `${n.minha ? `<h2 style="margin-top:6px">Minha paróquia</h2><div class="list">${linhaDir(n.minha)}</div>` : ''}
+    ${recentes.length ? `<h2>Recentes</h2><div class="list">${recentes.map(linhaDir).join('')}</div>` : ''}
+    <div id="dirAtivas">${ativasHTML()}</div>`}
+  <p class="small muted" style="margin:10px 4px">${DIR.semBanco || !NUVEM.ativo ? `Por enquanto, a busca inclui as ${REDE.length} paróquias e santuários da RENSC.` : 'Paróquias, curatos e áreas pastorais do Catálogo 2026 da Arquidiocese de Belo Horizonte.'}</p>
   <button class="btn ghost block-w" id="pickVoltar">Voltar</button>`;
 }
+function bindDirLinhas(root, lista){
+  const achar = slug => lista().find(x => x.slug === slug);
+  root.querySelectorAll('[data-dir-abrir]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAbrir); if (e) abrirParoquia(e.rotulo ? e : itemDir(e)); });
+  root.querySelectorAll('[data-dir-ativar]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAtivar); if (!e) return; abrirParoquia(e.rotulo ? e : itemDir(e)); setTimeout(() => document.getElementById('ativacao')?.scrollIntoView({block:'start'}), 400); });
+}
+const ativasHTML = () => DIR.ativas?.length ? `<h2>Com a Central Paroquial</h2><div class="list">${DIR.ativas.map(linhaDir).join('')}</div>` : '';
+const todasEscolher = () => { const n = lerNav(); return [...(n.minha ? [n.minha] : []), ...n.recentes, ...(DIR.ativas || []), ...DIR.busca.lista]; };
+const bindEscolherLinhas = root => bindDirLinhas(root, todasEscolher);
 function bindEscolher(root){
+  const todas = todasEscolher;
   const b = root.querySelector('#buscaPar');
-  b.addEventListener('input', () => { buscaPar = b.value; const pos = b.selectionStart; render(); const n = document.getElementById('buscaPar'); n.focus(); n.setSelectionRange(pos,pos); });
-  root.querySelectorAll('[data-pick]').forEach(x => x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab = 'igreja'; velaStep = 'inicio'; save(); render(); scrollTo(0,0); });
+  b.addEventListener('input', () => {
+    buscaPar = b.value; clearTimeout(DIR.timer);
+    const q = buscaPar.trim(); DIR.busca = {q, estado:'carregando', lista:[]};
+    const res = document.getElementById('dirRes'); if (res) res.innerHTML = resultadosHTML();
+    if (!q){ render(); const x = document.getElementById('buscaPar'); x.focus(); return; }
+    DIR.timer = setTimeout(async () => {
+      let l = [], estado = 'ok';
+      try { l = await buscarDiretorio(q); } catch(e){ estado = 'erro'; }
+      if (buscaPar.trim() !== q) return;
+      DIR.busca = {q, estado, lista:l};
+      const r = document.getElementById('dirRes'); if (r){ r.innerHTML = resultadosHTML(); bindDirLinhas(r, todas); }
+    }, 250);
+  });
+  bindDirLinhas(root, todas);
   root.querySelector('#pickVoltar').onclick = () => { S.pubTab = 'igreja'; save(); render(); };
 }
 function minhaBtn(){
-  return S.vendo===S.minha
+  return eMinha()
     ? `<div class="small muted" style="text-align:center;margin:10px 0">★ Esta é a sua paróquia</div>`
     : `<button class="btn ghost block-w" id="tornarMinha" style="margin:10px 0">★ Tornar esta a minha paróquia</button>`;
 }
-function bindMinha(root){ root.querySelector('#tornarMinha')?.addEventListener('click', () => { S.minha = S.vendo; save(); render(); toast('Agora esta é a sua paróquia'); }); }
+function bindMinha(root){ root.querySelector('#tornarMinha')?.addEventListener('click', () => {
+  const d = vendoDir(), item = vendoAtiva() ? atualComoItem() : d ? itemDir(d) : null; if (!item) return;
+  const n = lerNav(); n.minha = item; gravarNav(n); lembrar(item); render(); toast('Agora esta é a sua paróquia');
+}); }
 
-/* página básica de paróquia que ainda não ativou */
-function inativaCard(r){
-  return `<div class="block"><span class="chip gold">Página ainda não ativada</span>
-    <h3 style="font-family:var(--serif);font-size:1.25rem;margin:8px 0 6px">${esc(nomeRede(r))}</h3>
-    <p style="margin:0 0 4px">${esc(r.end)}${r.cidade?`, ${esc(r.cidade)}`:''}${r.cep?`, ${esc(r.cep)}`:''}</p>
-    <p class="small" style="margin:0">${r.tel?`Telefone ${esc(r.tel)}`:''}${r.email?`<br>E-mail <a href="mailto:${esc(r.email)}">${esc(r.email)}</a>`:''}</p>
-    ${r.resp?`<p class="small" style="margin:8px 0 0">${esc(r.resp)}</p>`:''}
-    <p class="small muted" style="margin:8px 0 0">Forania ${esc(r.forania)} · RENSC · Dados do Catálogo 2026 da Arquidiocese</p>
-    ${r.tel?`<a class="btn block-w" style="margin-top:12px" href="${telLink(r.tel)}">Ligar para a secretaria</a>`:''}</div>`;
+/* página informativa de paróquia que ainda não ativou a Central Paroquial */
+const PREPARANDO = 'Informações serão publicadas em breve.';
+function inativaCard(d){
+  if (d === null) return `<div class="status" role="status"><span class="spinner"></span>Carregando a paróquia…</div>`;
+  if (!d) return `<div class="block"><p style="margin:0 0 10px">Não foi possível abrir esta paróquia agora.</p><button class="btn sm" data-pub="escolher">Encontrar paróquia</button></div>`;
+  const fone = d.phone ? String(d.phone).split('/')[0].trim() : '';
+  return `<div class="block"><span class="chip gold">Central Paroquial ainda não ativada</span>
+    <h3 style="font-family:var(--serif);font-size:1.25rem;margin:8px 0 6px">${esc(nomeDir(d))}</h3>
+    ${d.address ? `<p style="margin:0 0 4px">${esc(d.address)}${d.neighborhood ? ` – ${esc(d.neighborhood)}` : ''}${d.municipality ? `, ${esc(d.municipality)}` : ''}${d.postal_code ? `, ${esc(d.postal_code)}` : ''}</p>` : ''}
+    <p class="small" style="margin:0">${d.phone ? `Telefone ${esc(d.phone)}` : ''}${d.email ? `${d.phone ? '<br>' : ''}E-mail <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>` : ''}</p>
+    ${d.pastor_name ? `<p class="small" style="margin:8px 0 0">${esc(d.pastor_role || 'Responsável')}: ${esc(d.pastor_name)}</p>` : ''}
+    <p class="small muted" style="margin:8px 0 0">${[d.forania ? 'Forania ' + d.forania : '', d.episcopal_region || ''].filter(Boolean).map(esc).join(' · ')}${d.forania || d.episcopal_region ? ' · ' : ''}Dados do Catálogo 2026 da Arquidiocese</p>
+    ${fone ? `<a class="btn block-w" style="margin-top:12px" href="${telLink(fone)}">Ligar para a secretaria</a>` : ''}</div>`;
 }
-function ativarHTML(r){
-  const ja = S.pedidosAtivacao.includes(keyOf(r));
-  return `<details class="fold"><summary>É desta paróquia? Ative a página</summary><div class="inner">
-    <p class="small" style="margin-top:0">Com a página ativa, a paróquia publica avisos, horários de missa, recebe intenções e pedidos da vela virtual, e fala com os paroquianos pelo WhatsApp.</p>
-    <p class="small muted">Por segurança, a ativação é confirmada pelo telefone ou e-mail oficiais que constam no catálogo da Arquidiocese, com autorização do pároco.</p>
-    ${ja ? '<div class="signal green" style="margin:0">Pedido registrado. Entraremos em contato pelo canal oficial da paróquia.</div>' : '<button class="btn sm" id="pedirAtiv">Quero ativar a página</button>'}
-  </div></details>`;
+// Contato para ativação: config.js → contato: {email:'...', whatsapp:'31...'} (opcional).
+function ativarHTML(d){
+  if (!d) return '';
+  const c = CONF.contato || {}, msg = `Olá! Sou da ${nomeDir(d)} e gostaria de saber como ativar a Central Paroquial.`;
+  const botao = c.whatsapp ? `<a class="btn" href="${esc(waLink(c.whatsapp, msg))}" target="_blank" rel="noopener">Entrar em contato</a>`
+    : c.email ? `<a class="btn" href="mailto:${esc(c.email)}?subject=${encodeURIComponent('Ativação da Central Paroquial')}&body=${encodeURIComponent(msg)}">Entrar em contato</a>` : '';
+  return `<section class="block" id="ativacao" aria-labelledby="ativT"><h3 id="ativT" style="font-family:var(--serif);font-size:1.2rem">Solicitar ativação</h3>
+    <p style="margin:6px 0 10px">A ativação da Central Paroquial deve ser solicitada pelo pároco, administrador paroquial ou responsável autorizado.</p>
+    ${botao || `<p class="small muted" style="margin:0">O contato para ativação será divulgado em breve.</p>`}</section>`;
 }
-function inativaAvisosHTML(){
-  const r = vendoRede();
-  return `${inativaCard(r)}
-  <div class="empty">Esta paróquia ainda não publica avisos por aqui.</div>
-  ${minhaBtn()}${ativarHTML(r)}`;
+function inativaInicioHTML(){
+  const d = vendoDir();
+  return `${inativaCard(d)}${d ? minhaBtn() + ativarHTML(d) : ''}
+    <button class="btn ghost block-w" data-pub="escolher" style="margin-top:10px">Encontrar outra paróquia</button>
+    <button class="btn ghost block-w" id="voltarAtual" style="margin-top:8px">Voltar para ${esc(S.cfg.nome || 'a página anterior')}</button>
+    <h2>Rezar</h2>${acoesHTML(false)}`;
 }
+function inativaAvisosHTML(){ const d = vendoDir(); return `${inativaCard(d)}<div class="empty">Esta paróquia ainda não publica avisos por aqui.</div>${d ? minhaBtn() + ativarHTML(d) : ''}`; }
 function inativaMissasHTML(){
-  const r = vendoRede();
+  const d = vendoDir(), fone = d?.phone ? String(d.phone).split('/')[0].trim() : '';
   return `<h2>Horário de missas</h2><div class="block"><p style="margin:0 0 10px">Esta paróquia ainda não publicou os horários aqui. Confirme com a secretaria.</p>
-    ${r.tel?`<a class="btn block-w" href="${telLink(r.tel)}">Ligar ${esc(r.tel)}</a>`:''}</div>
-  <h2>Intenções de missa</h2><div class="block small muted">O pedido de intenção fica disponível quando a paróquia ativar a página.</div>`;
+    ${fone ? `<a class="btn block-w" href="${telLink(fone)}">Ligar ${esc(fone)}</a>` : ''}</div>
+  <h2>Intenções de missa</h2><div class="block small muted">O pedido de intenção fica disponível quando a paróquia ativar a Central Paroquial.</div>`;
 }
-function inativaContatoHTML(){
-  const r = vendoRede(), irmas = REDE.filter(x => x.forania===r.forania && keyOf(x)!==keyOf(r));
-  return `${inativaCard(r)}${minhaBtn()}${ativarHTML(r)}
-  <h2>Forania ${esc(r.forania)}</h2><div class="list">${irmas.map(redeItem).join('')}</div>`;
-}
-function inativaComunidadesHTML(){
-  return `${inativaCard(vendoRede())}<div class="empty">Esta paróquia ainda não publica as comunidades por aqui.</div>${minhaBtn()}`;
-}
+function inativaContatoHTML(){ const d = vendoDir(); return `${inativaCard(d)}${d ? minhaBtn() + ativarHTML(d) : ''}<button class="btn ghost block-w" data-pub="escolher" style="margin-top:10px">Encontrar outra paróquia</button>`; }
+function inativaComunidadesHTML(){ return `${inativaCard(vendoDir())}<div class="empty">Esta paróquia ainda não publica as comunidades por aqui.</div>${minhaBtn()}`; }
 function bindInativa(root){
-  bindMinha(root);
-  root.querySelector('#pedirAtiv')?.addEventListener('click', () => { S.pedidosAtivacao.push(S.vendo); save(); render(); toast('Pedido de ativação registrado'); });
+  bindMinha(root); bindAcoes(root);
+  root.querySelector('#voltarAtual')?.addEventListener('click', () => { S.vendo = ATIVA; S.pubTab = 'igreja'; save(); render(); scrollTo(0,0); });
 }
 
 /* ---------- acesso ao painel (login) ---------- */
@@ -2817,7 +2947,7 @@ function acessoHTML(){
 function bindAcesso(root){
   root.querySelector('#acTentar')?.addEventListener('click', () => location.reload());
   root.querySelector('#acSair')?.addEventListener('click', () => sair());
-  root.querySelector('#acPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=S.minha; save(); render(); scrollTo(0,0); });
+  root.querySelector('#acPub')?.addEventListener('click', () => { S.mode='publico'; S.vendo=ATIVA; save(); render(); scrollTo(0,0); });
   const f = root.querySelector('#loginF'); if (!f) return;
   const pw = f.querySelector('#l-pw'), olho = f.querySelector('#l-olho');
   olho.addEventListener('pointerdown', e => e.preventDefault()); // não tira o foco nem fecha o teclado no celular
@@ -3063,6 +3193,267 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharSino(t
 // Chamado quando chegam dados novos em segundo plano: atualiza só o menu e o 🔔 (não mexe no que está sendo digitado).
 function atualizarAtencao(){ if (!painelApp()) return; renderTabs(); atualizarSino(); }
 
+/* =========================================================
+   HOME PÚBLICA — começa com AÇÕES, não com título repetido.
+   Ordem: ações (Liturgia, Rezar, Intenção de Missa, Vela, Secretaria 24h) → próxima missa →
+   evento de hoje (se houver) → destaque litúrgico (se houver) → próximo evento → notícias → assistir.
+   Bloco sem conteúdo não aparece.
+   ========================================================= */
+function acoesHTML(completa = true){
+  const t = tempoLiturgico(new Date()), festa = festaDoDia(new Date()), n = velasHoje();
+  const a = [['liturgia', '📖', 'Liturgia de hoje', festa || t.nome], ['rezar', '🙏', 'Rezar', 'Terço, orações e novenas']];
+  if (completa && vendoAtiva()){
+    a.push(['intencao', '⛪', 'Pedir intenção de Missa', 'A secretaria confirma com você']);
+    a.push(['velas', '🕯️', 'Acender uma vela', n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas` : 'Reze com a comunidade']);
+    if (window.S24?.disponivel()) a.push(['s24', '📥', 'Secretaria 24h', 'Pedidos à secretaria a qualquer hora']);
+  }
+  return `<nav class="acoes-grid" aria-label="O que você quer fazer">${a.map(([k, ic, tit, sub]) =>
+    `<button type="button" class="acao" ${k === 's24' ? 'data-s24-abrir' : `data-acao="${k}"`}><span class="ic" aria-hidden="true">${ic}</span><b>${tit}</b><span class="small">${esc(sub)}</span></button>`).join('')}</nav>`;
+}
+function bindAcoes(root){
+  root.querySelectorAll('[data-acao]').forEach(b => b.onclick = () => {
+    if (b.dataset.acao === 'rezar') reza = {k:null, passo:0, conta:0, misterios:null};
+    if (b.dataset.acao === 'velas') velaStep = 'inicio';
+    S.pubTab = b.dataset.acao; save(); render(); scrollTo(0,0);
+  });
+}
+const hojeSPpub = () => diaSP(new Date().toISOString());
+const eventosDeHoje = () => eventosPublicos().filter(e => diaSP(e.starts_at) === hojeSPpub() && Date.parse(fimEvento(e)) >= now());
+function eventoHojeCard(e){
+  const c = comunidadeDe(e.community_id), loc = e.location || c?.name || '';
+  return `<article class="hoje-ev"><h3>${esc(e.title)}</h3>
+    <div class="hoje-ev-q"><b>${esc(horaBR(e.starts_at))}</b>${e.ends_at ? ` às ${esc(horaBR(e.ends_at))}` : ''}${loc ? ` · ${esc(loc)}` : ''}</div>
+    <button type="button" class="btn sm" data-ev-ver="${esc(e.id)}">Ver detalhes</button></article>`;
+}
+function igrejaPubHTML(){
+  const hoje = eventosDeHoje(), dest = destaquesAtivos().slice(0, 2);
+  const prox = eventosPublicos().filter(e => !hoje.includes(e))[0];
+  return `<h2 class="sr">Início</h2>
+  ${acoesHTML()}
+  ${missaHTML()}
+  ${hoje.length ? `<h2>Hoje na paróquia</h2>${hoje.map(eventoHojeCard).join('')}` : ''}
+  ${dest.map(destaqueCardHTML).join('')}
+  ${prox ? `<h2>Próximo evento</h2>${eventoCard(prox)}<button class="btn ghost block-w" data-pub="agenda" style="margin-bottom:10px">Ver agenda</button>` : ''}
+  <h2>Notícias da Igreja</h2>
+  ${noticiasParoquiaHTML(2)}
+  ${noticiasArquidioceseHTML(3)}
+  <button class="btn ghost block-w" data-pub="noticias" style="margin-bottom:10px">Ver todas as notícias</button>
+  ${assistirResumoHTML()}`;
+}
+function bindIgreja(root){
+  bindAcoes(root); bindEventos(root); bindDestaques(root); carregarNoticias(); carregarLiturgia();
+}
+
+/* ---------- Liturgia (tela própria) ---------- */
+function liturgiaPubHTML(){
+  const hoje = new Date(), t = tempoLiturgico(hoje), festa = festaDoDia(hoje), dest = destaquesAtivos();
+  return `<button class="crumb" data-pub="igreja">‹ Início</button>
+  <h2>Liturgia de hoje</h2>
+  <div class="block">
+    <div class="small muted">${cap(DIAS[hoje.getDay()])}, ${hoje.getDate()} de ${MESES[hoje.getMonth()]}</div>
+    <div class="tempo-lit"><span class="cor-dot" style="background:${COR[t.cor]}" aria-hidden="true"></span>${esc(festa || t.nome)} · cor litúrgica: ${t.cor}</div>
+    ${festa ? `<div class="small muted">${esc(t.nome)}</div>` : ''}
+    ${leiturasHTML()}
+    <a class="btn block-w" style="margin-top:12px" href="${CNBB_LITURGIA}" target="_blank" rel="noopener">Ler as leituras de hoje</a>
+    <div class="small muted" style="margin-top:6px;text-align:center">Leituras e Evangelho no site oficial da Edições CNBB</div>
+  </div>
+  ${dest.map(destaqueCardHTML).join('')}
+  <button class="btn ghost block-w" data-acao="rezar">🙏 Rezar</button>`;
+}
+function bindLiturgia(root){ bindAcoes(root); bindDestaques(root); carregarLiturgia(); }
+
+/* ---------- Rezar (tela própria) ---------- */
+function rezarPubHTML(){
+  return rezaHTML() || `<button class="crumb" data-pub="igreja">‹ Início</button>${rezarGridHTML()}${destaquesAtivos().map(destaqueCardHTML).join('')}`;
+}
+function bindRezarPub(root){ bindRezar(root); bindDestaques(root); }
+
+/* ---------- Intenção de Missa (o mesmo formulário da Agenda, direto) ---------- */
+function intencaoPubHTML(){ return `<button class="crumb" data-pub="igreja">‹ Início</button>${intencaoFormHTML()}${horariosMissaHTML()}`; }
+
+/* ---------- Detalhe de um evento ---------- */
+function eventoPubHTML(){
+  const e = eventosPublicos().find(x => x.id === S.evVendo);
+  if (!e) return `<button class="crumb" data-pub="agenda">‹ Agenda</button><div class="empty">Este evento não está mais na agenda.</div>`;
+  const rel = DEVOCIONAIS.filter(d => d.active && relacionado(d, e));
+  return `<button class="crumb" data-pub="agenda">‹ Agenda</button>${eventoCard(e)}${rel.map(d => `<button class="btn ghost block-w" data-dev="${d.id}">🙏 ${esc(d.title)}: rezar</button>`).join('')}`;
+}
+function bindEventoPub(root){ bindEventos(root); bindDestaques(root); }
+
+/* =========================================================
+   DESTAQUES LITÚRGICOS E PÁGINAS DEVOCIONAIS
+   Só celebrações importantes, em janelas definidas: nada de um santo diferente todo dia só para
+   ocupar espaço. Estrutura genérica (santo, solenidade, festa, novena, campanha): para incluir outra,
+   basta um item novo aqui. Textos breves escritos para o app; orações tradicionais de domínio público.
+   Novena diária de terceiros: só o link oficial, sem copiar o texto.
+   Campos: id, title, type, date (MM-DD) ou start/end, description, prayer, official_url, image, active,
+   before (dias antes em que aparece na Home), novena {start (MM-DD), days}, keywords (eventos da paróquia).
+   ========================================================= */
+const DEVOCIONAIS = [
+  {id:'sao-miguel', title:'São Miguel Arcanjo', subtitle:'Santos Arcanjos Miguel, Gabriel e Rafael', type:'festa', date:'09-29', before:3,
+   cta:'Rezar com São Miguel', chamada:'Vamos rezar?',
+   description:'No dia 29 de setembro, a Igreja celebra os santos arcanjos Miguel, Gabriel e Rafael. São Miguel é lembrado como protetor do povo de Deus e defensor na luta contra o mal.',
+   prayer:'São Miguel Arcanjo, defendei-nos no combate; sede o nosso refúgio contra as maldades e ciladas do demônio. Ordene-lhe Deus, instantemente o pedimos; e vós, príncipe da milícia celeste, pela virtude divina, precipitai no inferno a satanás e aos outros espíritos malignos, que andam pelo mundo para perder as almas. Amém.',
+   official_url:null, image:null, active:true, keywords:['miguel','arcanjo']},
+  {id:'sao-francisco', title:'São Francisco de Assis', type:'memoria', date:'10-04', before:2, cta:'Rezar a Oração da Paz', chamada:'Vamos rezar?',
+   description:'Em 4 de outubro, a Igreja recorda São Francisco de Assis, que viveu a pobreza, a alegria e o cuidado com toda a criação.',
+   prayer:'Senhor, fazei-me instrumento de vossa paz. Onde houver ódio, que eu leve o amor; onde houver ofensa, que eu leve o perdão; onde houver discórdia, que eu leve a união; onde houver dúvida, que eu leve a fé; onde houver erro, que eu leve a verdade; onde houver desespero, que eu leve a esperança; onde houver tristeza, que eu leve a alegria; onde houver trevas, que eu leve a luz. Ó Mestre, fazei que eu procure mais consolar que ser consolado, compreender que ser compreendido, amar que ser amado. Pois é dando que se recebe, é perdoando que se é perdoado e é morrendo que se vive para a vida eterna. Amém.',
+   official_url:null, image:null, active:true, keywords:['francisco']},
+  {id:'aparecida', title:'Nossa Senhora Aparecida', subtitle:'Padroeira do Brasil', type:'solenidade', date:'10-12', before:14, novena:{start:'10-03', days:9},
+   cta:'Rezar', chamada:'Estamos nos preparando para a Padroeira do Brasil',
+   description:'Em 12 de outubro, o Brasil celebra Nossa Senhora da Conceição Aparecida, cuja imagem foi encontrada por pescadores no rio Paraíba do Sul em 1717. Os nove dias antes da festa são de novena.',
+   prayer:'Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e, depois deste desterro, mostrai-nos Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria. Rogai por nós, santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém.\n\nNossa Senhora Aparecida, Padroeira do Brasil, rogai por nós.',
+   official_url:'https://www.a12.com/', official_label:'Novena e programação no site do Santuário Nacional', image:null, active:true, keywords:['aparecida']},
+  {id:'finados', title:'Finados', subtitle:'Comemoração de todos os fiéis defuntos', type:'solenidade', date:'11-02', before:2, cta:'Rezar pelos falecidos', chamada:'Vamos rezar por quem já partiu?',
+   description:'No dia 2 de novembro, a Igreja reza por todos os fiéis falecidos, confiando-os à misericórdia de Deus.',
+   prayer:'Dai-lhes, Senhor, o descanso eterno, e brilhe para eles a vossa luz. Descansem em paz. Amém.', official_url:null, image:null, active:true, keywords:['finados','falecidos']},
+  {id:'imaculada', title:'Imaculada Conceição', subtitle:'Solenidade da Imaculada Conceição de Maria', type:'solenidade', date:'12-08', before:3, cta:'Rezar', chamada:'Vamos rezar com Maria?',
+   description:'Em 8 de dezembro, a Igreja celebra Maria, concebida sem pecado original, preparada por Deus para ser a Mãe de Jesus.',
+   prayer:'Ó Maria concebida sem pecado, rogai por nós que recorremos a vós. Amém.', official_url:null, image:null, active:true, keywords:['imaculada','conceição','conceicao']},
+  {id:'natal', title:'Natal do Senhor', type:'solenidade', date:'12-25', before:5, cta:'Rezar', chamada:'Vamos preparar o coração?',
+   description:'No Natal, a Igreja celebra o nascimento de Jesus, o Filho de Deus que se fez homem.', prayer:TXT.gloria, official_url:null, image:null, active:true, keywords:['natal']}
+];
+const TIPO_DEV = {santo:'Santo', solenidade:'Solenidade', festa:'Festa', memoria:'Memória', novena:'Novena', campanha:'Campanha'};
+const diaDoAno = (y, md) => new Date(y, +md.slice(0, 2) - 1, +md.slice(3));
+const hoje0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+// Situação de uma devoção hoje: null (fora da janela) | {fase:'antes'|'novena'|'dia', festa:Date, dia?:n}
+function faseDevocao(d, ref = hoje0()){
+  for (const y of [ref.getFullYear(), ref.getFullYear() + 1]){
+    const festa = diaDoAno(y, d.date), dias = Math.round((festa - ref) / DAY);
+    if (dias < 0 || dias > Math.max(d.before || 0, d.novena ? Math.round((festa - diaDoAno(y, d.novena.start)) / DAY) : 0)) continue;
+    if (dias === 0) return {fase:'dia', festa};
+    if (d.novena){ const ini = diaDoAno(y, d.novena.start), n = Math.round((ref - ini) / DAY) + 1; if (n >= 1 && n <= d.novena.days) return {fase:'novena', festa, dia:n}; }
+    if (dias <= (d.before || 0)) return {fase:'antes', festa, faltam:dias};
+  }
+  return null;
+}
+function destaquesAtivos(){
+  const peso = {dia:0, novena:1, antes:2};
+  return DEVOCIONAIS.filter(d => d.active).map(d => ({d, f:faseDevocao(d)})).filter(x => x.f)
+    .sort((a, b) => peso[a.f.fase] - peso[b.f.fase] || a.f.festa - b.f.festa).map(x => ({...x.d, fase:x.f}));
+}
+const dataLonga = d => `${d.getDate()} de ${MESES[d.getMonth()]}`;
+const relacionado = (d, e) => (d.keywords || []).some(k => semAcento(e.title + ' ' + (e.description || '')).includes(semAcento(k)));
+function eventosDaDevocao(d){ return vendoAtiva() ? eventosPublicos().filter(e => relacionado(d, e) && Date.parse(e.starts_at) <= diaDoAno(new Date().getFullYear(), d.date).getTime() + 2*DAY) : []; }
+function destaqueCardHTML(d){
+  const f = d.fase, ev = eventosDaDevocao(d);
+  const titulo = f.fase === 'novena' ? `Novena de ${d.title}` : d.title;
+  const sub = f.fase === 'novena' ? `Dia ${f.dia} de ${d.novena.days}` : f.fase === 'dia' ? `Hoje é dia de ${d.title}` : d.chamada;
+  const cta = f.fase === 'novena' ? 'Rezar hoje' : d.cta;
+  return `<section class="destaque" aria-labelledby="dest-${d.id}"><div class="destaque-k">${esc(dataLonga(f.festa))}${f.fase === 'antes' ? '' : ' · ' + esc(TIPO_DEV[d.type] || '')}</div>
+    <h3 id="dest-${d.id}">${esc(titulo)}</h3><p>${esc(sub)}</p>
+    <div class="acoes"><button type="button" class="btn sm" data-dev="${d.id}">${esc(cta)}</button>${ev.length ? `<button type="button" class="btn sm ghost" data-dev-prog="${d.id}">Ver programação</button>` : ''}</div></section>`;
+}
+function bindDestaques(root){
+  root.querySelectorAll('[data-dev]').forEach(b => b.onclick = () => { S.devVendo = b.dataset.dev; S.pubTab = 'devocao'; save(); render(); scrollTo(0,0); });
+  root.querySelectorAll('[data-dev-prog]').forEach(b => b.onclick = () => { S.devVendo = b.dataset.devProg; S.pubTab = 'devocao'; save(); render(); document.getElementById('dev-prog')?.scrollIntoView({block:'start'}); });
+}
+function devocaoPubHTML(){
+  const d = DEVOCIONAIS.find(x => x.id === S.devVendo);
+  if (!d) return `<button class="crumb" data-pub="igreja">‹ Início</button><div class="empty">Página não encontrada.</div>`;
+  const f = faseDevocao(d), festa = f?.festa || diaDoAno(new Date().getFullYear(), d.date), ev = eventosDaDevocao(d);
+  return `<button class="crumb" data-pub="igreja">‹ Início</button>
+  <section class="devocao"><div class="destaque-k">${esc(dataLonga(festa))} · ${esc(TIPO_DEV[d.type] || '')}</div>
+    <h2>${esc(d.title)}</h2>${d.subtitle ? `<p class="small muted" style="margin:-4px 4px 8px">${esc(d.subtitle)}</p>` : ''}
+    ${f?.fase === 'novena' ? `<div class="signal wait">Novena: dia ${f.dia} de ${d.novena.days}</div>` : ''}
+    <div class="block"><p style="margin:0">${esc(d.description)}</p></div>
+    <h2>Oração</h2><div class="block"><p class="oracao">${esc(d.prayer)}</p></div>
+    ${d.official_url ? `<a class="btn ghost block-w" href="${esc(d.official_url)}" target="_blank" rel="noopener" style="margin-bottom:10px">${esc(d.official_label || 'Site oficial')} →</a>` : ''}
+    <h2 id="dev-prog">Na paróquia</h2>
+    ${ev.length ? ev.map(e => eventoCard(e)).join('') : `<div class="empty">A programação da paróquia para esta data ainda não foi publicada.</div>`}
+  </section>`;
+}
+
+/* =========================================================
+   SALA DAS VELAS — o número de velas vira luz. Nunca mostra nomes nem pedidos.
+   Até 50 velas desenhadas; acima disso, "+N pessoas rezando conosco".
+   Chama em CSS (sem GIF), parada para quem pede menos movimento.
+   ========================================================= */
+const MAX_VELAS = 50;
+function salaVelasHTML(){
+  const n = velasHoje(), vistas = Math.min(n, MAX_VELAS), mais = n - vistas;
+  const velas = Array.from({length:vistas || 1}, (_, i) => `<span class="mv${vistas ? '' : ' apagada'}" style="--d:${((i * 37) % 23) / 10}s"><i></i></span>`).join('');
+  return `<button class="crumb" data-pub="igreja">‹ Início</button>
+  <section class="sala" aria-labelledby="salaT">
+    <h2 id="salaT">Sala das Velas</h2>
+    <div class="sala-velas" role="img" aria-label="${n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas` : 'Nenhuma vela acesa ainda hoje'}">${velas}</div>
+    <p class="sala-n">${n ? `${n} vela${n === 1 ? ' acesa' : 's acesas'} nas últimas 24 horas.` : 'Seja o primeiro a acender uma vela hoje.'}</p>
+    ${mais > 0 ? `<p class="sala-mais">+${mais} pessoa${mais === 1 ? '' : 's'} rezando conosco.</p>` : ''}
+    <button class="btn gold" id="velaIr">Acender minha vela</button>
+    <p class="small" style="margin:12px 0 0;opacity:.85">Os pedidos são vistos só pela equipe da paróquia. Aqui aparece apenas o número de velas.</p>
+  </section>`;
+}
+function velasPubHTML(){ return velaStep === 'inicio' ? salaVelasHTML() : velaHTML(); }
+
+/* =========================================================
+   AGENDA — um lugar só: eventos da paróquia e das comunidades, missas especiais,
+   solenidades e festas da Igreja, novenas e tempos de oração. Categorias com ícone + texto.
+   ========================================================= */
+const CAT_IGREJA = {
+  '01-01':'Solenidade', '02-02':'Festa', '03-19':'Solenidade', '03-25':'Solenidade', '06-13':'Memória', '06-24':'Solenidade', '06-29':'Solenidade',
+  '08-06':'Festa', '09-29':'Festa', '10-01':'Memória', '10-04':'Memória', '10-12':'Solenidade', '11-02':'Comemoração', '12-08':'Solenidade', '12-12':'Festa', '12-25':'Solenidade'};
+function itensIgreja(dias){
+  const ini = hoje0(), fim = new Date(ini.getTime() + dias * DAY), r = [];
+  for (const y of [ini.getFullYear(), ini.getFullYear() + 1]){
+    FIXAS.forEach(([md, t]) => r.push({data:diaDoAno(y, md), titulo:t, cat:CAT_IGREJA[md] || 'Festa', dev:DEVOCIONAIS.find(d => d.date === md && d.active)?.id}));
+    moveis(y).forEach(([d, t]) => r.push({data:d, titulo:t, cat:/Domingo|Quarta|Quinta|Sexta/.test(t) ? 'Tempo litúrgico' : 'Solenidade'}));
+  }
+  return r.filter(x => x.data >= ini && x.data < fim).sort((a, b) => a.data - b.data);
+}
+function periodosAtivos(){
+  const r = devocoesAtivas().map(v => ({titulo:v.nome, desc:v.desc, fim:v.fim, tipo:'Tempo de oração'}));
+  DEVOCIONAIS.forEach(d => { const f = faseDevocao(d); if (f?.fase === 'novena') r.push({titulo:`Novena de ${d.title}`, desc:`Dia ${f.dia} de ${d.novena.days}`, fim:new Date(f.festa.getTime() - DAY), tipo:'Novena', dev:d.id}); });
+  return r;
+}
+const faltaDias = d => { const n = Math.round((d - hoje0()) / DAY); return n === 0 ? 'hoje' : n === 1 ? 'amanhã' : 'em ' + n + ' dias'; };
+let agFiltro = 'todos';
+function horariosMissaHTML(){
+  const linhas = S.cfg.missas.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{ const i=l.indexOf(':'); return i>0?[l.slice(0,i),l.slice(i+1).trim()]:['',l]; });
+  return `<h2>Horário de missas</h2>${linhas.length ? `<div class="list">${linhas.map(([d,h])=>{ const p = proximaPrimeira(d);
+    return `<div class="row"><div class="grow"><b>${esc(d)}</b>${p?`<div class="small muted">Próxima: ${DIAS[p.getDay()]}, ${pad(p.getDate())}/${pad(p.getMonth()+1)}</div>`:''}</div><span>${esc(h)}</span></div>`; }).join('')}</div>`
+    : `<div class="block"><p style="margin:0 0 10px">${PREPARANDO}</p>${contatoBtn()}</div>`}`;
+}
+function agendaPubHTML(){
+  const minha = minhaComunidade(), todos = eventosPublicos(), DIAS_AG = 60;
+  const evs = (agFiltro === 'minha' && minha ? todos.filter(e => !e.community_id || e.community_id === minha.id) : todos)
+    .filter(e => Date.parse(e.starts_at) < now() + DIAS_AG * DAY).map(e => ({tipo:'ev', data:new Date(Date.parse(e.starts_at)), dia:diaSP(e.starts_at), e}));
+  const igreja = agFiltro === 'paroquia' || agFiltro === 'minha' ? [] : itensIgreja(DIAS_AG).map(x => ({tipo:'ig', data:x.data, dia:isoDay(x.data), x}));
+  const lista = (agFiltro === 'igreja' ? igreja : [...evs, ...igreja]).sort((a, b) => a.dia.localeCompare(b.dia) || (a.tipo === 'ig' ? -1 : 1));
+  const grupos = []; lista.forEach(i => { const g = grupos.at(-1); if (g?.dia === i.dia) g.itens.push(i); else grupos.push({dia:i.dia, itens:[i]}); });
+  const per = agFiltro === 'paroquia' || agFiltro === 'minha' ? [] : periodosAtivos();
+  const antigos = S.avisos.filter(a => a.evento && !a.eventId).sort((a,b)=>b.ts-a.ts);
+  const rotDia = dia => { const [y, m, d] = dia.split('-').map(Number), dd = new Date(y, m - 1, d), n = Math.round((dd - hoje0()) / DAY); return `${n === 0 ? 'Hoje · ' : n === 1 ? 'Amanhã · ' : ''}${cap(DIAS[dd.getDay()])}, ${d} de ${MESES[m - 1]}`; };
+  const filtros = [['todos','Tudo'],['paroquia','📅 Paróquia'],['igreja','⛪ Calendário da Igreja'], ...(minha ? [['minha', '★ ' + minha.name]] : [])];
+  return `<h2>Agenda</h2>
+  <p class="lead small">Eventos da paróquia e das comunidades, missas especiais e as datas da Igreja, num lugar só.</p>
+  <div class="filtros" role="group" aria-label="O que mostrar">${filtros.map(([k, t]) => `<button data-agf="${k}" aria-pressed="${agFiltro === k}">${esc(t)}</button>`).join('')}</div>
+  ${per.length ? `<h3 class="ag-sec">Em andamento</h3>${per.map(p => `<div class="ag-item ag-periodo"><span class="chip gold">🙏 ${esc(p.tipo)}</span><b>${esc(p.titulo)}</b><div class="small muted">${esc(p.desc)} · termina ${faltaDias(p.fim)}</div>${p.dev ? `<button type="button" class="btn sm ghost" data-dev="${p.dev}">Rezar hoje</button>` : ''}</div>`).join('')}` : ''}
+  ${grupos.length ? grupos.map(g => `<h3 class="ag-dia">${esc(rotDia(g.dia))}</h3>${g.itens.map(i => i.tipo === 'ev' ? eventoCard(i.e) :
+      `<div class="ag-item ag-igreja"><span class="chip neutro">⛪ ${esc(i.x.cat)}</span><b>${esc(i.x.titulo)}</b>${i.x.dev ? `<button type="button" class="btn sm ghost" data-dev="${i.x.dev}">Rezar</button>` : ''}</div>`).join('')}`).join('')
+    : `<div class="empty">${agFiltro === 'igreja' ? 'Nenhuma data especial da Igreja nos próximos dias.' : 'Não há eventos cadastrados para os próximos dias.'}</div>`}
+  ${antigos.length ? `<h2>Também nos avisos</h2><div class="list">${antigos.map(a=>`<div class="row"><div class="grow"><b>${esc(a.evento.titulo)}</b><div class="small muted">${esc(a.evento.quando)}${a.evento.onde?', '+esc(a.evento.onde):''}</div></div></div>`).join('')}</div>` : ''}
+  ${horariosMissaHTML()}
+  ${comunidadesAtivas().some(c => c.mass_schedule) ? `<p class="small muted" style="margin:0 4px 12px">Horários das comunidades: <button class="link-btn" style="color:var(--lit);padding:0" data-pub="comunidades">ver em Comunidades</button></p>` : ''}
+  <button type="button" class="btn block-w" data-acao="intencao" style="margin-top:6px">⛪ Pedir intenção de missa</button>`;
+}
+function bindAgendaPub(root){
+  bindEventos(root); bindAcoes(root); bindDestaques(root);
+  root.querySelectorAll('[data-agf]').forEach(b => b.onclick = () => { agFiltro = b.dataset.agf; render(); });
+}
+
+/* ---------- "Adicionar à minha agenda": um botão só; o mecanismo depende do aparelho ----------
+   iPhone, iPad e Mac: arquivo de calendário (abre direto no app Calendário).
+   Android, Windows e demais: Google Agenda (no Android abre o app). */
+function plataformaAgenda(){
+  const ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  return ios ? 'ios' : /Android/.test(ua) ? 'android' : /Macintosh/.test(ua) ? 'mac' : 'outro';
+}
+function adicionarAgenda(e){
+  const p = plataformaAgenda();
+  if (p === 'ios' || p === 'mac'){ baixarIcs(e); toast('Toque no arquivo para colocar na sua agenda.'); return; }
+  window.open(googleAgendaUrl(e), '_blank', 'noopener');
+}
+
 /* ---------- roteador ---------- */
 function render(){
   document.body.classList.toggle('painel-app', painelApp());
@@ -3075,24 +3466,25 @@ function render(){
   }
   const validas = tabsFor().map(([k]) => k).concat(S.mode==='publico' ? Object.keys(SUBTELAS_PUB) : maisItens().map(([k]) => k));
   if (!validas.includes(S.mode==='painel'?S.tab:S.pubTab)) { if (S.mode==='painel') S.tab='inicio'; else S.pubTab='igreja'; }
-  if (S.mode==='publico' && !vendoAtiva() && !vendoRede()) S.vendo = ATIVA;
   renderTabs();
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
     inicio:[inicioHTML,bindInicio], comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
     ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]})
-  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='igreja'; velaStep='form'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[() => rezaHTML() || igrejaPubHTML(), r => reza.k ? bindRezar(r) : bindIgreja(r)], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
+  } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='velas'; velaStep='inicio'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[rezarPubHTML, bindRezarPub], liturgia:[liturgiaPubHTML, bindLiturgia], intencao:[intencaoPubHTML, bindIntencaoForm],
+    velas:[velasPubHTML, bindVela], devocao:[devocaoPubHTML, r => { bindEventos(r); bindDestaques(r); }], evento:[eventoPubHTML, bindEventoPub], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],
     secretaria: window.S24 ? [S24.publicoHTML, S24.bindPublico] : [igrejaPubHTML, bindIgreja],
-    contato:[contatoPubHTML, r => { const b = r.querySelector('#buscaRede'); b?.addEventListener('input', () => { buscaRede = b.value; const pos=b.selectionStart; render(); const n=document.getElementById('buscaRede'); n.focus(); n.setSelectionRange(pos,pos); }); }] };
+    contato:[contatoPubHTML, r => bindDirLinhas(r, () => DIR.vizinhas || [])] };
   if (S.mode==='publico'){
     const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='igreja'; save(); render(); scrollTo(0,0); }; });
     map.escolher = [escolherHTML, bindEscolher];
-    if (!vendoAtiva()){ map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
+    if (!vendoAtiva()){ map.igreja=[inativaInicioHTML,bindInativa]; map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
     const [h,b] = map[S.pubTab]; v.innerHTML = h(); b(v); pickBind(v);
     v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; if (S.pubTab !== 'dizimista') dzPubEnviado = false; save(); render(); scrollTo(0,0); }; });
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
+    bindAcoes(v); bindDestaques(v);
     return;
   }
   const [h,b] = map[S.tab], noMais = maisItens().some(([k]) => k===S.tab);
