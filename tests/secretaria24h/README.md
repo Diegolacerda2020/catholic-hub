@@ -19,6 +19,7 @@ produção) e do Chrome instalado (`CHROME=/caminho/do/chrome` para usar outro).
 | `sql-multiparoquia-migracao.test.mjs` | banco equivalente à produção + `secretaria24h.sql` 2x sem mudar nenhum dado existente (8 tabelas, policies, grants, funções, `get_public_parish`); multi-paróquia A/B; slug do piloto fora do código principal |
 | `jsdom.test.mjs` | fluxo completo no modo demonstração; `sem-modulo`: o site sem o `secretaria24h.js` |
 | `navegador.test.mjs` | Chrome real com login: fiel, padre, secretaria, PASCOM, multi-paróquia no front, falhas (RPC com erro, banco sem migração, arquivo 404/quebrado, exceção interna), 390 px / 1280 px / modo escuro, screenshots em `shots/` |
+| `ux.test.mjs` | painel responsivo em 390×844, 768×1024, 1024×768, 1366×768 e 1920×1080: barra (celular) × menu lateral (tablet/PC), Início por papel (secretaria, padre, PASCOM), badge, aviso de nova solicitação, 🔔, fila master-detail, “Minhas solicitações”, erro com “Tentar novamente”, termos técnicos, rolagem lateral, acessibilidade básica, tempo de desenho; screenshots em `shots/ux/` |
 
 `banco.mjs` monta o Postgres com o SQL real; `supabase-falso.mjs` é o Supabase falso das suítes anteriores
 (cuida do resto do app), e `banco.mjs#ponte` manda para o Postgres só as chamadas da Secretaria 24h.

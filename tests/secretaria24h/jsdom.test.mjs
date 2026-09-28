@@ -36,7 +36,7 @@ if (semModulo){
   ok(!/Secretaria 24h/.test(view()) && /Secretaria paroquial/.test(view()), 'Paróquia abre normal, sem botão');
   $('#mPainel').click(); await tick();
   w.eval("S.tab='mais'; render()"); await tick();
-  ok(!$('[data-mais="secretaria24h"]') && $$('[data-mais]').length === 5, 'Mais com os 5 itens de antes');
+  ok(!$('[data-mais="secretaria24h"]') && $$('[data-mais]').map(b => b.dataset.mais).join() === 'dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'Mais com os itens de antes (+ Dizimistas, que saiu da barra do celular)');
   ok(!erros.length, 'sem erros de JS ' + erros.join(' | '));
   console.log(fails ? `\n${fails} FALHA(S)` : '\nTUDO OK'); process.exit(fails ? 1 : 0);
 }
@@ -106,13 +106,17 @@ ok(w.eval('S.pubTab') === 'secretaria', 'botão da Paróquia abre a Secretaria 2
 
 console.log('== painel');
 $('#mPainel').click(); await tick();
-const ptabs = $$('#tabs [data-tab]').map(b => b.dataset.tab).join();
-ok(ptabs === 'comunicar,agenda,dizimistas,intencoes,mais', 'barra do painel sem aba nova: ' + ptabs);
+// Celular: barra de baixo com 4 tarefas + Mais. Tablet/computador: todas as áreas no menu lateral (o CSS escolhe).
+const ptabs = $$('#tabs [data-tab]:not(.so-lateral)').map(b => b.dataset.tab).join();
+ok(ptabs === 'inicio,comunicar,agenda,intencoes,mais', 'barra do celular: ' + ptabs);
+const lat = $$('#tabs [data-tab]:not(.so-barra)').map(b => b.dataset.tab).join();
+ok(lat === 'inicio,secretaria24h,comunicar,agenda,intencoes,dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'menu lateral com todas as áreas: ' + lat);
+ok(w.eval('S.tab') === 'inicio' && /Secretaria 24h/.test(view()) && $('[data-ir="s24"]'), 'painel abre no Início, com a Secretaria 24h em destaque');
 w.eval("S.tab='mais'; render()"); await tick();
 ok($('[data-mais="secretaria24h"]') && /Solicitações recebidas pela secretaria digital/.test(view()), 'item "Secretaria 24h" em Mais');
 $('[data-mais="secretaria24h"]').click(); await tick(80);
 ok(/NOVAS|Novas/.test(view()) && $$('.s24-cards .stat').length === 4 && $$('.s24-row').length === 1, 'lista com 4 cards e 1 solicitação');
-ok($('#tabs [aria-current="page"]')?.dataset.tab === 'mais', 'aba Mais marcada');
+ok($$('#tabs [aria-current="page"]').map(x => x.dataset.tab).join() === 'secretaria24h,mais', 'marcado: Secretaria 24h (menu lateral) e Mais (celular)');
 const b = $('#s24Busca'); setVal(b, 'zzz'); await tick();
 ok($$('.s24-row').length === 0, 'busca sem resultado');
 setVal($('#s24Busca'), '98765'); await tick();

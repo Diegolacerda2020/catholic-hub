@@ -153,7 +153,7 @@ t_('consulta sem rolagem lateral', await semRolagemLateral(fiel)); await foto(fi
 { const {p, itens} = await equipe('pascom@teste', 'PASCOM');
   t_('PASCOM: não vê o item', !itens.includes('secretaria24h'), itens);
   await p.evaluate(() => { S.tab = 'secretaria24h'; render(); }); await esperar(300);
-  t_('PASCOM: forçar a tela volta ao início', await p.evaluate(() => S.tab) === 'comunicar');
+  t_('PASCOM: forçar a tela volta ao início', await p.evaluate(() => S.tab) === 'inicio');
   const r = await p.evaluate(async () => { const a = await NUVEM.sb.from('service_requests').select('*').eq('parish_id', NUVEM.parishId); const c = await NUVEM.sb.from('service_request_history').select('*'); return [a.data?.length ?? -1, c.data?.length ?? -1]; });
   t_('PASCOM: não lê solicitações nem histórico', r[0] === 0 && r[1] === 0, r);
   const s = await p.evaluate(async id => (await NUVEM.sb.rpc('staff_update_service_request', {p_request:id, p_status:'closed', p_note:null, p_public_note:false})).error?.code, reqId);
