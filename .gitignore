@@ -8,3 +8,6 @@ node_modules/
 
 # testes locais
 tests/**/shots/
+
+# Catálogo da Arquidiocese (PDF de terceiros, 32 MB): fonte local do importador, não vai para o git
+docs/catalogo-*.pdf
