@@ -13,11 +13,35 @@ const base = f => execSync(`git show bbb34e1:${f}`, {cwd:REPO}).toString();
 let ok = 0, falha = 0; const t = (n, c, x = '') => { c ? ok++ : falha++; console.log(c ? '  ok  ' : '  FALHOU', n, c ? '' : String(x).slice(0, 600)); };
 
 const doc = fs.readFileSync(`${REPO}/docs/HOMOLOGACAO-DIRETORIO.md`, 'utf8');
-// blocos: "**P1." … ```sql …``` ; guarda o rótulo que vem antes de cada bloco
-const blocos = [...doc.matchAll(/(?:\*\*([A-Z]\d)\.[^\n]*\n)?```sql\n([\s\S]*?)```/g)].map(m => ({rot:m[1] || null, sql:m[2]}));
-const achar = rot => blocos.find(b => b.rot === rot)?.sql;
+const secaoMarcada = /^(\*\*)?([A-Z]\d)\.[^\n]*(?:\*\*)?/gm;
+function blocosSql(documento = doc){
+  return [...documento.matchAll(/```sql\n([\s\S]*?)```/g)].map(m => ({sql:m[1], index:m.index}));
+}
+function sqlDaSecao(rot, documento = doc){
+  const secoes = [...documento.matchAll(secaoMarcada)].map(m => ({rot:m[2], index:m.index}));
+  const secao = secoes.find(s => s.rot === rot);
+  if (!secao) throw new Error(`Seção ${rot} não encontrada no roteiro de homologação.`);
+  const proxima = secoes.find(s => s.index > secao.index)?.index ?? documento.length;
+  const bloco = blocosSql(documento).find(b => b.index > secao.index && b.index < proxima);
+  if (!bloco) throw new Error(`Seção ${rot} não tem bloco SQL.`);
+  return bloco.sql;
+}
+function tentar(fn){ try { return {valor:fn()}; } catch(e){ return {erro:e.message}; } }
+function testarParser(){
+  const a = '**P1. Caso A**\n```sql\nselect 1;\n```';
+  const b = '**P1. Caso B**\nTexto explicativo.\n```sql\nselect 1;\n```';
+  const c = '**P1. Sem SQL**\nTexto explicativo.\n**P2. Outra seção**\n```sql\nselect 2;\n```';
+  const d = '**P1. Uma seção**\nTexto explicativo.\n**P2. Outra seção**\n```sql\nselect 2;\n```';
+  t('parser: título colado ao bloco SQL', sqlDaSecao('P1', a).trim() === 'select 1;');
+  t('parser: aceita texto explicativo entre título e SQL', sqlDaSecao('P1', b).trim() === 'select 1;');
+  t('parser: seção sem SQL falha com mensagem clara', tentar(() => sqlDaSecao('P1', c)).erro === 'Seção P1 não tem bloco SQL.');
+  t('parser: P1 não captura SQL de P2', tentar(() => sqlDaSecao('P1', d)).erro === 'Seção P1 não tem bloco SQL.');
+}
+testarParser();
+const blocos = blocosSql(doc);
+const achar = rot => sqlDaSecao(rot);
 t('roteiro tem P1–P7, D1–D3, D6, S1–S4, A1, A2, A4–A6 e o bloco de isolamento',
-  ['P1','P2','P3','P4','P5','P6','P7','D1','D2','D3','D6','S1','S2','S3','S4','A1','A2','A4','A5','A6'].every(achar) && blocos.some(b => b.sql.startsWith('do $$')), blocos.map(b => b.rot).join(','));
+  ['P1','P2','P3','P4','P5','P6','P7','D1','D2','D3','D6','S1','S2','S3','S4','A1','A2','A4','A5','A6'].every(r => tentar(() => achar(r)).valor) && blocos.some(b => b.sql.startsWith('do $$')));
 
 // banco equivalente à produção: schema de bbb34e1 + dados DEMO + Secretaria 24h aplicada + equipe real
 const db = new PGlite({extensions:{pgcrypto}});
