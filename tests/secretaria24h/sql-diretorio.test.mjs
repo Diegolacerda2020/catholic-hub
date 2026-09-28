@@ -36,7 +36,7 @@ const antes = await foto();
 const sa0 = (await q1(db, `select id from parishes where slug='santo-antonio-jaragua'`))[0].id;
 
 for (let i = 1; i <= 2; i++){
-  for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']){
+  for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_santuarios.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']){
     const e = await erro(db.exec(ler(f)));
     t(`${f} (${i}ª vez) roda sem erro`, !e, e);
   }
@@ -50,11 +50,13 @@ t('parishes de Santo Antônio igual (só ganhou directory_id)', JSON.stringify(p
 
 console.log('== diretório');
 const tipos = Object.fromEntries((await q1(db, `select type, count(*)::int n from parish_directory group by type`)).map(r => [r.type, r.n]));
-t('278 entradas do Catálogo 2026 (sem duplicar na 2ª carga)', (await q1(db, `select count(*)::int n from parish_directory`))[0].n === 278, tipos);
-t('por tipo: 273 territoriais, 2 pessoais, 1 militar, 1 curato, 1 área pastoral', tipos.paroquia_territorial === 273 && tipos.paroquia_pessoal === 2 && tipos.paroquia_militar === 1 && tipos.curato === 1 && tipos.area_pastoral === 1 && Object.keys(tipos).length === 5, JSON.stringify(tipos));
+t('293 registros do Catálogo 2026 (sem duplicar na 2ª carga)', (await q1(db, `select count(*)::int n from parish_directory`))[0].n === 293, tipos);
+t('por tipo: 284 territoriais (273 + 11 que são santuário), 2 pessoais, 1 militar, 1 curato, 1 área pastoral, 4 santuários independentes', tipos.paroquia_territorial === 284 && tipos.paroquia_pessoal === 2 && tipos.paroquia_militar === 1 && tipos.curato === 1 && tipos.area_pastoral === 1 && tipos.santuario === 4 && Object.keys(tipos).length === 6, JSON.stringify(tipos));
+t('15 santuários do catálogo (11 também paróquia, 4 independentes), códigos de santuário únicos', (await q1(db, `select count(*)::int n, count(distinct sanctuary_code)::int c, count(*) filter (where type like 'paroquia%')::int p from parish_directory where is_sanctuary`))
+  .every(r => r.n === 15 && r.c === 14 && r.p === 11));
 t('curato e área pastoral NÃO são paróquia', (await q1(db, `select count(*)::int n from parish_directory where type like 'paroquia%' and (name ilike 'curato%' or catalog_code = '292')`))[0].n === 0);
 const st = Object.fromEntries((await q1(db, `select status, count(*)::int n from parish_directory group by status`)).map(r => [r.status, r.n]));
-t('exatamente 3 active, 275 listed', st.active === 3 && st.listed === 275, JSON.stringify(st));
+t('exatamente 3 active, 290 listed', st.active === 3 && st.listed === 290, JSON.stringify(st));
 const ativas = await q1(db, `select d.catalog_code, d.slug, p.slug tenant, p.name from parish_directory d join parishes p on p.directory_id = d.id order by 1`);
 t('3 tenants ligados ao diretório', JSON.stringify(ativas.map(a => [a.catalog_code, a.tenant])) === JSON.stringify([['009','nossa-senhora-das-gracas-ibirite'],['013','santo-antonio-jaragua'],['207','santa-clara-e-sao-francisco-mineirao']]), JSON.stringify(ativas));
 t('nomes dos tenants novos', ativas.map(a => a.name).includes('Paróquia Santa Clara e São Francisco – Mineirão') && ativas.map(a => a.name).includes('Paróquia Nossa Senhora das Graças – Ibirité'), ativas.map(a => a.name));
@@ -75,6 +77,27 @@ r = await busca('');
 t('sem texto: só as 3 ativas', r.length === 3 && r.every(x => x.active));
 r = await busca("'; drop table parishes; --");
 t('busca com texto malicioso não quebra', Array.isArray(r) && (await q1(db, `select count(*)::int n from parishes`))[0].n === 3);
+r = await busca('sao paulo da cruz');
+t('busca "sao paulo da cruz": primeiro resultado é a instituição, paróquia E Santuário Arquidiocesano, uma vez só', r.filter(x => x.name === 'São Paulo da Cruz').length === 1 && r[0].name === 'São Paulo da Cruz' && r[0].type === 'paroquia_territorial' && r[0].is_sanctuary && r[0].sanctuary_kind === 'Santuário Arquidiocesano' && r[0].neighborhood === 'Barreiro de Baixo', JSON.stringify(r));
+r = await busca('São Paulo da Cruz'); t('com acento e maiúsculas também', r[0].name === 'São Paulo da Cruz' && r[0].is_sanctuary);
+for (const [q, esperado] of [['santo antonio jaragua', 'santo-antonio-jaragua'], ['sto antonio jaragua', 'santo-antonio-jaragua'], ['nossa senhora das graças ibirite', 'nossa-senhora-das-gracas-ibirite'], ['n. sra. das graças ibirité', 'nossa-senhora-das-gracas-ibirite'], ['santa clara e sao francisco', 'santa-clara-e-sao-francisco-mineirao']]){
+  r = await busca(q); t(`busca "${q}" encontra ${esperado}`, r.some(x => x.slug === esperado), JSON.stringify(r.map(x => x.slug)));
+}
+r = await busca('sao judas tadeu');
+t('busca "são judas tadeu": várias paróquias, incluindo o Santuário da Graça (um registro só)', r.length >= 5 && r.filter(x => x.neighborhood === 'Graça').length === 1 && r.find(x => x.neighborhood === 'Graça').is_sanctuary, JSON.stringify(r.map(x => x.name + '/' + x.neighborhood)));
+r = await busca('nossa senhora da piedade');
+t('busca "nossa senhora da piedade": inclui a Serra da Piedade (paróquia e Santuário Estadual)', r.some(x => x.neighborhood === 'Serra da Piedade' && x.is_sanctuary && x.sanctuary_kind === 'Santuário Estadual'), JSON.stringify(r.map(x => x.name + '/' + x.neighborhood)));
+for (const [q, bairro] of [['schoenstatt', null], ['saude e paz', 'Pe. Eustáquio'], ['lagoinha', 'Lagoinha'], ['boa viagem santuario', 'Boa Viagem']]){
+  r = await busca(q); t(`santuário: "${q}"`, r.length >= 1 && r.some(x => x.is_sanctuary && (bairro === null || x.neighborhood === bairro)), JSON.stringify(r.map(x => x.name + '/' + x.neighborhood)));
+}
+r = (await como(db, null, async () => q1(db, `select public_directory_search('', 50, 'santuario') r`)))[0].r;
+t('filtro Santuários sem texto: os 15', r.length === 15 && r.every(x => x.is_sanctuary));
+r = (await como(db, null, async () => q1(db, `select public_directory_search('sao francisco', 50, 'santuario') r`)))[0].r;
+t('filtro Santuários + texto: só santuários (Igrejinha da Pampulha)', r.length >= 1 && r.every(x => x.is_sanctuary));
+r = (await como(db, null, async () => q1(db, `select public_directory_search('sao paulo da cruz', 50, 'paroquia') r`)))[0].r;
+t('filtro Paróquias também acha São Paulo da Cruz (é paróquia)', r[0].name === 'São Paulo da Cruz');
+r = await busca('pampulha santuario');
+t('Igrejinha da Pampulha: santuário independente (não unido à paróquia São Francisco de Assis)', r.some(x => x.type === 'santuario' && /Francisco/.test(x.sanctuary_name)) && (await busca('sao francisco de assis')).filter(x => x.forania === 'Santo Antônio (Pampulha)').length === 2);
 const ficha = (await como(db, null, async () => q1(db, `select public_directory_entry('santa-clara-e-sao-francisco-mineirao') r`)))[0].r;
 t('ficha pública com dados do catálogo', ficha.address === 'Rua Mafalda Guimarães Corrieri, 610' && ficha.pastor_name === 'Pe. Bráulio Francisco Tibúrcio' && ficha.catalog_code === '207' && ficha.active);
 
@@ -87,6 +110,7 @@ for (const [quem, uid] of [['anon', null], ['equipe logada', '00000000-0000-0000
 }
 const fnPublicas = (await q1(db, `select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname='public' and has_function_privilege('anon', p.oid, 'execute') order by 1`)).map(x => x.proname);
 t('funções abertas ao visitante: nenhuma nova que escreva no diretório', fnPublicas.filter(f => /dir|directory/.test(f)).join() === 'public_directory_entry,public_directory_search', fnPublicas.join());
+t('nenhum santuário virou tenant', (await q1(db, `select count(*)::int n from parishes p join parish_directory d on d.id = p.directory_id where d.is_sanctuary`))[0].n === 0);
 t('Bom Pastor (listed) continua listed', (await q1(db, `select status from parish_directory where catalog_code='030'`))[0].status === 'listed');
 
 console.log('== tenants novos começam vazios (nada de Santo Antônio)');

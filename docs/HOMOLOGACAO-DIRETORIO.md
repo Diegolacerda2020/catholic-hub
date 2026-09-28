@@ -11,12 +11,16 @@ Ordem:
 1. pré-check (P1–P6)
 2. `supabase/diretorio.sql`
 3. pós-check 1 (D1–D6)
-4. `supabase/diretorio_seed.sql`
-5. pós-check 2 (S1–S5)
+4. `supabase/diretorio_santuarios.sql` (colunas de santuário + busca com filtro)
+5. `supabase/diretorio_seed.sql` (regerado: 293 registros)
+5b. pós-check 2 (S1–S5)
 6. `supabase/diretorio_ativacao.sql`
 7. pós-check 3 (A1–A6)
 8. isolamento real (I1)
 9. só depois: push/deploy do front
+10. (independente) `supabase/doacoes.sql` — seção 11
+
+**O banco real JÁ tem o diretório antigo (278, sem santuários)?** Siga a **seção 10** (atualização), não os passos 2–7.
 
 O front atual em produção não usa nada do diretório. As migrações podem entrar antes do deploy sem mudar o
 que o fiel vê: a página continua sendo a de Santo Antônio.
@@ -134,13 +138,13 @@ A última linha mostra a contagem por tipo.
 
 ## 5. Pós-check 2 (depois do seed)
 
-**S1. Total e tipos** (esperado: 278; territorial 273, pessoal 2, militar 1, curato 1, área pastoral 1)
+**S1. Total e tipos** (esperado: 293; territorial 284 — 273 + 11 que também são santuário —, pessoal 2, militar 1, curato 1, área pastoral 1, santuario 4)
 ```sql
 select type, count(*) from parish_directory group by type
 union all select 'TOTAL', count(*) from parish_directory order by 1;
 ```
 
-**S2. Ano, status, códigos** (esperado: `{2026}`, `{listed}`, 0 duplicados, 3 sem código)
+**S2. Ano, status, códigos** (esperado: `{2026}`, `{listed}`, 0 duplicados, 18 sem código de paróquia — casam pelo slug)
 ```sql
 select array_agg(distinct source_year) as anos, array_agg(distinct status) as status,
        count(catalog_code) - count(distinct catalog_code) as codigos_duplicados,
@@ -160,7 +164,7 @@ from parish_directory where catalog_code in ('013','207','009') order by catalog
 select count(*) over () as total_tenants, slug, directory_id from parishes;
 ```
 
-**S5.** Rode de novo a **P5**: tudo idêntico. Opcional: rode o seed uma 2ª vez e repita a **S1**; deve continuar 278.
+**S5.** Rode de novo a **P5**: tudo idêntico. Opcional: rode o seed uma 2ª vez e repita a **S1**; deve continuar 293.
 
 ---
 
@@ -176,7 +180,7 @@ select p.id, p.slug, p.name, p.directory_id, d.catalog_code, d.status
 from parishes p left join parish_directory d on d.id = p.directory_id order by d.catalog_code;
 ```
 
-**A2. Só 3 ativas no diretório** (esperado: `active 3`, `listed 275`)
+**A2. Só 3 ativas no diretório** (esperado: `active 3`, `listed 290`)
 ```sql
 select status, count(*) from parish_directory group by status order by 1;
 ```
@@ -303,3 +307,53 @@ select (select count(*) from events where title like '[ISO]%') eventos_iso,
 Se a criação do usuário temporário for recusada pelo Supabase ("permission denied for table users"), nada é
 gravado. Nesse caso, crie antes a equipe real de Santa Clara e de N. Sra. das Graças
 (Authentication → Add user + vínculo) e rode o bloco de novo: ele usa a equipe real quando existe.
+
+---
+
+## 10. Atualização: santuários do Catálogo 2026 (banco que já tem o diretório antigo)
+
+**Por que:** no banco real, São Paulo da Cruz não aparece e não há nenhum santuário. Causa: as paróquias que
+também são santuário (São Paulo da Cruz e mais 10) têm ficha **só na seção 7.14** (Santuários) do Catálogo;
+o importador antigo lia só a 7.13. O importador foi corrigido; o seed foi regerado (293 registros).
+
+**U0. Antes** (anote): `select status, count(*) from parish_directory group by 1;` (esperado hoje: active 3, listed 275)
+e a **P5** (checksums).
+
+**U1.** Rodar `supabase/diretorio_santuarios.sql` (colunas novas opcionais, tipo `santuario`, busca com filtro
+Paróquias/Santuários e abreviações). Não altera nenhuma linha.
+
+**U2.** Rodar `supabase/diretorio_seed.sql` (regerado). Insere as 15 entradas novas e atualiza as existentes
+pelo código; **não muda slug nem status** (as 3 ativas continuam ativas). `diretorio_ativacao.sql` NÃO precisa
+rodar de novo.
+
+**U3. Conferência** (esperado: total 293; active 3; listed 290; santuários 15, dos quais 11 também paróquia)
+```sql
+select count(*) total, count(*) filter (where status='active') active, count(*) filter (where status='listed') listed,
+       count(*) filter (where is_sanctuary) santuarios, count(*) filter (where is_sanctuary and type like 'paroquia%') santuario_e_paroquia
+from parish_directory;
+```
+
+**U4. São Paulo da Cruz** (esperado: 1 linha, `paroquia_territorial`, `is_sanctuary` true, Santuário Arquidiocesano, Barreiro de Baixo)
+```sql
+select slug, type, is_sanctuary, sanctuary_name, sanctuary_kind, neighborhood, municipality from parish_directory where slug = 'sao-paulo-da-cruz-barreiro-de-baixo';
+select jsonb_array_length(public_directory_search('sao paulo da cruz')) as resultados; -- esperado >= 1; o 1º é o santuário
+```
+
+**U5.** Rode de novo a **P5**: `parishes`, `parish_state`, `parish_users` e demais tabelas idênticas ao U0.
+
+**Rollback:** ver o cabeçalho de `diretorio_santuarios.sql` (apagar `type = 'santuario'`, voltar a regra de tipo,
+recriar a busca de `diretorio.sql`; as 11 paróquias-santuário podem ficar: são paróquias da relação oficial).
+
+---
+
+## 11. Doações (`supabase/doacoes.sql`) — independente do diretório
+
+Cria `parish_donation_settings` (uma linha por paróquia; só dados públicos de recebimento) e 3 funções.
+Sem nenhuma linha: **doações desligadas nas 3 paróquias** (o botão não aparece). Ninguém lê/grava a tabela direto;
+só padre e suporte, pelas funções. Secretaria e PASCOM não configuram.
+
+**Não inserir** chave Pix nem link de checkout por SQL: quem configura é o padre, no painel (Ajustes › Doações),
+com os dados reais da paróquia.
+
+Conferência (esperado 0): `select count(*) from parish_donation_settings;`
+Rollback: ver o cabeçalho do arquivo.

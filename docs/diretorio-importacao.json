@@ -6,13 +6,28 @@
    "santuarios": 166,
    "foranias": 171
   },
-  "total": 278,
+  "total": 293,
   "porTipo": {
-   "paroquia_territorial": 273,
+   "paroquia_territorial": 284,
    "paroquia_pessoal": 2,
    "paroquia_militar": 1,
    "curato": 1,
-   "area_pastoral": 1
+   "area_pastoral": 1,
+   "santuario": 4
+  },
+  "numeros": {
+   "fichas_713": 278,
+   "paroquias_713": 276,
+   "santuarios_714": 15,
+   "itens_715": 286,
+   "itens_715_casados": 283,
+   "paroquias_no_diretorio": 287,
+   "santuarios_tambem_paroquia": 11,
+   "santuarios_independentes": 4,
+   "sem_ficha_715": 3,
+   "ambiguos": 1,
+   "duplicatas": 0,
+   "fichas_713_fora_da_715": 4
   },
   "regioes": {
    "RENSA": "Região Episcopal Nossa Senhora Aparecida",
@@ -21,19 +36,2493 @@
    "RENSB": "Região Episcopal Nossa Senhora da Boa Viagem",
    "RENSER": "Região Episcopal Nossa Senhora do Rosário"
   },
-  "foranias": 39,
+  "foranias": 40,
   "semCampo": {
-   "catalog_code": 3,
-   "forania": 4,
+   "catalog_code": 18,
+   "forania": 5,
    "address": 1,
    "postal_code": 2,
    "municipality": 2,
-   "neighborhood": 4,
-   "phone": 8,
-   "email": 24,
-   "pastor_name": 4,
-   "founded_on": 1
+   "neighborhood": 5,
+   "phone": 9,
+   "email": 29,
+   "pastor_name": 10,
+   "founded_on": 7
   }
+ },
+ "reconciliacao": {
+  "itens715": [
+   {
+    "forania": "Cristo, Luz dos Povos",
+    "nome": "cristo luz dos povos",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo, Luz dos Povos",
+    "nome": "jesus missionario",
+    "comp": "vista alegre",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo, Luz dos Povos",
+    "nome": "sao francisco de sales",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo, Luz dos Povos",
+    "nome": "sao tarcisio",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome": "bom jesus dos palmares",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome": "cristo sol nascente",
+    "comp": "sol nascente parque durval de barros",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome": "jesus ressuscitado",
+    "comp": "lindeia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome": "sao judas tadeu",
+    "comp": "washington pires",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "jesus maria e jose",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "jesus cristo libertador",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "maria estrela da evangelizacao",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "santa clara e sao francisco",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "santa gemma galgani",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora Aparecida",
+    "nome": "sao dimas",
+    "comp": "vale do jatoba",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "bom jesus do amparo",
+    "comp": "parque sao joao",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "imaculada conceicao",
+    "comp": "santa maria",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "nossa senhora aparecida",
+    "comp": "camargos",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "nossa senhora da gloria",
+    "comp": "eldorado",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "nossa senhora do perpetuo socorro",
+    "comp": "jardim bandeirantes",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "santa cruz",
+    "comp": "santa cruz industrial",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "santa maria rainha dos apostolos",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "sao judas tadeu",
+    "comp": "gloria eldorado",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "coracao de maria mae dos missionarios",
+    "comp": "petrovale betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "nossa senhora das gracas",
+    "comp": "ibirite",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "nossa senhora das merces",
+    "comp": "ibirite",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "nossa senhora de fatima",
+    "comp": "ibirite",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "nosso senhor dos passos e sao cristovao",
+    "comp": "sarzedo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Graças",
+    "nome": "santa rosa de lima",
+    "comp": "sarzedo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora aparecida",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora do carmo",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora do perpetuo socorro",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora do rosario e sao sebastiao",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sagrado coracao de jesus",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "santa isabel",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "santa teresinha",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sao francisco de assis",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sao judas tadeu",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sao judas tadeu e frei galvao",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "cristo rei",
+    "comp": "amazonas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "cristo salvador",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "nossa senhora de fatima",
+    "comp": "jardim industrial",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "nossa senhora do sagrado coracao",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "sagrado coracao de jesus",
+    "comp": "riacho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "santo agostinho",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "sao jose operario",
+    "comp": "industrial",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Sagrado Coração",
+    "nome": "divino espirito santo",
+    "comp": null,
+    "qual": "curato",
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "jesus operario",
+    "comp": "petrolandia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "nossa senhora das dores",
+    "comp": "santa helena",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "nossa senhora do rosario",
+    "comp": "alvorada",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "sao domingos",
+    "comp": "nova contagem",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "sao goncalo",
+    "comp": "contagem",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "sao jose de anchieta",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "sao pio de pietrelcina",
+    "comp": "vila cristina",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "santa teresa de calcuta",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "divino pai eterno",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "maria mae dos pobres",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "nossa senhora da conceicao",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "sao cristovao",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Conceição",
+    "nome": "sao joao bosco",
+    "comp": "betim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "sao joao xxiii",
+    "comp": "brasil industrial",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "cristo redentor",
+    "comp": "barreiro de cima",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "nossa senhora do bom conselho",
+    "comp": "cardoso",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "nossa senhora da piedade",
+    "comp": "industrias",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "sao jose e sao gabriel passionista",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo da Cruz",
+    "nome": "sao paulo da cruz",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Quitéria",
+    "nome": "beato padre eustaquio",
+    "comp": "novo retiro",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Quitéria",
+    "nome": "divino espirito santo",
+    "comp": "esmeraldas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Quitéria",
+    "nome": "maria mae de jesus",
+    "comp": "esmeraldas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Quitéria",
+    "nome": "santa quiteria",
+    "comp": "esmeralda",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Quitéria",
+    "nome": "sao paulo apostolo",
+    "comp": "esmeraldas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "imaculado coracao de maria",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "nossa senhora da conceicao dos pobres",
+    "comp": "lagoinha",
+    "qual": "santuario arquidiocesano",
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "nossa senhora da paz",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "nossa senhora do santissimo sacramento",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "santa ines",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "sao cristovao",
+    "comp": "sao cristovao",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "sao lucas",
+    "comp": "palmares",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "sao pio x",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Paz",
+    "nome": "senhor bom jesus",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "divina misericordia e sao joao paulo ii",
+    "comp": "ceu azul",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "jesus de nazare",
+    "comp": "ribeirao das neves",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "nossa senhora de guadalupe",
+    "comp": "ceu azul",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "nossa senhora da piedade",
+    "comp": "justinopolis",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "santissimo sacramento",
+    "comp": "justinopolis",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "santo inacio de loyola e sao judas tadeu",
+    "comp": "maria helena",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "sao gaspar bertoni",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "sao joao batista",
+    "comp": "sao joao de deus",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "sao jose",
+    "comp": "sao jose justinopolis",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Piedade",
+    "nome": "sagrada familia",
+    "comp": "ribeirao das neves",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "nossa senhora da conceicao",
+    "comp": "pedro leopoldo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "nossa senhora da saude",
+    "comp": "lagoa santa",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "nossa senhora das gracas",
+    "comp": "lagoa santa",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "santo antonio",
+    "comp": "pedro leopoldo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "sao jose",
+    "comp": "confins",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "sao paulo missionario",
+    "comp": "lagoa santa",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "sao sebastiao",
+    "comp": "pedro leopoldo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "sao sebastiao",
+    "comp": "varzea",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "nossa senhora de loreto",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora da Saúde",
+    "nome": "rainha dos martires",
+    "comp": null,
+    "qual": "area pastoral",
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "nossa senhora da conceicao aparecida",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "nossa senhora das neves",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "nossa senhora das vitorias e santo antonio",
+    "comp": "rosa neves",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "nossa senhora do rosario",
+    "comp": "santa martinha",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "sagrada familia de nazare",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "sao francisco de assis",
+    "comp": "veneza",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Neves",
+    "nome": "sao judas tadeu",
+    "comp": "san genaro",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "cristo rei",
+    "comp": "vespasiano",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "espirito santo consolador",
+    "comp": "vespasiano",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "nossa senhora aparecida",
+    "comp": "morro alto",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "nossa senhora de lourdes",
+    "comp": "vespasiano",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "sao jose",
+    "comp": "jardim da gloria vespasiano",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora de Lourdes",
+    "nome": "sao jose",
+    "comp": "sao jose da lapa",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "bom jesus e nossa senhora aparecida",
+    "comp": "kennedy",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "nossa senhora aparecida",
+    "comp": "bom destino",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "santa luzia",
+    "comp": "santa luzia",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "santa teresinha do menino jesus",
+    "comp": "baronesa",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "santissima trindade",
+    "comp": "santa luzia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "sao benedito",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "sao joao batista",
+    "comp": "santa luzia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Luzia",
+    "nome": "sao raimundo nonato",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "santos pastorinhos francisco e jacinta marto",
+    "comp": "etelvina carneiro",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "cristo operario",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "nossa senhora da divina providencia",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "nossa senhora da misericordia",
+    "comp": "itapoa",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "nossa senhora do belo ramo",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "santo antonio",
+    "comp": "jaragua",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "sao bernardo",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "sao francisco de assis",
+    "comp": "sao francisco",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "imaculado coracao de maria e santo antonio",
+    "comp": "sao joao batista venda nova",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "nossa senhora aparecida",
+    "comp": "mantiqueira",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "nossa senhora de fatima e sao miguel",
+    "comp": "jardim leblon",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "santa cecilia",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "santa monica",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "santo antonio",
+    "comp": "venda nova",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "sao geraldo",
+    "comp": "piratininga",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "sao sebastiao e santa edwiges",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "sao sebastiao e sao vicente",
+    "comp": "santa amelia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Venda Nova)",
+    "nome": "nossa senhora do sagrado coracao",
+    "comp": "santa branca",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "nossa senhora da anunciacao",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "nossa senhora da paz",
+    "comp": "guarani",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "pai misericordioso",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "santa maria de nazare",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "sao domingos",
+    "comp": "ribeiro de abreu",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "sao francisco xavier",
+    "comp": "tupi",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "sao jose operario",
+    "comp": "aarao reis",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José Operário",
+    "nome": "todos os santos",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "cristo crucificado",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "maria mae do senhor",
+    "comp": "sabara",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "nossa senhora das vitorias",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "santa maria mae de deus",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "sao marcos",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Paulo Apóstolo",
+    "nome": "sao paulo apostolo",
+    "comp": "sao paulo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "imaculada conceicao",
+    "comp": "nova pampulha",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "nossa senhora auxiliadora",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "nossa senhora de guadalupe",
+    "comp": "castelo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "nossa senhora de lourdes",
+    "comp": "parque recreio",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "santa teresinha",
+    "comp": "santa teresinha",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "sao dimas",
+    "comp": "serrano",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "bom pastor",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "coracao eucaristico de jesus",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "nossa senhora auxiliadora",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "nossa senhora rainha da paz",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "santa clara da piedade",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "santa margarida maria alacoque",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "santos anjos da guarda",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "sao francisco das chagas",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "nome": "sao luiz gonzaga",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "sagrada familia",
+    "comp": "havai",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "santa clara de assis",
+    "comp": "buritis",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "santa maria estrela da manha",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "sao joao batista",
+    "comp": "salgado filho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "sao jorge",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "sao judas tadeu",
+    "comp": "parque sao jose",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Batista",
+    "nome": "sao sebastiao",
+    "comp": "estrela do oriente",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "maria serva do senhor",
+    "comp": "alipio de melo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "nossa senhora da gloria",
+    "comp": "gloria",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "santa maria mae de misericordia",
+    "comp": "california",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "santo antonio",
+    "comp": "vila belem",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "santo antonio maria claret",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "sao francisco de assis",
+    "comp": "morada nova",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "sao joao bosco",
+    "comp": "dom bosco",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "sao miguel arcanjo",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São João Bosco",
+    "nome": "sao tiago maior",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "nossa senhora do pilar",
+    "comp": "barroca",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "sagrado coracao de jesus",
+    "comp": "nova granada",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "santa teresinha do menino jesus da santa face",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "santissima trindade",
+    "comp": "gutierrez",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "santo cura d ars",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "sao jose",
+    "comp": "calafate",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "sao vicente de paulo",
+    "comp": "nova suica",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José (Calafate)",
+    "nome": "sao domingos",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Boa Vista)",
+    "nome": "divino espirito santo",
+    "comp": "jardim laguna i",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Boa Vista)",
+    "nome": "nossa senhora da boa nova",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Boa Vista)",
+    "nome": "sao joaquim",
+    "comp": "sao joaquim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Boa Vista)",
+    "nome": "sao sebastiao",
+    "comp": "boa vista",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Boa Vista)",
+    "nome": "verbo divino",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "da santissima eucaristia nossa senhora da boa viagem",
+    "comp": null,
+    "qual": "santuario arquidiocesano",
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "nossa senhora da consolacao e correia",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "nossa senhora de fatima",
+    "comp": "santo agostinho",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "nossa senhora de lourdes",
+    "comp": "lourdes",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "santo antonio",
+    "comp": "funcionarios",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "sao jose",
+    "comp": "centro",
+    "qual": "santuario arquidiocesano",
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São José",
+    "nome": "sao sebastiao",
+    "comp": "barro preto",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "nossa senhora das dores",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "nossa senhora das gracas e medalha milagrosa",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "santa luzia",
+    "comp": "cidade nova",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "santo afonso de ligorio",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "sao judas tadeu",
+    "comp": "graca",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "sao pedro apostolo",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora das Dores",
+    "nome": "sao vicente de paulo",
+    "comp": "cidade ozanan",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "nossa senhora da assuncao",
+    "comp": "ravena",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "nossa senhora da piedade",
+    "comp": "serra da piedade",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "nossa senhora de nazare",
+    "comp": "morro vermelho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "nossa senhora do bom sucesso",
+    "comp": "caete",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "nossa senhora mae de deus",
+    "comp": "rocas novas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "santissimo sacramento",
+    "comp": "taquaracu",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "sao francisco de assis",
+    "comp": "jose brandao",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "sao joao paulo ii",
+    "comp": "bonsucesso",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "nome": "sao sebastiao",
+    "comp": "nova uniao",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "bom jesus do vale",
+    "comp": "vale do sereno",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora do carmo",
+    "comp": "sion",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora do morro",
+    "comp": "vila barragem santa lucia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "nossa senhora rainha",
+    "comp": "belvedere",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "santa maria mae do redentor",
+    "comp": "pilar olhos d agua",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sao bento",
+    "comp": "sao bento",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Carmo",
+    "nome": "sao mateus",
+    "comp": "anchieta",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "nossa senhora da conceicao",
+    "comp": "raposos",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "nossa senhora do pilar",
+    "comp": "nova lima",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "santa efigenia",
+    "comp": "nova lima",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "santo antonio",
+    "comp": "nova lima",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "santo antonio",
+    "comp": "rio acima",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "sao jose esposo de maria",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "sao jose operario",
+    "comp": "honorio bicalho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Pilar",
+    "nome": "sao judas tadeu",
+    "comp": "jardim canada",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Rosário da Pompéia",
+    "nome": "nossa senhora aparecida",
+    "comp": "alto vera cruz",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Rosário da Pompéia",
+    "nome": "nossa senhora do rosario da pompeia",
+    "comp": "pompeia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Rosário da Pompéia",
+    "nome": "nossa senhora medianeira e santa luzia",
+    "comp": "santa efigenia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Rosário da Pompéia",
+    "nome": "santa cruz",
+    "comp": "vera cruz",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Nossa Senhora do Rosário da Pompéia",
+    "nome": "sao gabriel",
+    "comp": "taquaril",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "santa dulce dos pobres",
+    "comp": "aglomerado da serra",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "divino espirito santo",
+    "comp": "santa efigenia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "santana",
+    "comp": "serra",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "santa helena",
+    "comp": "santa efigenia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "sao joao evangelista",
+    "comp": "serra",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Teresa e Santa Teresinha",
+    "nome": "nossa senhora da gloria",
+    "comp": "osvaldo cruz",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Teresa e Santa Teresinha",
+    "nome": "sagrada familia",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Teresa e Santa Teresinha",
+    "nome": "santa edith stein",
+    "comp": "sagrada familia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Teresa e Santa Teresinha",
+    "nome": "santa teresa e santa teresinha",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santa Teresa e Santa Teresinha",
+    "nome": "senhor bom jesus do horto",
+    "comp": "horto",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "menino jesus",
+    "comp": "santo antonio",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "nossa senhora mae da igreja",
+    "comp": "vila paris",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "santa rita de cassia",
+    "comp": "sao pedro",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "santo antonio",
+    "comp": "contorno",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "santo inacio de loyola",
+    "comp": "cidade jardim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Santo Antônio (Contorno)",
+    "nome": "sao bras",
+    "comp": "conjunto santa maria",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Sabará)",
+    "nome": "nossa senhora da conceicao",
+    "comp": "siderurgica",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Sabará)",
+    "nome": "nossa senhora do rosario",
+    "comp": "centro sabara",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Sabará)",
+    "nome": "santo antonio",
+    "comp": "roca grande",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Sebastião (Sabará)",
+    "nome": "sao sebastiao",
+    "comp": "general carneiro",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "nossa senhora aparecida",
+    "comp": "boa vista",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "nossa senhora de nazare",
+    "comp": "santa ines",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "nossa senhora do perpetuo socorro",
+    "comp": "boa vista",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "nossa senhora mae dos homens",
+    "comp": "boa vista",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "santa lucia",
+    "comp": "ana lucia sabara",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Geraldo",
+    "nome": "sao geraldo",
+    "comp": "sao geraldo",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "mae da divina misericordia",
+    "comp": "brumadinho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "nossa senhora da conceicao",
+    "comp": "mario campos",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "nossa senhora da piedade",
+    "comp": "piedade do paraopeba",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "sao caetano",
+    "comp": "moeda",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "sao jose",
+    "comp": "sao jose do paraopeba aranhas",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "São Caetano",
+    "nome": "sao sebastiao",
+    "comp": "brumadinho",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "senhor do bonfim",
+    "comp": "bonfim",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "nossa senhora da piedade",
+    "comp": "piedade dos gerais",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "santa cruz e sao geraldo",
+    "comp": "crucilandia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "santa luzia",
+    "comp": "rio manso",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "santo antonio",
+    "comp": "vargem alegre",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Senhor do Bonfim",
+    "nome": "sao goncalo",
+    "comp": "belo vale",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual"
+   },
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome": "nossa senhora aparecida e sao miguel",
+    "comp": null,
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "nome igual, mas a ficha (7.13) aponta outra forania: Nossa Senhora do Sagrado Coração"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome": "nossa senhora da conceicao",
+    "comp": "novo eldorado",
+    "qual": null,
+    "fonte": "7.14",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome": "santa edwiges",
+    "comp": "bernardo monteiro",
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome": "santa catarina de laboure",
+    "comp": null,
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido)"
+   },
+   {
+    "forania": "São Dimas",
+    "nome": "nossa senhora perpetuo socorro e sao damiao de molokai",
+    "comp": null,
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido)"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome": "santa efigenia",
+    "comp": "santa efigenia",
+    "qual": null,
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   }
+  ],
+  "variacoes": [
+   {
+    "forania": "Cristo Sol Nascente",
+    "nome715": "nossa senhora aparecida e sao miguel",
+    "ficha": "NOSSA SENHORA APARECIDA E SÃO MIGUEL",
+    "codigo": "012",
+    "fonte": "7.13",
+    "regra": "nome igual, mas a ficha (7.13) aponta outra forania: Nossa Senhora do Sagrado Coração"
+   },
+   {
+    "forania": "Nossa Senhora da Glória",
+    "nome715": "nossa senhora da conceicao (novo eldorado)",
+    "ficha": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA CONCEIÇÃO APARECIDA",
+    "codigo": "222",
+    "fonte": "7.14",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   },
+   {
+    "forania": "São Gonçalo",
+    "nome715": "santa edwiges (bernardo monteiro)",
+    "ficha": "SÃO NORBERTO E SANTA EDWIGES",
+    "codigo": "262",
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   },
+   {
+    "forania": "Santo Antônio (Pampulha)",
+    "nome715": "santa catarina de laboure",
+    "ficha": "SANTA CATARINA LABOURÉ",
+    "codigo": "190",
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido)"
+   },
+   {
+    "forania": "São Dimas",
+    "nome715": "nossa senhora perpetuo socorro e sao damiao de molokai",
+    "ficha": "NOSSA SENHORA DO PERPÉTUO SOCORRO E SÃO DAMIÃO DE MOLOKAI",
+    "codigo": "214",
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido)"
+   },
+   {
+    "forania": "Santa Efigênia",
+    "nome715": "santa efigenia (santa efigenia)",
+    "ficha": "SANTA EFIGÊNIA DOS MILITARES",
+    "codigo": "096",
+    "fonte": "7.13",
+    "regra": "variação de grafia (mesma forania, nome contido, mesmo bairro/cidade)"
+   }
+  ],
+  "semFicha": [
+   {
+    "forania": "São Gonçalo",
+    "regiao": "RENSA",
+    "nome": "sao norberto (bela vista)",
+    "motivo": "na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado"
+   },
+   {
+    "forania": "São Francisco das Chagas",
+    "regiao": "RENSE",
+    "nome": "sagrados coracoes",
+    "motivo": "na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado"
+   },
+   {
+    "forania": "São João Bosco",
+    "regiao": "RENSE",
+    "nome": "area pastoral nossa senhora aparecida",
+    "motivo": "na relação oficial (7.15), sem ficha na 7.13/7.14 que case com segurança: não importado"
+   }
+  ],
+  "naoCasados713": [
+   {
+    "codigo": null,
+    "nome": "MARIA, MÃE DA ESPERANÇA",
+    "type": "paroquia_territorial",
+    "forania": "Nossa Senhora da Conceição",
+    "bairro": "Amazonas"
+   },
+   {
+    "codigo": "301",
+    "nome": "NOSSA SENHORA RAINHA DOS ANJOS",
+    "type": "paroquia_territorial",
+    "forania": null,
+    "bairro": "Alphaville"
+   },
+   {
+    "codigo": "333",
+    "nome": "SAGRADO CORAÇÃO DE JESUS",
+    "type": "paroquia_territorial",
+    "forania": "São Gonçalo",
+    "bairro": "Icaivera"
+   },
+   {
+    "codigo": "335",
+    "nome": "SÃO LUIZ GONZAGA",
+    "type": "paroquia_territorial",
+    "forania": "São Gonçalo",
+    "bairro": "Industrial São Luiz"
+   }
+  ],
+  "ambiguos": [
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SÃO FRANCISCO DE ASSIS",
+    "paroquia": "SÃO FRANCISCO DE ASSIS",
+    "catalog_code": "094",
+    "motivo": "mesmo nome e forania, endereço diferente (Av. Dr. Otacílio Negrão de Lima, 3000 × Rua Pe. Leopoldo Mertens, 1121): não unido"
+   }
+  ],
+  "unioes": [],
+  "santuariosIndependentes": [
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DO ROSÁRIO",
+    "sanctuary_code": "331",
+    "forania": null,
+    "motivo": "não aparece como paróquia na 7.15 nem casa com ficha da 7.13"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO DA SAÚDE E DA PAZ",
+    "sanctuary_code": "057",
+    "forania": "São Francisco das Chagas",
+    "motivo": "não aparece como paróquia na 7.15 nem casa com ficha da 7.13"
+   },
+   {
+    "santuario": "SANTUÁRIO DE SCHOENSTATT “TABOR DA LIBERDADE”",
+    "sanctuary_code": null,
+    "forania": null,
+    "motivo": "não aparece como paróquia na 7.15 nem casa com ficha da 7.13"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SÃO FRANCISCO DE ASSIS",
+    "sanctuary_code": "283",
+    "forania": "Santo Antônio (Pampulha)",
+    "motivo": "ambíguo (ver acima)"
+   }
+  ],
+  "santuariosSoNa715": [
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA PIEDADE (SERRA DA PIEDADE)",
+    "sanctuary_code": "240",
+    "forania": "Nossa Senhora do Bom Sucesso",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA SAÚDE",
+    "sanctuary_code": "099",
+    "forania": "Nossa Senhora da Saúde",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO DA SANTÍSSIMA EUCARISTIA - NOSSA SENHORA DA BOA VIAGEM",
+    "sanctuary_code": "166",
+    "forania": "São José",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA CONCEIÇÃO DOS POBRES (LAGOINHA)",
+    "sanctuary_code": "032",
+    "forania": "Nossa Senhora da Paz",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DE FÁTIMA",
+    "sanctuary_code": "169",
+    "forania": "São José",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA CONCEIÇÃO APARECIDA",
+    "sanctuary_code": "222",
+    "forania": "Nossa Senhora da Glória",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SANTA LUZIA",
+    "sanctuary_code": "046",
+    "forania": "Santa Luzia",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SÃO JOSÉ",
+    "sanctuary_code": "156",
+    "forania": "São José",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SÃO JUDAS TADEU (BAIRRO DA GRAÇA)",
+    "sanctuary_code": "042",
+    "forania": "Nossa Senhora das Dores",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SANTO ANTÔNIO (ROÇA GRANDE)",
+    "sanctuary_code": "004",
+    "forania": "São Sebastião (Sabará)",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   },
+   {
+    "santuario": "SANTUÁRIO ARQUIDIOCESANO SÃO PAULO DA CRUZ (BARREIRO)",
+    "sanctuary_code": "159",
+    "forania": "São Paulo da Cruz",
+    "regra": "na relação oficial de paróquias (7.15) e sem ficha na 7.13: paróquia e santuário, um registro só"
+   }
+  ],
+  "foraDoEscopo": [
+   {
+    "forania": "São João Bosco",
+    "nome": "Capela Curial Santo Expedito"
+   }
+  ]
  },
  "diretorio": [
   {
@@ -54,7 +2543,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Côn. Dalvinei de Jesus,Opraem",
    "founded_on": "2013-01-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "216",
@@ -74,7 +2570,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Evair Cândido",
    "founded_on": "1996-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "316",
@@ -94,7 +2597,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alexandre Fernandes",
    "founded_on": "2018-12-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "229",
@@ -114,7 +2624,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jhonatan Lopes Souza, CR",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "269",
@@ -134,7 +2651,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Onofre Agatão Ferreira Júnior",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "030",
@@ -154,7 +2678,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Mateus Lopes",
    "founded_on": "1966-07-04",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "265",
@@ -174,7 +2705,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Juarez Clésio de Oliveira",
    "founded_on": "2002-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "008",
@@ -194,7 +2732,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Júnior Vasconcelos do Amaral",
    "founded_on": "1959-05-02",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "187",
@@ -214,7 +2759,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. André de Souza, CRSP",
    "founded_on": "1989-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "059",
@@ -234,7 +2786,14 @@
    "pastor_role": "Adm. Paroquial \"pro tempore\"",
    "pastor_name": "Pe. Reinaldo dos Reis Silveira, CR",
    "founded_on": "1966-07-04",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "045",
@@ -254,7 +2813,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Marcos Monteiro",
    "founded_on": "1968-08-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "016",
@@ -274,7 +2840,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Felipe dos Santos Barbosa, OSA",
    "founded_on": "1969-04-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "047",
@@ -294,7 +2867,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Domingos Barbosa Filho",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "249",
@@ -314,7 +2894,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Reinaldo Alves de Freitas",
    "founded_on": "2000-06-10",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "066",
@@ -334,7 +2921,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Luiz Antônio da Silva, MO",
    "founded_on": "1977-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "327",
@@ -354,7 +2948,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Wagner Douglas Gomes de Souza",
    "founded_on": "2022-08-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "323",
@@ -374,7 +2975,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Adilson Pontes",
    "founded_on": "2021-10-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "326",
@@ -394,7 +3002,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jotaci Brasiliano Conceição de Oliveira",
    "founded_on": "2022-07-17",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "072",
@@ -414,7 +3029,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Agnaldo Fernandes do Carmo",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "215",
@@ -434,7 +3056,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ezenaldo Silva Araújo, CSSp",
    "founded_on": "1995-08-15",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "267",
@@ -447,14 +3076,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": "Betim",
    "neighborhood": "Jd. Alterosa/2ª seção",
-   "address": "(Betim) Rua Crisântemo, 150",
+   "address": "Rua Crisântemo, 150",
    "postal_code": "32673-186",
    "phone": "3511-7927",
    "email": "paieterno@ig.com.br",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Felipe Mendes Santiago",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "293",
@@ -474,7 +3110,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Márcio Antônio da Silva",
    "founded_on": "2009-12-21",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "194",
@@ -494,7 +3137,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Rodrigo Duarte, CSCh",
    "founded_on": "1991-10-12",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "241",
@@ -514,7 +3164,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Daniel Custódio Antunes",
    "founded_on": "1999-07-09",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "295",
@@ -534,7 +3191,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Geraldo Lisboa",
    "founded_on": "2011-11-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "257",
@@ -554,7 +3218,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Roberto Costa",
    "founded_on": "2000-10-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "162",
@@ -574,7 +3245,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcos Albuquerque Gomes",
    "founded_on": "1982-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "278",
@@ -594,7 +3272,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Pedro Custódio da Silva",
    "founded_on": "2004-01-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "330",
@@ -614,7 +3299,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jaime Pedro Mathe, MBN",
    "founded_on": "2023-08-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "227",
@@ -634,7 +3326,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ricardo Hissa El Hanna",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "067",
@@ -654,7 +3353,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Newton Júnior Fleure Dias",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "022",
@@ -674,7 +3380,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Wellington Santos",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "304",
@@ -694,7 +3407,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. David de Castro dos Santos",
    "founded_on": "2018-03-21",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "263",
@@ -714,7 +3434,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Rômulo José Domingos Moreira 144",
    "founded_on": "2000-11-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": null,
@@ -734,7 +3461,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Vicente Custódio de Menezes",
    "founded_on": "2025-09-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "328",
@@ -754,7 +3488,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Mikaill Coaglio Silva Lucas",
    "founded_on": "2023-02-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "264",
@@ -774,7 +3515,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Cleber Brito Santos",
    "founded_on": "2001-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "188",
@@ -787,14 +3535,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": "Betim",
    "neighborhood": "Jardim Teresópolis",
-   "address": "(Betim) Av. Belo Horizonte, 1563",
+   "address": "Av. Belo Horizonte, 1563",
    "postal_code": "32681-885",
    "phone": "99830-9424",
    "email": "mariamaedospobres@yahoo.com.br",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Cássio Ferreira Borges",
    "founded_on": "1989-02-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "245",
@@ -814,7 +3569,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Resende",
    "founded_on": "2000-05-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "163",
@@ -834,7 +3596,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Richard Luiz Eduardo",
    "founded_on": "1960-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "117",
@@ -854,7 +3623,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Flávio da Silva Ramos",
    "founded_on": "1984-07-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "076",
@@ -874,7 +3650,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Francisco de Paula Vítor Silva",
    "founded_on": "1968-01-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "134",
@@ -894,7 +3677,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Lucas Henrique Aguiar Rodrigues",
    "founded_on": "1983-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "068",
@@ -914,7 +3704,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Thiago de Oliveira Silva, CICM",
    "founded_on": "1952-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "165",
@@ -934,7 +3731,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Francisco Fernandes de Oliveira",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "143",
@@ -954,7 +3758,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Luiz Antônio Maciel, SM",
    "founded_on": "1986-08-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "203",
@@ -974,7 +3785,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Elias Floriano dos Santos",
    "founded_on": "1993-06-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "012",
@@ -994,7 +3812,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Nilson Moreira Santana",
    "founded_on": "1977-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "011",
@@ -1014,7 +3839,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Francinaldo Lustosa Magalhães, OCD",
    "founded_on": "1958-08-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "311",
@@ -1034,7 +3866,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Francisco de Assis Rodrigues",
    "founded_on": "2014-03-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "130",
@@ -1054,7 +3893,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Filipe Silva Pereira Gouvêa",
    "founded_on": "1985-10-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "063",
@@ -1074,7 +3920,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Fernandes da Silva",
    "founded_on": "1855-05-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "201",
@@ -1094,7 +3947,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Armando Vicente, MBN",
    "founded_on": "1993-08-15",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "122",
@@ -1107,14 +3967,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": "Betim",
    "neighborhood": "Santa Cruz",
-   "address": "(Betim) Rua Dr. Romeu Lages, 185",
+   "address": "Rua Dr. Romeu Lages, 185",
    "postal_code": "32667-374",
    "phone": "3592-2652",
    "email": "pnsconceicaoptb@gmail.com",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Deuslando Daniel de Assis",
    "founded_on": "1984-07-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "135",
@@ -1134,7 +4001,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Maicon Cleberton de Paula",
    "founded_on": "1690-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "064",
@@ -1147,14 +4021,21 @@
    "forania": "São Sebastião (Sabará)",
    "municipality": "Sabará",
    "neighborhood": "Siderúrgica",
-   "address": "Forania São Sebastião Praça Getúlio Vargas, s/nº",
+   "address": "Praça Getúlio Vargas, s/nº",
    "postal_code": "34505-730",
    "phone": "3674-8793",
    "email": "pnsraconc@oi.com.br",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Fenando de Mello",
    "founded_on": "1724-02-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "070",
@@ -1174,7 +4055,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Vanderlan Gomes da Paz, CP",
    "founded_on": "1929-01-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "209",
@@ -1194,7 +4082,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Edson Marques Alcântara",
    "founded_on": "1994-06-02",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "270",
@@ -1214,7 +4109,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Paulo Bastos de Araújo, CCVE",
    "founded_on": "2002-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "168",
@@ -1234,7 +4136,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Rodrigo Antônio de Jesus, OSA",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "025",
@@ -1254,7 +4163,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Geraldo Dionízio Bazílio, FDP",
    "founded_on": "1949-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "024",
@@ -1274,7 +4190,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Antônio da Silva",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "018",
@@ -1294,7 +4217,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Flávio Luiz Gonzaga dos Santos, CSSp",
    "founded_on": "1968-05-07",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "164",
@@ -1314,7 +4244,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Domingos Jacinto Pimenta",
    "founded_on": "1964-04-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "242",
@@ -1334,7 +4271,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Geovani Antônio Dias, MI",
    "founded_on": "2000-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "258",
@@ -1354,7 +4298,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Francisco Esteves Pimenta",
    "founded_on": "2001-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "060",
@@ -1374,7 +4325,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Moacir Rocha",
    "founded_on": "1938-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "174",
@@ -1394,7 +4352,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Edson Lucas Parreiras",
    "founded_on": "1840-04-03",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "002",
@@ -1414,7 +4379,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Nêmio José de Oliveira",
    "founded_on": "1966-01-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "139",
@@ -1434,7 +4406,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Fernando Geraldo da Silva",
    "founded_on": "1982-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "175",
@@ -1454,7 +4433,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Afonso Gomes Chivela, MBN",
    "founded_on": "1832-07-14",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "033",
@@ -1474,7 +4460,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Áureo Nogueira de Freitas",
    "founded_on": "1927-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "313",
@@ -1494,7 +4487,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Rogério Jolins Martins",
    "founded_on": "2017-10-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "009",
@@ -1514,7 +4514,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Frei Francisco Willams Xavier, ODeM",
    "founded_on": "1960-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "114",
@@ -1534,7 +4541,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ronaldo Teixeira Brito",
    "founded_on": "1984-08-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "119",
@@ -1554,7 +4568,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Walter de Cássia Messias",
    "founded_on": "1936-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "296",
@@ -1574,7 +4595,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Inácio José Tadeu Rodrigues Martins, ODeM",
    "founded_on": "2012-03-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "106",
@@ -1594,7 +4622,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Eribaldo Pereira Santos",
    "founded_on": "1940-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "112",
@@ -1614,7 +4649,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ricardo Barbosa Corrêa",
    "founded_on": "1983-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "251",
@@ -1634,7 +4676,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. João Paulo Ponciano de Farias",
    "founded_on": "2000-06-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "126",
@@ -1654,7 +4703,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Juarez Carlos Soares, CM",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "276",
@@ -1674,7 +4730,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Daniel Cordeiro Martins",
    "founded_on": "2003-06-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "255",
@@ -1694,7 +4757,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Eloísio Vieira da Silva",
    "founded_on": "2000-10-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "170",
@@ -1714,7 +4784,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Mário Lúcio Fernandes da Silva",
    "founded_on": "1981-03-13",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "223",
@@ -1734,7 +4811,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Felipe Carvalho de Macêdo",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "171",
@@ -1754,7 +4838,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ozanilton Batista de Abreu, CMF",
    "founded_on": "1923-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "253",
@@ -1774,7 +4865,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alessander Geraldo dos Santos",
    "founded_on": "2000-09-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "069",
@@ -1794,7 +4892,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Lauro Elias de Oliveira",
    "founded_on": "1921-11-03",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "173",
@@ -1814,7 +4919,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Celmo Coelho de Souza",
    "founded_on": "1880-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "015",
@@ -1834,7 +4946,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ulysses Roberto Lio Trópia",
    "founded_on": "1954-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "198",
@@ -1854,7 +4973,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Geraldo de Souza",
    "founded_on": "1992-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "256",
@@ -1874,7 +5000,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Roberto do Carmo",
    "founded_on": "2000-04-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "101",
@@ -1894,7 +5027,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Celmo Coelho de Souza",
    "founded_on": "1724-02-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "097",
@@ -1914,7 +5054,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Hélio Parreiras de Paula",
    "founded_on": "1851-09-23",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "167",
@@ -1934,7 +5081,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Adailson Quintino dos Santos, O. Carmo",
    "founded_on": "1940-07-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "180",
@@ -1954,7 +5108,14 @@
    "pastor_role": null,
    "pastor_name": null,
    "founded_on": "1987-03-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "080",
@@ -1974,7 +5135,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Pablo Luiz Ramos Vieira",
    "founded_on": "1976-08-15",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "065",
@@ -1994,7 +5162,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Roberto de Abreu e Silva",
    "founded_on": "1959-05-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "272",
@@ -2014,7 +5189,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Danilo Fonseca Leal",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "214",
@@ -2034,7 +5216,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Orlando Pereira de Azevedo",
    "founded_on": "1994-06-27",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "023",
@@ -2054,7 +5243,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Fernando César do Nascimento",
    "founded_on": "1752-01-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "031",
@@ -2074,7 +5270,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jefferson Antunes Nicolau do Carmo",
    "founded_on": "1954-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "044",
@@ -2094,7 +5297,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Wellington Eládio Nazaré Faria",
    "founded_on": "1940-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "232",
@@ -2114,7 +5324,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Rafael Rosário Pinto dos Santos Garcia",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "294",
@@ -2134,7 +5351,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Geraldo Sobreira",
    "founded_on": "2010-04-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "177",
@@ -2154,7 +5378,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Jairton Pimenta de Andrade, OFMCAP",
    "founded_on": "1938-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "219",
@@ -2174,7 +5405,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Rogério Messias dos Santos",
    "founded_on": "1997-10-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "317",
@@ -2194,7 +5432,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Francisco da Silva",
    "founded_on": "2021-10-17",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "0003",
@@ -2214,7 +5459,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Luiz Deivys da Silva e Silva, MSC",
    "founded_on": "1964-04-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "303",
@@ -2234,7 +5486,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Mons. Raimundo Nonato de Oliveira",
    "founded_on": "2011-12-18",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "040",
@@ -2254,7 +5513,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Willamy Moreira Feijó",
    "founded_on": "1968-11-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "172",
@@ -2274,7 +5540,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Geraldo Alvarenga Silva",
    "founded_on": "1841-04-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "077",
@@ -2294,7 +5567,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Geovane Marques dos Santos",
    "founded_on": "1966-08-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "038",
@@ -2314,7 +5594,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Joacir Alves Antunes",
    "founded_on": "1955-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "140",
@@ -2334,7 +5621,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Giovanni José Pereira Assistente Pastoral: Pe. Márcio Antônio de Paiva",
    "founded_on": "1986-02-27",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "217",
@@ -2354,7 +5648,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jucimar Pinto de Oliveira 151",
    "founded_on": "1996-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "301",
@@ -2367,14 +5668,21 @@
    "forania": null,
    "municipality": "Nova Lima",
    "neighborhood": "Alphaville",
-   "address": "Criação Área Pastoral: 25/12/2014 Elevação a Paróquia: 22/08/2024 Av. Cisne, 165",
+   "address": "Av. Cisne, 165",
    "postal_code": "34018-010",
    "phone": null,
    "email": null,
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Clésio Ribeiro dos Santos",
-   "founded_on": null,
-   "source_year": 2026
+   "founded_on": "2024-08-22",
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "273",
@@ -2394,7 +5702,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Edir Carvalho do Carmo",
    "founded_on": "2000-08-06",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "236",
@@ -2414,7 +5729,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Gentil José Soares da Silva, CM",
    "founded_on": "1999-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "006",
@@ -2434,7 +5756,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Januário Moreira",
    "founded_on": "1941-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "277",
@@ -2454,7 +5783,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Anderson Soares de Souza",
    "founded_on": "2003-08-15",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "285",
@@ -2474,7 +5810,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Jaime Eduardo Ribeiro, OFM",
    "founded_on": "2005-11-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "298",
@@ -2494,7 +5837,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jorge Paulo Ponciano de Farias",
    "founded_on": "2012-12-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "260",
@@ -2514,7 +5864,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Wagner Aparecido Ribeiro",
    "founded_on": "2000-11-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "021",
@@ -2534,7 +5891,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Thiago Gordiano Sampaio, SCJ",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "271",
@@ -2554,7 +5918,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Adalberto José de Cerqueira",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "333",
@@ -2574,7 +5945,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Filipe Pereira Lucas Coelho, CSPV",
    "founded_on": "2024-02-18",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "190",
@@ -2594,7 +5972,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Antônio Pereira das Neves",
    "founded_on": "1990-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "182",
@@ -2614,7 +5999,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Fábio Soares da Silva, OFMConv",
    "founded_on": "1987-12-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "244",
@@ -2634,7 +6026,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Emanuel Castro Costa",
    "founded_on": "2000-02-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "221",
@@ -2647,14 +6046,21 @@
    "forania": "São João Batista",
    "municipality": "Belo Horizonte",
    "neighborhood": "Buritis",
-   "address": "Endereço para correspondência: Rua Alessandra Salum Cadar, 650",
+   "address": "Rua Alessandra Salum Cadar, 650",
    "postal_code": "30575-190",
    "phone": "3378-7120",
    "email": "secretaria@portalsantaclara.org.br",
    "pastor_role": "Pároco",
    "pastor_name": "Frei Adilson Corrêa da Silva, OFM",
    "founded_on": "1997-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "207",
@@ -2674,7 +6080,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Bráulio Francisco Tibúrcio",
    "founded_on": "1994-08-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "144",
@@ -2694,7 +6107,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Rafael Tadeu Dias Machado, CR",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "061",
@@ -2714,7 +6134,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Damião Coelho Neto",
    "founded_on": "1968-07-02",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "178",
@@ -2734,7 +6161,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Flávio Alves Ribeiro",
    "founded_on": "1924-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "299",
@@ -2754,7 +6188,14 @@
    "pastor_role": null,
    "pastor_name": null,
    "founded_on": "2012-08-13",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "252",
@@ -2774,7 +6215,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Paulo José Lopes da Silveira",
    "founded_on": "2000-08-23",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "262",
@@ -2794,7 +6242,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Côn. Michel Júnior Valério, Opraem",
    "founded_on": "2000-11-09",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "181",
@@ -2814,7 +6269,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. André Magela Januário",
    "founded_on": "1987-06-18",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "096",
@@ -2834,7 +6296,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Raphael Eustáquio do Carmo",
    "founded_on": "1923-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "225",
@@ -2854,7 +6323,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alexandre José Resende",
    "founded_on": "1997-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "104",
@@ -2874,7 +6350,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Walcik Catarino Honorato",
    "founded_on": "1949-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "083",
@@ -2894,7 +6377,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Roberto Cremonezi",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "128",
@@ -2914,7 +6404,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei José Roberto Garcia Lima, OFM",
    "founded_on": "1947-02-10",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "266",
@@ -2934,7 +6431,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Geraldo Garito Correia",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "133",
@@ -2954,7 +6458,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Vanderci Coelho de Oliveira",
    "founded_on": "1985-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "058",
@@ -2974,7 +6485,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Rociny Fernandes dos Santos",
    "founded_on": "1880-01-07",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "092",
@@ -2994,7 +6512,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Gerold Heinrich Jäger, CCN",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "124",
@@ -3014,7 +6539,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Glayson Dias dos Santos",
    "founded_on": "1984-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "121",
@@ -3034,7 +6566,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Paulo Arrighi Franco",
    "founded_on": "1983-08-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "120",
@@ -3054,7 +6593,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe Edecildo José Antônio Prado da Silva",
    "founded_on": "1981-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "100",
@@ -3074,7 +6620,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Hervê Koto Mbuta, CSCH",
    "founded_on": "1981-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "184",
@@ -3094,7 +6647,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Leonardo Bruno Dias",
    "founded_on": "1988-05-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "145",
@@ -3114,7 +6674,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Carlos Basílio Vieira",
    "founded_on": "1981-07-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "088",
@@ -3134,7 +6701,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Rubens Sérgio Nascimento de Araújo",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "116",
@@ -3154,7 +6728,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Danilo César dos Santos Lima",
    "founded_on": "1936-07-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "73",
@@ -3174,7 +6755,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Danil Marcelo dos Santos",
    "founded_on": "1832-07-14",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "056",
@@ -3194,7 +6782,14 @@
    "pastor_role": "Párocos Solidários",
    "pastor_name": "Pe. Sérgio Ladeira Pe. Antônio de Castro Coutinho",
    "founded_on": "1952-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "146",
@@ -3214,7 +6809,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alisson Vinícius Ferreira de Oliveira",
    "founded_on": "1985-10-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "286",
@@ -3227,14 +6829,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": null,
    "neighborhood": null,
-   "address": "(Betim) Rua José Mariano, nº 30 –",
+   "address": "Rua José Mariano, nº 30 –",
    "postal_code": null,
    "phone": "3531-5481",
    "email": null,
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alan Pereira da Silva",
    "founded_on": "2006-11-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "074",
@@ -3254,7 +6863,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Célio Domingos Xavier",
    "founded_on": "1930-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "127",
@@ -3274,7 +6890,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Paulo Alves Campos",
    "founded_on": "1982-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "274",
@@ -3294,7 +6917,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Sebastião Acácio Rodrigues",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "268",
@@ -3314,7 +6944,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Cláudio José da Silva",
    "founded_on": "2002-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "085",
@@ -3334,7 +6971,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Damásio Rego Filho",
    "founded_on": "1996-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "136",
@@ -3354,7 +6998,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Henrique Corrêa Senna",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "224",
@@ -3374,7 +7025,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Miguel de Brum Lopes, SJ",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "147",
@@ -3394,7 +7052,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. João Carlos da Silva",
    "founded_on": "1841-04-07",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "235",
@@ -3414,7 +7079,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Paulo César da Silva",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "010",
@@ -3434,7 +7106,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Mauro Luiz da Silva",
    "founded_on": "1942-08-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "148",
@@ -3454,7 +7133,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei André Ricardo Zago, OSA",
    "founded_on": "1982-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "043",
@@ -3474,7 +7160,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Luzia Ferreira",
    "founded_on": "1936-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "149",
@@ -3494,7 +7187,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei José da Silva Pereira, OFM",
    "founded_on": "1964-12-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "013",
@@ -3514,7 +7214,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Roberto de Oliveira Fernandes",
    "founded_on": "1967-01-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "020",
@@ -3534,7 +7241,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio José Goveia",
    "founded_on": "1938-05-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "204",
@@ -3554,7 +7268,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Ângelo Márcio de Paula",
    "founded_on": "1994-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "007",
@@ -3574,7 +7295,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Dhiego Lacerda Melo",
    "founded_on": "1752-01-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "071",
@@ -3594,7 +7322,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Carlos Maria dos Santos",
    "founded_on": "1953-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "150",
@@ -3614,7 +7349,14 @@
    "pastor_role": "Párocos Solidários",
    "pastor_name": "Pe. Célio Silva Diniz Pe. José Alves de Deus",
    "founded_on": "1868-08-09",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "079",
@@ -3634,7 +7376,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Geraldo Magela da Silva",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "193",
@@ -3654,7 +7403,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Márcio Silva Souza, CMF",
    "founded_on": "1991-10-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "108",
@@ -3674,7 +7430,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Otávio Juliano de Almeida",
    "founded_on": "1949-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "093",
@@ -3694,7 +7457,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. André Erick Alves Ferreira",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "189",
@@ -3714,7 +7484,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Roberto Rubens da Silva",
    "founded_on": "1989-02-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "142",
@@ -3734,7 +7511,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Weliton da Silva Lopes",
    "founded_on": "1952-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "246",
@@ -3754,7 +7538,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jorge Antônio de Castro 157",
    "founded_on": "2000-05-13",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "037",
@@ -3774,7 +7565,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Nelson Severino de Souza",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "138",
@@ -3794,7 +7592,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Luís Henrique Eloy e Silva",
    "founded_on": "1986-07-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "103",
@@ -3814,7 +7619,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Carlos Canuto de Melo, SDN",
    "founded_on": "1982-05-13",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "111",
@@ -3834,7 +7646,14 @@
    "pastor_role": null,
    "pastor_name": null,
    "founded_on": "1984-02-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "048",
@@ -3854,7 +7673,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Eudes Fernandes da Silva",
    "founded_on": "1749-03-17",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "151",
@@ -3874,7 +7700,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Felipe Lemos de Queirós",
    "founded_on": "1950-07-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "237",
@@ -3887,14 +7720,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": "Betim",
    "neighborhood": "São Cristóvão",
-   "address": "(Betim) Rua Volta Redonda, 157",
+   "address": "Rua Volta Redonda, 157",
    "postal_code": "32676-682",
    "phone": "3597-3800",
    "email": "cristovaobetim@yahoo.com.br",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Celso Antônio Rocha de Faria",
    "founded_on": "1997-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "152",
@@ -3914,7 +7754,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Márcio Antônio Ferreira Pimentel",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "029",
@@ -3934,7 +7781,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Thelis Luiz Gonçalves",
    "founded_on": "1970-02-07",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "179",
@@ -3954,7 +7808,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Serafim Aparecido Rodrigues da Costa, MCCJ",
    "founded_on": "1987-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "191",
@@ -3974,7 +7835,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Cícero Machado Ribeiro, MSC",
    "founded_on": "1989-11-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "287",
@@ -3994,7 +7862,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Antônio Roberto",
    "founded_on": "2018-03-21",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "153",
@@ -4014,7 +7889,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Frei Gabriel José de Lima Neto, OFM",
    "founded_on": "1929-10-04",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "098",
@@ -4034,7 +7916,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Renê Lopes",
    "founded_on": "1968-01-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "054",
@@ -4054,7 +7943,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Wallafe Augusto Santana Xavier",
    "founded_on": "1946-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "094",
@@ -4074,7 +7970,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Rogério Eustáquio Fernandes",
    "founded_on": "1959-04-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "185",
@@ -4094,7 +7997,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jaciel Dias de Andrade, CR",
    "founded_on": "1988-05-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "239",
@@ -4114,7 +8024,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Márcio Nicolau da Silva",
    "founded_on": "1999-05-07",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "324",
@@ -4134,7 +8051,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Paulino de Godoy Júnior, SDB",
    "founded_on": "2022-01-23",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "202",
@@ -4154,7 +8078,14 @@
    "pastor_role": "Adm. Paroquial",
    "pastor_name": "Pe. Admilson Ângelo de Paiva",
    "founded_on": "1993-10-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "213",
@@ -4174,7 +8105,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "(Pe. João) Jan Stasz, SVD",
    "founded_on": "1993-06-16",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "275",
@@ -4194,7 +8132,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Josemar Oliveira Novais, CSS",
    "founded_on": "2002-11-04",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "053",
@@ -4214,7 +8159,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. João Evangelista Sobrinho",
    "founded_on": "1976-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "078",
@@ -4234,7 +8186,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Geraldo Neto",
    "founded_on": "1952-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "027",
@@ -4254,7 +8213,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Júnior Luiz de Azevêdo",
    "founded_on": "1857-07-04",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "105",
@@ -4274,7 +8240,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Márcio Ribeiro de Souza",
    "founded_on": "1854-04-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "014",
@@ -4294,7 +8267,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Alexandre Duarte de Araújo",
    "founded_on": "1956-02-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "036",
@@ -4314,7 +8294,14 @@
    "pastor_role": "Párocos Solidários",
    "pastor_name": "Pe. Marcos Antônio Gomes Pe. José Marcilon da Silva",
    "founded_on": "1960-08-14",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "233",
@@ -4334,7 +8321,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Gerard Joseph Ferreira",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "154",
@@ -4347,14 +8341,21 @@
    "forania": "Nossa Senhora da Conceição",
    "municipality": "Betim",
    "neighborhood": "Jardim Alterosa",
-   "address": "(Betim) Rua São Martinho, 73",
+   "address": "Rua São Martinho, 73",
    "postal_code": "32670-738",
    "phone": "3592-1159",
    "email": "sao-joaobosco@hotmail.com",
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Eduardo Pedro Lopes",
    "founded_on": "1984-07-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "050",
@@ -4374,7 +8375,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Adilson Leite",
    "founded_on": "1952-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "155",
@@ -4394,7 +8402,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcelo Soares de Lacerda",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "300",
@@ -4414,7 +8429,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Lucas Ferreira da Silva",
    "founded_on": "2016-01-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "089",
@@ -4434,7 +8456,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Hidelbrando Marques Ferreira",
    "founded_on": "2000-04-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "247",
@@ -4454,7 +8483,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Gilberto de Sousa",
    "founded_on": "2000-05-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "195",
@@ -4474,7 +8510,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Jorge Alves Filho",
    "founded_on": "1991-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "176",
@@ -4494,7 +8537,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Genildo Bezerra da Silva",
    "founded_on": "1986-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "081",
@@ -4514,7 +8564,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Maurício de Resende Paulinelli, CM",
    "founded_on": "1930-12-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "211",
@@ -4534,7 +8591,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcelino de Sousa Santos, INJ",
    "founded_on": "1994-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "062",
@@ -4554,7 +8618,14 @@
    "pastor_role": "Párocos Solidários",
    "pastor_name": "Pe. Adilson Gomes Máximo Pe. Silvério Siqueira de Moura",
    "founded_on": "1968-01-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "157",
@@ -4574,7 +8645,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Capingana Marcolino, MBN",
    "founded_on": "1758-12-18",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "230",
@@ -4594,7 +8672,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ricardo Henrique de Oliveira",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "250",
@@ -4614,7 +8699,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Edison César Winkler Zanini",
    "founded_on": "2000-06-09",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "186",
@@ -4634,7 +8726,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Dinamar Gomes Pinto",
    "founded_on": "1988-10-23",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "318",
@@ -4654,7 +8753,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Eliseu Donisete de Paiva Gomes",
    "founded_on": "2018-11-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "026",
@@ -4674,7 +8780,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marco Antônio Gonçalves Porto",
    "founded_on": "1960-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "200",
@@ -4694,7 +8807,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Moisés de Jesus Lopes Pereira",
    "founded_on": "1992-05-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "212",
@@ -4714,7 +8834,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Sérgio Domingos Ferreira",
    "founded_on": "1995-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "210",
@@ -4734,7 +8861,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Juarez de Assis Braga",
    "founded_on": "1994-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "220",
@@ -4754,7 +8888,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcos Eurélio França Rocha",
    "founded_on": "1997-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "231",
@@ -4774,7 +8915,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Arnon de Miranda Gomes",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "248",
@@ -4794,7 +8942,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Antônio Carlos Ferreira de Souza",
    "founded_on": "2000-05-28",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "279",
@@ -4814,7 +8969,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Fabrício de Souza Miranda Pereira",
    "founded_on": "2004-01-20",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "291",
@@ -4834,7 +8996,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Mauro César de Carvalho",
    "founded_on": "2012-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "310",
@@ -4854,7 +9023,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Igor Batista dos Santos",
    "founded_on": "2017-10-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "288",
@@ -4874,7 +9050,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Wanderley Martins da Cunha",
    "founded_on": "2003-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "335",
@@ -4894,7 +9077,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Arnaldo Cézar de Carvalho",
    "founded_on": "2025-03-26",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "084",
@@ -4914,7 +9104,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ivan Eustáquio de Souza",
    "founded_on": "1962-01-14",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "049",
@@ -4934,7 +9131,14 @@
    "pastor_role": "Adm. Paroquial",
    "pastor_name": "Pe. Chia Kevin Ndi, SChP",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "158",
@@ -4954,7 +9158,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcus Aurélio Alves Mareano",
    "founded_on": "1967-03-13",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "039",
@@ -4974,7 +9185,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ivanildo Teixeira Vieira",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "123",
@@ -4994,7 +9212,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Guilherme do Carmo Neto",
    "founded_on": "1952-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "234",
@@ -5014,7 +9239,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcos Antônio Alves de Souza",
    "founded_on": "1998-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "290",
@@ -5034,7 +9266,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Luís Gustavo de Oliveira",
    "founded_on": "2009-01-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "041",
@@ -5054,7 +9293,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. John Kennedy Crepaldi",
    "founded_on": "1952-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "302",
@@ -5074,7 +9320,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Elisson Donizete da Costa Gomes",
    "founded_on": "2016-09-23",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "090",
@@ -5094,7 +9347,14 @@
    "pastor_role": "Adm. Paroquial",
    "pastor_name": "Pe. José Cícero Santos da Silva",
    "founded_on": "1954-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "118",
@@ -5114,7 +9374,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. João Francisco de Lucena",
    "founded_on": "1984-08-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "035",
@@ -5134,7 +9401,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Felipe Dias Evangelista",
    "founded_on": "1923-03-19",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "055",
@@ -5154,7 +9428,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ricardo Martins Ribeiro, CMV",
    "founded_on": "1973-05-05",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "034",
@@ -5174,7 +9455,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Héctor Donoso Lercaros, MSF",
    "founded_on": "1977-12-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "086",
@@ -5194,7 +9482,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Júnior Luiz de Azevêdo",
    "founded_on": "1940-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "129",
@@ -5214,7 +9509,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Gilberto Ortellado Maldonado, SCJ",
    "founded_on": "1960-02-27",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "160",
@@ -5234,7 +9536,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Ademar de Toledo",
    "founded_on": "1934-03-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "052",
@@ -5254,7 +9563,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Tadeu Oliveira Santos Pôrto 164",
    "founded_on": "1966-10-08",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "115",
@@ -5274,7 +9590,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Robson Fernando Reis",
    "founded_on": "1984-08-22",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "110",
@@ -5294,7 +9617,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. José Haroldo Corrêa Pinto",
    "founded_on": "1982-11-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "254",
@@ -5314,7 +9644,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Higo Dias de Oliveira Almeida",
    "founded_on": "2000-10-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "131",
@@ -5334,7 +9671,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Manoel José de Godoy",
    "founded_on": "1983-04-24",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "183",
@@ -5354,7 +9698,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Joaquim Renato da Silva",
    "founded_on": "1988-02-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "017",
@@ -5374,7 +9725,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. João Batista Corrêa",
    "founded_on": "1965-04-30",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "019",
@@ -5394,7 +9752,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Valdioney Pereira dos Santos",
    "founded_on": "1946-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "051",
@@ -5414,7 +9779,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Marco Túlio Andrade Martins",
    "founded_on": "1942-01-01",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "107",
@@ -5434,7 +9806,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. João Maria Vianei de Medeiros",
    "founded_on": "1942-12-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "161",
@@ -5454,7 +9833,14 @@
    "pastor_role": "Administrador Paroquial",
    "pastor_name": "Pe. Sérgio Francisco Alves Filho",
    "founded_on": "1832-07-14",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "028",
@@ -5474,7 +9860,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Carlos Antônio Vilela Mota",
    "founded_on": "1977-06-29",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "137",
@@ -5494,7 +9887,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. Marcos Roberto Barbosa de Brito, SVD",
    "founded_on": "1983-03-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "238",
@@ -5514,7 +9914,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Mons. Michel Bitar",
    "founded_on": "1993-03-27",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "197",
@@ -5534,7 +9941,14 @@
    "pastor_role": "Pároco",
    "pastor_name": "Pe. George Rateb Massis",
    "founded_on": "1925-10-25",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": null,
@@ -5544,7 +9958,7 @@
    "type": "paroquia_militar",
    "episcopal_region": "RENSC",
    "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
-   "forania": null,
+   "forania": "Nossa Senhora da Saúde",
    "municipality": "Lagoa Santa",
    "neighborhood": "Vila Asas",
    "address": "Av. Brigadeiro Eduardo Gomes, s/nº",
@@ -5554,7 +9968,14 @@
    "pastor_role": null,
    "pastor_name": null,
    "founded_on": "1986-04-21",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": "292",
@@ -5574,7 +9995,14 @@
    "pastor_role": "Cura",
    "pastor_name": "Pe. Dejair Roberto de Rossi, CM",
    "founded_on": "2009-05-31",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
   },
   {
    "catalog_code": null,
@@ -5594,7 +10022,419 @@
    "pastor_role": "Adm. Pastoral",
    "pastor_name": "Pe. Dênis de Oliveira",
    "founded_on": "2025-12-11",
-   "source_year": 2026
+   "source_year": 2026,
+   "is_sanctuary": false,
+   "sanctuary_code": null,
+   "sanctuary_name": null,
+   "sanctuary_kind": null,
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.13"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA PIEDADE (SERRA DA PIEDADE)",
+   "display_name": "Nossa Senhora da Piedade",
+   "slug": "nossa-senhora-da-piedade-caete-serra-da-piedade",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "Nossa Senhora do Bom Sucesso",
+   "municipality": "Caeté",
+   "neighborhood": "Serra da Piedade",
+   "address": "Caixa Postal, 60",
+   "postal_code": "34800-000",
+   "phone": null,
+   "email": "sensp-secretaria@arquidiocesebh.org.br",
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "240",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora da Piedade",
+   "sanctuary_kind": "Santuário Estadual",
+   "rector_name": "Pe. Wagner Calegário de Souza",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA SAÚDE",
+   "display_name": "Nossa Senhora da Saúde",
+   "slug": "nossa-senhora-da-saude-lagoa-santa",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSC",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
+   "forania": "Nossa Senhora da Saúde",
+   "municipality": "Lagoa Santa",
+   "neighborhood": "Centro",
+   "address": "Praça Dr. Lund, 160",
+   "postal_code": "33230-076",
+   "phone": "3681-1510",
+   "email": "pnsrasaude@gmail.com",
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": "1823-05-10",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "099",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora da Saúde",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Ednei Almeida Costa",
+   "sanctuary_since": "2023-08-15",
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO DA SANTÍSSIMA EUCARISTIA - NOSSA SENHORA DA BOA VIAGEM",
+   "display_name": "Santíssima Eucaristia - Nossa Senhora da Boa Viagem",
+   "slug": "santissima-eucaristia-nossa-senhora-da-boa-viagem-boa-viagem",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "São José",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Boa Viagem",
+   "address": "Rua Sergipe, 175",
+   "postal_code": "30130-170",
+   "phone": "3222-2361",
+   "email": null,
+   "pastor_role": "Pároco",
+   "pastor_name": "Pe. José Cícero Marques Júnior, SSS",
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "166",
+   "sanctuary_name": "Santuário Arquidiocesano da Santíssima Eucaristia - Nossa Senhora da Boa Viagem",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Jésus Neres de Souza, SSS",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA CONCEIÇÃO DOS POBRES (LAGOINHA)",
+   "display_name": "Nossa Senhora da Conceição dos Pobres",
+   "slug": "nossa-senhora-da-conceicao-dos-pobres-lagoinha",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSC",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
+   "forania": "Nossa Senhora da Paz",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Lagoinha",
+   "address": "Rua Além Paraíba, 152",
+   "postal_code": "31210-120",
+   "phone": "3422-6966",
+   "email": "santuarioarquidiocesanonsc@gmail.com",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Felipe Lemos de Queirós",
+   "founded_on": "1923-03-19",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "032",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora da Conceição dos Pobres",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Felipe Lemos de Queirós",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DE FÁTIMA",
+   "display_name": "Nossa Senhora de Fátima",
+   "slug": "nossa-senhora-de-fatima-santo-agostinho",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "São José",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Santo Agostinho",
+   "address": "Praça Carlos Chagas, 33",
+   "postal_code": "30170-020",
+   "phone": "3291-5053",
+   "email": "admparoquiansf@gmail.com",
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": "1952-01-01",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "169",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora de Fátima",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Fernando Lopes Gomes",
+   "sanctuary_since": "2023-10-15",
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DO ROSÁRIO",
+   "display_name": "Nossa Senhora do Rosário",
+   "slug": "santuario-nossa-senhora-do-rosario-brumadinho-santa-cruz",
+   "type": "santuario",
+   "episcopal_region": "RENSER",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora do Rosário",
+   "forania": null,
+   "municipality": "Brumadinho",
+   "neighborhood": "Santa Cruz",
+   "address": "Rua Coronel Alberto Cambraia, 140 B",
+   "postal_code": "35460-000",
+   "phone": "3571-1300",
+   "email": null,
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "331",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora do Rosário",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Júnior Luiz de Azevêdo",
+   "sanctuary_since": null,
+   "source_section": "7.14"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO DA SAÚDE E DA PAZ",
+   "display_name": "Saúde e da Paz",
+   "slug": "santuario-saude-e-da-paz-pe-eustaquio",
+   "type": "santuario",
+   "episcopal_region": "RENSE",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Esperança",
+   "forania": "São Francisco das Chagas",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Pe. Eustáquio",
+   "address": "Rua Pe. Eustáquio, s/nº",
+   "postal_code": "30720-100",
+   "phone": "3462-6557",
+   "email": "pssccbh@gmail.com",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Edmar Aparecido de Oliveira, SSCC",
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "057",
+   "sanctuary_name": "Santuário Arquidiocesano da Saúde e da Paz",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Edmar Aparecido de Oliveira, SSCC",
+   "sanctuary_since": null,
+   "source_section": "7.14"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO DE SCHOENSTATT “TABOR DA LIBERDADE”",
+   "display_name": "Schoenstatt “Tabor da Liberdade”",
+   "slug": "santuario-schoenstatt-tabor-da-liberdade-confins",
+   "type": "santuario",
+   "episcopal_region": "RENSC",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
+   "forania": null,
+   "municipality": "Confins",
+   "neighborhood": null,
+   "address": "Rua Nazires Queiroz Lara,230",
+   "postal_code": "33500-000",
+   "phone": "3484-5948 / 3686-0245",
+   "email": null,
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": null,
+   "sanctuary_name": "Santuário de Schoenstatt “Tabor da Liberdade”",
+   "sanctuary_kind": "Santuário",
+   "rector_name": null,
+   "sanctuary_since": null,
+   "source_section": "7.14"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO NOSSA SENHORA DA CONCEIÇÃO APARECIDA",
+   "display_name": "Nossa Senhora da Conceição Aparecida",
+   "slug": "nossa-senhora-da-conceicao-aparecida-contagem-novo-eldorado",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSA",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora Aparecida",
+   "forania": "Nossa Senhora da Glória",
+   "municipality": "Contagem",
+   "neighborhood": "Novo Eldorado",
+   "address": "Praça Nossa Senhora da Conceição, 150",
+   "postal_code": "32341-250",
+   "phone": "(31) 98403-1189",
+   "email": null,
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Jerzy Wydrych",
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "222",
+   "sanctuary_name": "Santuário Arquidiocesano Nossa Senhora da Conceição Aparecida",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Jerzy Wydrych",
+   "sanctuary_since": "2018-08-22",
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SANTA LUZIA",
+   "display_name": "Santa Luzia",
+   "slug": "santa-luzia-santa-luzia",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSC",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
+   "forania": "Santa Luzia",
+   "municipality": "Santa Luzia",
+   "neighborhood": "Centro",
+   "address": "Rua Direita, s/nº",
+   "postal_code": "33010-000",
+   "phone": "3641-4662 / 3641-5050",
+   "email": "santuariosantaluziamg@gmail.com",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Fernando Antônio Fagundes",
+   "founded_on": "1744-11-19",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "046",
+   "sanctuary_name": "Santuário Arquidiocesano Santa Luzia",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Fernando Antônio Fagundes",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SÃO FRANCISCO DE ASSIS",
+   "display_name": "São Francisco de Assis",
+   "slug": "santuario-sao-francisco-de-assis-sao-luiz-pampulha",
+   "type": "santuario",
+   "episcopal_region": "RENSC",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Conceição",
+   "forania": "Santo Antônio (Pampulha)",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "São Luiz/Pampulha",
+   "address": "Av. Dr. Otacílio Negrão de Lima, 3000",
+   "postal_code": "31365-450",
+   "phone": "98876-3047",
+   "email": null,
+   "pastor_role": null,
+   "pastor_name": null,
+   "founded_on": null,
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "283",
+   "sanctuary_name": "Santuário Arquidiocesano São Francisco de Assis",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Gladstone Elias de Souza",
+   "sanctuary_since": "2021-10-04",
+   "source_section": "7.14"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SÃO JOSÉ",
+   "display_name": "São José",
+   "slug": "sao-jose-centro",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "São José",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Centro",
+   "address": "Rua Tupis, 164",
+   "postal_code": "30190-060",
+   "phone": "(31) 3273-2988 / 3273-3498",
+   "email": "secretaria@igrejasaojose.org.br",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Fagner Dalbem Mapa, CSSR",
+   "founded_on": "1900-01-27",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "156",
+   "sanctuary_name": "Santuário Arquidiocesano São José",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Fagner Dalbem Mapa, CSSR",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SÃO JUDAS TADEU (BAIRRO DA GRAÇA)",
+   "display_name": "São Judas Tadeu",
+   "slug": "sao-judas-tadeu-graca",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "Nossa Senhora das Dores",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Graça",
+   "address": "Rua Macaé, 629",
+   "postal_code": "31140-060",
+   "phone": "2526-4164 / 2526-4648",
+   "email": "secretaria.saojudas@arquidiocesebh.org.br",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. André Lage de Alvarenga",
+   "founded_on": "1954-12-31",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "042",
+   "sanctuary_name": "Santuário Arquidiocesano São Judas Tadeu",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. André Lage de Alvarenga",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SANTO ANTÔNIO (ROÇA GRANDE)",
+   "display_name": "Santo Antônio",
+   "slug": "santo-antonio-sabara-roca-grande",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSB",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora da Boa Viagem",
+   "forania": "São Sebastião (Sabará)",
+   "municipality": "Sabará",
+   "neighborhood": "Roça Grande",
+   "address": "Praça da Igreja, s/n",
+   "postal_code": "34535-220",
+   "phone": "3671-1435",
+   "email": "santuariosantoantonio@arquidiocesebh.org.br",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Joel Roberto Alvim Carreira Júnior",
+   "founded_on": "1999-03-12",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "004",
+   "sanctuary_name": "Santuário Arquidiocesano Santo Antônio",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Joel Roberto Alvim Carreira Júnior",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
+  },
+  {
+   "catalog_code": null,
+   "name": "SANTUÁRIO ARQUIDIOCESANO SÃO PAULO DA CRUZ (BARREIRO)",
+   "display_name": "São Paulo da Cruz",
+   "slug": "sao-paulo-da-cruz-barreiro-de-baixo",
+   "type": "paroquia_territorial",
+   "episcopal_region": "RENSA",
+   "episcopal_region_name": "Região Episcopal Nossa Senhora Aparecida",
+   "forania": "São Paulo da Cruz",
+   "municipality": "Belo Horizonte",
+   "neighborhood": "Barreiro de Baixo",
+   "address": "Pça Domingos Gatti, s/nº",
+   "postal_code": "30640-030",
+   "phone": "3384-1794",
+   "email": "santuariospc2019@gmail.com",
+   "pastor_role": "Pároco e Reitor",
+   "pastor_name": "Pe. Alex Antônio Favarato, CP",
+   "founded_on": "1952-01-01",
+   "source_year": 2026,
+   "is_sanctuary": true,
+   "sanctuary_code": "159",
+   "sanctuary_name": "Santuário Arquidiocesano São Paulo da Cruz",
+   "sanctuary_kind": "Santuário Arquidiocesano",
+   "rector_name": "Pe. Alex Antônio Favarato, CP",
+   "sanctuary_since": null,
+   "source_section": "7.14+7.15"
   }
  ]
 }

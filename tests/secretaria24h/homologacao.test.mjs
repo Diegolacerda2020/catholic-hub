@@ -55,25 +55,27 @@ t('D4: P5 idêntica', JSON.stringify(await q('P5')) === p5);
 t('D5: P6 idêntica', JSON.stringify(await q('P6')) === p6);
 t('D6: busca vazia', JSON.stringify((await q('D6'))[0].public_directory_search) === '[]');
 
-console.log('== diretorio_seed.sql');
+console.log('== diretorio_santuarios.sql + diretorio_seed.sql');
+await db.exec(ler('supabase/diretorio_santuarios.sql'));
+t('santuários: P5 idêntica (só estrutura)', JSON.stringify(await q('P5')) === p5);
 await db.exec(ler('supabase/diretorio_seed.sql'));
 r = Object.fromEntries((await q('S1')).map(x => [x.type, +x.count]));
-t('S1: 278 por tipo', r.TOTAL === 278 && r.paroquia_territorial === 273 && r.paroquia_pessoal === 2 && r.paroquia_militar === 1 && r.curato === 1 && r.area_pastoral === 1, JSON.stringify(r));
+t('S1: 293 por tipo', r.TOTAL === 293 && r.paroquia_territorial === 284 && r.paroquia_pessoal === 2 && r.paroquia_militar === 1 && r.curato === 1 && r.area_pastoral === 1 && r.santuario === 4, JSON.stringify(r));
 r = (await q('S2'))[0];
-t('S2: 2026, listed, sem duplicados, 3 sem código', JSON.stringify(r.anos) === '[2026]' && JSON.stringify(r.status) === '["listed"]' && +r.codigos_duplicados === 0 && +r.sem_codigo_no_catalogo === 3 && +r.slugs_duplicados === 0, JSON.stringify(r));
+t('S2: 2026, listed, sem duplicados, 18 sem código de paróquia', JSON.stringify(r.anos) === '[2026]' && JSON.stringify(r.status) === '["listed"]' && +r.codigos_duplicados === 0 && +r.sem_codigo_no_catalogo === 18 && +r.slugs_duplicados === 0, JSON.stringify(r));
 t('S3: 013, 207, 009 presentes', (await q('S3')).map(x => x.catalog_code).join() === '009,013,207');
 r = await q('S4');
 t('S4: ainda 1 tenant, sem directory_id', r.length === 1 && r[0].slug === 'santo-antonio-jaragua' && r[0].directory_id === null);
 t('S5: P5 idêntica', JSON.stringify(await q('P5')) === p5);
 await db.exec(ler('supabase/diretorio_seed.sql'));
-t('S5: seed 2x continua 278', (await q('S1')).find(x => x.type === 'TOTAL').count == 278);
+t('S5: seed 2x continua 293', (await q('S1')).find(x => x.type === 'TOTAL').count == 293);
 
 console.log('== diretorio_ativacao.sql');
 const conf = await last(ler('supabase/diretorio_ativacao.sql'));
 t('ativação: conferência final lista as 3, equipe 0 nas novas', conf.length === 3 && conf.filter(x => +x.equipe === 0).length === 2, JSON.stringify(conf));
 r = await q('A1');
 t('A1: 3 tenants, Santo Antônio com o mesmo id', r.length === 3 && r.find(x => x.slug === 'santo-antonio-jaragua').id === idSA && r.every(x => x.directory_id && x.status === 'active'), JSON.stringify(r));
-t('A2: active 3, listed 275', JSON.stringify((await q('A2')).map(x => [x.status, +x.count])) === '[["active",3],["listed",275]]');
+t('A2: active 3, listed 290', JSON.stringify((await q('A2')).map(x => [x.status, +x.count])) === '[["active",3],["listed",290]]');
 const p5b = JSON.parse(JSON.stringify(await q('P5'))), p5a = JSON.parse(p5);
 const muda = p5b.filter((x, i) => x.h !== p5a[i].h).map(x => x.t);
 t('A3: só parishes e parish_state mudam (novas linhas)', JSON.stringify(muda) === '["parishes","parish_state"]' && p5b.find(x => x.t === 'parishes').n == 3 && p5b.find(x => x.t === 'parish_state').n == +p5a.find(x => x.t === 'parish_state').n + 2, JSON.stringify(muda));
@@ -102,6 +104,36 @@ const depois = blocos.find(b => b.sql.includes('eventos_iso')).sql;
 r = (await db.query(depois)).rows[0];
 t('I1: nada ficou gravado', +r.eventos_iso === 0 && +r.usuarios_iso === 0 && +r.servicos_iso === 0, JSON.stringify(r));
 t('I1: P5 igual à do pós-ativação', JSON.stringify(await q('P5')) === JSON.stringify(p5b));
+
+// ---------- Seção 10: o banco real JÁ tem o diretório antigo (278, sem santuários) ----------
+console.log('== seção 10: atualização de santuários sobre o diretório antigo');
+{ const antigo = f => execSync(`git show e0f0096:${f}`, {cwd:REPO}).toString();
+  const u = new PGlite({extensions:{pgcrypto}});
+  await u.exec(STUB.replace('create table auth.users (id uuid primary key, email text);', 'create table auth.users (id uuid primary key, email text, aud text, role text);'));
+  await u.exec(base('supabase/schema.sql')); await u.exec(base('supabase/demo_seed.sql')); await u.exec(ler('supabase/secretaria24h.sql'));
+  for (const f of ['supabase/diretorio.sql', 'supabase/diretorio_seed.sql', 'supabase/diretorio_ativacao.sql']) await u.exec(antigo(f));
+  const uq = async rot => (await u.query(achar(rot))).rows;
+  const spc0 = (await u.query(`select count(*)::int n from parish_directory where slug like 'sao-paulo-da-cruz%'`)).rows[0].n;
+  t('U0: como no banco real — active 3, listed 275, São Paulo da Cruz ausente', spc0 === 0 && JSON.stringify((await uq('A2')).map(x => [x.status, +x.count])) === '[["active",3],["listed",275]]');
+  const chaves = async () => (await u.query(`select catalog_code, slug, status from parish_directory where catalog_code is not null order by 1`)).rows;
+  const slugs0 = await chaves(), p5u = JSON.stringify(await uq('P5'));
+  const tenants = async () => JSON.stringify((await u.query(`select id, slug, directory_id from parishes order by slug`)).rows), tenants0 = await tenants();
+  for (let i = 1; i <= 2; i++){ await u.exec(ler('supabase/diretorio_santuarios.sql')); await u.exec(ler('supabase/diretorio_seed.sql')); }
+  const u3 = (await uq('U3'))[0];
+  t('U3: 293, active 3, listed 290, 15 santuários (11 também paróquia)', +u3.total === 293 && +u3.active === 3 && +u3.listed === 290 && +u3.santuarios === 15 && +u3.santuario_e_paroquia === 11, JSON.stringify(u3));
+  const u4 = (await u.exec(achar('U4'))).map(x => x.rows);
+  t('U4: São Paulo da Cruz, paróquia e Santuário Arquidiocesano, Barreiro de Baixo; a busca acha', u4[0].length === 1 && u4[0][0].type === 'paroquia_territorial' && u4[0][0].is_sanctuary && u4[0][0].sanctuary_kind === 'Santuário Arquidiocesano' && u4[0][0].neighborhood === 'Barreiro de Baixo' && +u4[1][0].resultados >= 1, JSON.stringify(u4));
+  const slugs1 = await chaves();
+  const mudou = slugs0.filter(a => { const b = slugs1.find(x => x.catalog_code === a.catalog_code); return !b || b.slug !== a.slug || b.status !== a.status; });
+  t('U: nenhum slug nem status existente mudou (as 3 ativas continuam ativas)', mudou.length === 0, JSON.stringify(mudou));
+  t('U5: P5 idêntica (parishes, parish_state, parish_users, auth.users…)', JSON.stringify(await uq('P5')) === p5u);
+  t('U: tenants idênticos (mesmos ids e directory_id)', await tenants() === tenants0);
+}
+
+console.log('== seção 11: doacoes.sql (2x) sobre o banco homologado');
+for (let i = 1; i <= 2; i++){ let e = null; try { await db.exec(ler('supabase/doacoes.sql')); } catch(x){ e = x.message; } t(`doacoes.sql (${i}ª vez) sem erro`, !e, e); }
+t('doações: 0 configuradas (desligadas nas 3)', (await db.query(`select count(*)::int n from parish_donation_settings`)).rows[0].n === 0);
+t('doações: P5 igual à do pós-ativação', JSON.stringify(await q('P5')) === JSON.stringify(p5b));
 
 console.log(`\n${ok} ok, ${falha} falha(s)`);
 process.exit(falha ? 1 : 0);
