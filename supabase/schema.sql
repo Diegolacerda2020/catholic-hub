@@ -800,6 +800,7 @@ declare
   v_pid uuid;
   v_sid uuid;
   v_fields jsonb;
+  v_is_demo boolean := false;
   v_name text;
   v_wa text;
   v_pref text;
@@ -817,7 +818,7 @@ begin
   if v_pid is null then
     raise exception 's24:servico_indisponivel' using errcode = '22023';
   end if;
-  select id, form_fields into v_sid, v_fields
+  select id, form_fields, code like 'demo_%' into v_sid, v_fields, v_is_demo
     from service_catalog where parish_id = v_pid and code = p_service_code and active;
   if v_sid is null then
     raise exception 's24:servico_indisponivel' using errcode = '22023';
@@ -898,8 +899,8 @@ begin
     v_proto := 'SA-' || to_char(now() at time zone 'America/Sao_Paulo', 'YYYY') || '-'
                || upper(left(replace(gen_random_uuid()::text, '-', ''), 8));
     begin
-      insert into service_requests (parish_id, service_id, protocol, requester_name, whatsapp, contact_preference, answers)
-      values (v_pid, v_sid, v_proto, v_name, v_wa, v_pref, v_ans)
+      insert into service_requests (parish_id, service_id, protocol, requester_name, whatsapp, contact_preference, answers, is_demo)
+      values (v_pid, v_sid, v_proto, v_name, v_wa, v_pref, v_ans, v_is_demo)
       returning * into v_new;
       exit;
     exception when unique_violation then

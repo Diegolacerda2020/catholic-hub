@@ -85,7 +85,16 @@ const jsonIds = s => [...estDepois[PID[s]].avisos, ...estDepois[PID[s]].intencoe
 t('itens DEMO de parish_state com ids próprios de cada paróquia', jsonIds(SC).every(x => !jsonIds(SA).includes(x) && !jsonIds(NG).includes(x)) && jsonIds(SC).length === 12);
 const protos = await rows(`select protocol from service_requests where is_demo`);
 t('protocolos DEMO únicos', new Set(protos.map(r => r.protocol)).size === protos.length);
-t('serviços DEMO inativos: a página pública de B e C não oferece a Secretaria 24h', (await rows(`select public_service_catalog($1) a, public_service_catalog($2) b`, [SC, NG])).every(r => r.a.length === 0 && r.b.length === 0));
+{
+  const pub = (await rows(`select public_service_catalog($1) sc, public_service_catalog($2) ng`, [SC, NG]))[0];
+  t('Santa Clara: serviços DEMO ficam inativos até a limpeza real', pub.sc.length === 0);
+  t('Graças: serviços DEMO aparecem na página pública para demonstração', pub.ng.length === 3 && pub.ng.every(s => s.code.startsWith('demo_')), JSON.stringify(pub.ng));
+  const criado = await como(db, null, () => db.query(`select public_create_service_request($1, 'demo_outro', 'Fiel Demo', '31977770000', 'whatsapp', '{"mensagem":"teste demo"}'::jsonb) r`, [NG]));
+  const protocolo = criado.rows[0].r.protocol;
+  t('Graças: pedido criado pelo catálogo DEMO continua marcado como demonstração', (await rows(`select is_demo from service_requests where protocol=$1`, [protocolo]))[0].is_demo === true);
+  await db.query(`delete from service_request_history where request_id in (select id from service_requests where protocol=$1)`, [protocolo]);
+  await db.query(`delete from service_requests where protocol=$1`, [protocolo]);
+}
 
 console.log('== isolamento (cada equipe só vê a própria paróquia)');
 const TAB_EQ = ['events','tither_profiles','tither_contributions','tither_leads','service_catalog','service_requests','service_request_history','parish_state'];
@@ -130,6 +139,14 @@ t('Santa Clara: o que a equipe criou continua', (await rows(`select count(*)::in
 t('Santa Clara: serviços DEMO removidos, estado sem itens DEMO', (await rows(`select count(*)::int n from service_catalog where parish_id=$1`, [PID[SC]]))[0].n === 0 && !JSON.stringify((await rows(`select data from parish_state where parish_id=$1`, [PID[SC]]))[0].data).includes('"demo"'));
 t('Graças e Santo Antônio seguem com o DEMO delas', +c[NG].eventos === 4 && +c[NG].solicitacoes_s24 === 4 && +c[SA].avisos === 3);
 t('cleanup não toca no DEMO antigo de Santo Antônio', (await rows(`select count(*)::int n from service_requests where parish_id=$1 and is_demo`, [PID[SA]]))[0].n === 5);
+
+console.log('== Santa Clara real + Graças demonstrável');
+t('script preparado roda sem erro', !(await erro(db.exec(ler('supabase/santa_clara_real_secretaria24h.sql').replaceAll('5806800c-7bc9-489d-9b45-0e81eeaf3923', PID[SC])))));
+{
+  const pub = (await rows(`select public_service_catalog($1) sc, public_service_catalog($2) ng`, [SC, NG]))[0];
+  t('Santa Clara: catálogo real inicial copiado do piloto', pub.sc.length === 6 && pub.sc.every(s => !s.code.startsWith('demo_')), JSON.stringify(pub.sc));
+  t('Graças: catálogo DEMO segue demonstrável', pub.ng.length === 3 && pub.ng.every(s => s.code.startsWith('demo_')), JSON.stringify(pub.ng));
+}
 
 console.log('== cleanup sem escolher paróquia não apaga nada');
 { const antesVazio = JSON.stringify(await foto()); const e = await erro(db.exec(ler('supabase/demo_multitenant_cleanup.sql')));

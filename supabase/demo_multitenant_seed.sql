@@ -24,8 +24,8 @@
 -- demo_secretaria_seed.sql: Secretaria 24h). Onde houver esse DEMO antigo, esta categoria é PULADA para não
 -- duplicar. Na prática, Santo Antônio ganha só o que faltava: avisos, intenções, velas e interessados.
 --
--- Serviços da Secretaria 24h DEMO (paróquias sem o DEMO antigo) ficam INATIVOS: servem só para as solicitações
--- de demonstração aparecerem na fila da equipe; a página pública não oferece esses serviços.
+-- Serviços da Secretaria 24h DEMO: Santa Clara fica inativa até virar ambiente real; Nossa Senhora das Graças
+-- fica ativa para demonstração pública. A função public_create_service_request mantém is_demo=true para codes demo_*.
 
 do $$
 declare
@@ -106,13 +106,13 @@ begin
     from (values (1, 'Igor Exemplo Teixeira', 'whatsapp', 3), (2, 'Joana Exemplo Freitas', 'ligacao', 28)) v(n, nome, pref, h)
     on conflict do nothing;
 
-    -- ---------- Secretaria 24h: 3 serviços DEMO inativos + 4 solicitações com histórico ----------
+    -- ---------- Secretaria 24h: 3 serviços DEMO + 4 solicitações com histórico ----------
     ids := array(select md5('cp-demo-v1|' || pid || '|solicitacao|' || n)::uuid from generate_series(1, 4) n);
     if exists (select 1 from service_requests where parish_id = pid and is_demo and id <> all(ids)) then
       raise notice '%: Secretaria 24h DEMO antiga encontrada, Secretaria 24h pulada.', p.slug;
     else
       insert into service_catalog (id, parish_id, code, title, description, form_fields, active, sort_order)
-      select md5('cp-demo-v1|' || pid || '|servico|' || v.n)::uuid, pid, v.code, v.titulo, 'Serviço de demonstração.', v.campos::jsonb, false, 900 + v.n
+      select md5('cp-demo-v1|' || pid || '|servico|' || v.n)::uuid, pid, v.code, v.titulo, 'Serviço de demonstração.', v.campos::jsonb, p.slug = 'nossa-senhora-das-gracas-ibirite', 900 + v.n
       from (values
         (1, 'demo_certidao', 'Certidão / documento paroquial', '[{"name":"tipo_documento","label":"Tipo de documento","type":"select","required":true,"options":["Certidão de Batismo","Certidão de Crisma","Certidão de Matrimônio","Outro"]},{"name":"nome_pessoa","label":"Nome completo da pessoa","type":"text","required":true}]'),
         (2, 'demo_batismo',  'Batismo',                        '[{"name":"nome_pessoa","label":"Nome da criança/pessoa","type":"text","required":true},{"name":"observacoes","label":"Observações","type":"textarea"}]'),

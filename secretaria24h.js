@@ -252,7 +252,7 @@ function carregarCatalogo(forcar){
     if (S.mode === 'publico' && ['igreja','contato','secretaria'].includes(S.pubTab)) renderSeguro();
   });
 }
-const disponivel = () => { if (!vendoAtiva()) return false; carregarCatalogo(); return CAT.estado === 'ok' && CAT.lista.length > 0; };
+const disponivel = () => { if (!vendoAtiva()) return false; carregarCatalogo(); return CAT.estado === 'ok'; };
 
 function abrir(tela){
   P.tela = tela || 'inicio'; P.resultado = null; P.naoAchou = false;
@@ -300,7 +300,7 @@ function inicioHTML(){
   let servicos;
   if (CAT.estado === 'ok' && CAT.lista.length) servicos = `<div class="s24-servicos">${CAT.lista.map(s => `<button type="button" class="s24-serv" data-s24-servico="${esc(s.code)}"><b>${esc(s.title)}</b>${s.description ? `<span class="small">${esc(s.description)}</span>` : ''}</button>`).join('')}</div>`;
   else if (CAT.estado === 'nada' || CAT.estado === 'carregando') servicos = `<div class="status" role="status"><span class="spinner"></span>Carregando os serviços…</div>`;
-  else if (CAT.estado === 'ok') servicos = `<div class="empty">Nenhum serviço disponível no momento.</div>${contatoBtn()}`;
+  else if (CAT.estado === 'ok') servicos = `<div class="empty">Os serviços da Secretaria 24h desta paróquia ainda estão sendo configurados.</div>${contatoBtn()}`;
   else servicos = indispHTML('s24Tentar') + contatoBtn(); // erro de rede, RPC ou banco sem a migração
   return `<button class="crumb" data-pub="igreja">‹ Igreja</button>
   <section class="s24-hero">
