@@ -606,6 +606,26 @@ const MISSAS = 'Terça-feira: 19h30\nQuarta-feira: 19h30\nQuinta-feira: 19h30\nP
 // Paróquia nova começa vazia: nada da piloto (nome, horários, textos, exemplos) vai para ela.
 const CFG_VAZIA = () => ({nome:'', padroeiro:'', endereco:'', telefone:'', whats:'', email:'', paroco:'', forania:'', regiao:'', secretaria:'', missas:'',
   tom:'acolhedor', emoji:true, assinatura:'Deus abençoe!', youtube:'', rec:{}, pix:''});
+const PATRONOS_TENANT = {
+  'santo-antonio-jaragua': [{nome:'Santo Antônio', genero:'m', oracao:'santoAntonio'}],
+  'nossa-senhora-das-gracas-ibirite': [{nome:'Nossa Senhora das Graças', genero:'f'}],
+  'santa-clara-e-sao-francisco-mineirao': [{nome:'Santa Clara', genero:'f'}, {nome:'São Francisco', genero:'m'}]
+};
+const limparTexto = v => String(v || '').trim();
+function normalizarPatrono(p){
+  if (typeof p === 'string') return {nome:limparTexto(p), genero:null, oracao:null};
+  return {nome:limparTexto(p?.nome || p?.name), genero:p?.genero || p?.gender || null, oracao:p?.oracao || p?.prayer || null};
+}
+function generoPadroeiro(nome, genero){
+  if (genero === 'f') return 'Nossa padroeira';
+  if (genero === 'm') return 'Nosso padroeiro';
+  return /^(Nossa Senhora|Santa)\b/i.test(nome) ? 'Nossa padroeira' : 'Nosso padroeiro';
+}
+function patronosParoquia(){
+  const configurados = PATRONOS_TENANT[TENANT];
+  const lista = configurados || (Array.isArray(S?.cfg?.patronos) ? S.cfg.patronos : (Array.isArray(S?.cfg?.patrons) ? S.cfg.patrons : (limparTexto(S?.cfg?.padroeiro) ? [S.cfg.padroeiro] : [])));
+  return lista.map(normalizarPatrono).filter(p => p.nome).map((p, i) => ({...p, idx:i, rotulo:generoPadroeiro(p.nome, p.genero)}));
+}
 function seed(){
   const t0 = new Date();
   const s = seedPiloto(t0);
@@ -2393,7 +2413,6 @@ function contatoPubHTML(){
   return `<h2>${esc(c.nome || 'Paróquia')}</h2>
   <div class="block">
     ${c.endereco ? `<p style="margin:0 0 6px">${esc(c.endereco)}</p>` : ''}${dados ? `<p class="small" style="margin:0">${dados}</p>` : ''}${!c.endereco && !dados ? `<p style="margin:0">${PREPARANDO}</p>` : ''}
-    ${c.paroco ? `<p class="small" style="margin:8px 0 0">Pároco: <b>${esc(c.paroco)}</b></p>` : ''}
     <p class="small muted" style="margin:8px 0 0">${[c.forania ? 'Forania ' + esc(c.forania) : '', esc(c.regiao || ''), 'Arquidiocese de Belo Horizonte'].filter(Boolean).join('<br>')}</p>
   </div>
   <h2>Secretaria paroquial</h2>
@@ -2575,8 +2594,7 @@ const REZAR = [
   {k:'misericordia', nome:'Terço da Misericórdia', ic:'✝️', sub:() => 'Às 15h, a hora da misericórdia'},
   {k:'angelus', nome:() => pascal() ? 'Rainha do Céu' : 'Angelus', ic:'🔔', sub:() => pascal() ? 'No Tempo Pascal' : '6h, meio-dia e 18h'},
   {k:'manha', nome:'Oração da Manhã', ic:'🌅', sub:() => 'Para começar o dia'},
-  {k:'noite', nome:'Oração da Noite', ic:'🌙', sub:() => 'Para terminar o dia'},
-  {k:'antonio', nome:'Oração a Santo Antônio', ic:'🙏', sub:() => 'Nosso padroeiro'}
+  {k:'noite', nome:'Oração da Noite', ic:'🌙', sub:() => 'Para terminar o dia'}
 ];
 const val = v => typeof v === 'function' ? v() : v;
 let reza = {k:null, passo:0, conta:0, misterios:null};
@@ -2599,13 +2617,22 @@ function oracaoGuiada(k){
     : {titulo:'Angelus', passos:[{titulo:'Angelus', sub:'Tradicionalmente rezado às 6h, ao meio-dia e às 18h.', textos:[['',TXT.angelus],['Ave-Maria',TXT.ave],['Oremos',TXT.angelusOremos],['Glória (3 vezes)',TXT.gloria]], botao:'Amém'}]};
   if (k === 'manha') return {titulo:'Oração da Manhã', passos:[{titulo:'Oração da Manhã', textos:[['Sinal da Cruz',TXT.sinal],['Oferecimento do dia',TXT.oferecimento],['',TXT.manha],['Ao Anjo da Guarda',TXT.anjo],['Pai-Nosso',TXT.pai]], botao:'Amém'}]};
   if (k === 'noite') return {titulo:'Oração da Noite', passos:[{titulo:'Oração da Noite', textos:[['Sinal da Cruz',TXT.sinal],['Exame do dia',TXT.exame],['Ato de contrição',TXT.contricao],['',TXT.noite],['Ave-Maria',TXT.ave],['Ao Anjo da Guarda',TXT.anjo]], botao:'Amém'}]};
-  return {titulo:'Oração a Santo Antônio', passos:[{titulo:'Oração a Santo Antônio', textos:[['Sinal da Cruz',TXT.sinal],['',TXT.santoAntonio],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
+  if (k.startsWith('padroeiro:')){
+    const p = patronosParoquia()[Number(k.split(':')[1])];
+    if (p){
+      const texto = p.oracao === 'santoAntonio' ? TXT.santoAntonio : `${p.nome}, rogai por nós e por nossa comunidade. Ajudai-nos a seguir Jesus com fé, esperança e caridade. Amém.`;
+      return {titulo:`Oração a ${p.nome}`, passos:[{titulo:`Oração a ${p.nome}`, textos:[['Sinal da Cruz',TXT.sinal],['Oração breve da comunidade',texto],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
+    }
+  }
+  return {titulo:'Rezar', passos:[{titulo:'Rezar', textos:[['Sinal da Cruz',TXT.sinal]], botao:'Amém'}]};
 }
 function rezarGridHTML(){
   const n = velasHoje();
+  const patronos = patronosParoquia();
   return `<h2>Rezar</h2><div class="rezar-grid">
     ${vendoAtiva() ? `<button class="rz vela" id="rzVela" style="grid-column:1/-1"><span class="ic" aria-hidden="true">🕯️</span><b>Acender uma vela</b><span class="small">${n ? `${n} vela${n===1?' acesa':'s acesas'} nas últimas 24 horas` : 'Seja o primeiro a acender uma vela hoje'}</span></button>` : ''}
     ${REZAR.map(r => `<button class="rz" data-rezar="${r.k}"><span class="ic" aria-hidden="true">${r.ic}</span><b>${esc(val(r.nome))}</b><span class="small">${esc(r.sub())}</span></button>`).join('')}
+    ${patronos.map(p => `<button class="rz" data-rezar="padroeiro:${p.idx}"><span class="ic" aria-hidden="true">🙏</span><b>${esc('Oração a ' + p.nome)}</b><span class="small">${esc(p.rotulo)}</span></button>`).join('')}
   </div>`;
 }
 const contasHTML = c => `<div class="contas" aria-hidden="true">${Array.from({length:c.n}, (_, i) => `<i class="${i < reza.conta ? 'on' : ''}"></i>`).join('')}</div>`;

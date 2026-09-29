@@ -114,6 +114,32 @@ console.log('== ações');
   t_('ações: sem erros de JS', !p.erros.length, p.erros.join(' | '));
 }
 
+// ================= Rezar por paróquia =================
+console.log('== Rezar por paróquia');
+{ const p = await aparelho({largura:1366, altura:768}); await publico(p); await acao(p, 'rezar');
+  const t = await texto(p);
+  t_('Santo Antônio: mantém a oração do padroeiro correto', t.includes('Oração a Santo Antônio') && t.includes('Nosso padroeiro'));
+  await foto(p, 'rezar-santo-antonio-1366');
+  t_('Santo Antônio Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
+}
+{ const p = await aparelho({url:'/?p=nossa-senhora-das-gracas-ibirite', largura:1366, altura:768}); await publico(p); await acao(p, 'rezar');
+  const t = await texto(p);
+  t_('Graças: não herda Santo Antônio', !t.includes('Oração a Santo Antônio') && t.includes('Oração a Nossa Senhora das Graças') && t.includes('Nossa padroeira'), t);
+  await foto(p, 'rezar-gracas-1366');
+  t_('Graças Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
+}
+{ const p = await aparelho({url:'/?p=santa-clara-e-sao-francisco-mineirao', largura:1366, altura:768}); await publico(p); await acao(p, 'rezar');
+  const t = await texto(p);
+  t_('Santa Clara e São Francisco: mostra os dois padroeiros corretos', !t.includes('Oração a Santo Antônio') && t.includes('Oração a Santa Clara') && t.includes('Nossa padroeira') && t.includes('Oração a São Francisco') && t.includes('Nosso padroeiro'), t);
+  await foto(p, 'rezar-santa-clara-1366');
+  t_('Santa Clara Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
+}
+{ const p = await aparelho({url:'/?p=paroquia-sem-padroeiro', largura:1366, altura:768}); await publico(p); await acao(p, 'rezar');
+  const t = await texto(p);
+  t_('paróquia sem padroeiro configurado: não herda Santo Antônio', !t.includes('Oração a Santo Antônio') && !t.includes('Nosso padroeiro'), t);
+  t_('paróquia sem padroeiro Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
+}
+
 // ================= Sala das Velas =================
 console.log('== Sala das Velas');
 { const p = await aparelho(); await p.emulateMediaFeatures([{name:'prefers-reduced-motion', value:'no-preference'}]); await publico(p); await acao(p, 'velas');
