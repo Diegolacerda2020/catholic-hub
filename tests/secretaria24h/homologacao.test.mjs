@@ -12,12 +12,15 @@ const REPO = process.env.REPO || fileURLToPath(new URL('../..', import.meta.url)
 const base = f => execSync(`git show bbb34e1:${f}`, {cwd:REPO}).toString();
 let ok = 0, falha = 0; const t = (n, c, x = '') => { c ? ok++ : falha++; console.log(c ? '  ok  ' : '  FALHOU', n, c ? '' : String(x).slice(0, 600)); };
 
-const doc = fs.readFileSync(`${REPO}/docs/HOMOLOGACAO-DIRETORIO.md`, 'utf8');
+const normalizarQuebras = texto => texto.replace(/\r\n?/g, '\n');
+const doc = normalizarQuebras(fs.readFileSync(`${REPO}/docs/HOMOLOGACAO-DIRETORIO.md`, 'utf8'));
 const secaoMarcada = /^(\*\*)?([A-Z]\d)\.[^\n]*(?:\*\*)?/gm;
 function blocosSql(documento = doc){
+  documento = normalizarQuebras(documento);
   return [...documento.matchAll(/```sql\n([\s\S]*?)```/g)].map(m => ({sql:m[1], index:m.index}));
 }
 function sqlDaSecao(rot, documento = doc){
+  documento = normalizarQuebras(documento);
   const secoes = [...documento.matchAll(secaoMarcada)].map(m => ({rot:m[2], index:m.index}));
   const secao = secoes.find(s => s.rot === rot);
   if (!secao) throw new Error(`Seção ${rot} não encontrada no roteiro de homologação.`);
@@ -32,8 +35,10 @@ function testarParser(){
   const b = '**P1. Caso B**\nTexto explicativo.\n```sql\nselect 1;\n```';
   const c = '**P1. Sem SQL**\nTexto explicativo.\n**P2. Outra seção**\n```sql\nselect 2;\n```';
   const d = '**P1. Uma seção**\nTexto explicativo.\n**P2. Outra seção**\n```sql\nselect 2;\n```';
+  const e = '**P1. Caso CRLF**\r\n\r\nTexto explicativo.\r\n\r\n```sql\r\nselect 1;\r\n```';
   t('parser: título colado ao bloco SQL', sqlDaSecao('P1', a).trim() === 'select 1;');
   t('parser: aceita texto explicativo entre título e SQL', sqlDaSecao('P1', b).trim() === 'select 1;');
+  t('parser: aceita CRLF entre título, texto e SQL', sqlDaSecao('P1', e).trim() === 'select 1;');
   t('parser: seção sem SQL falha com mensagem clara', tentar(() => sqlDaSecao('P1', c)).erro === 'Seção P1 não tem bloco SQL.');
   t('parser: P1 não captura SQL de P2', tentar(() => sqlDaSecao('P1', d)).erro === 'Seção P1 não tem bloco SQL.');
 }
