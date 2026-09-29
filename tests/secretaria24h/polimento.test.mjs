@@ -217,8 +217,11 @@ for (const [versao, url] of [['antes', '/antes.html'], ['depois', '/']]){
 console.log('== doações');
 { B.doacoes = {};
   let p = await aparelho(); await publico(p); await clk(p, '#tabs [data-tab="contato"]'); await esperar(900);
-  t_('sem configuração: botão de doação ESCONDIDO', !(await p.$('.cta-doa')) && (await texto(p)).includes('Quero ser dizimista'));
-  await ir(p, 'doacoes'); t_('sem configuração: página diz que não está configurado', (await texto(p)).includes('ainda não configurou doações'));
+  t_('sem configuração: botão de doação aparece junto do dizimista', !!(await p.$('.cta-doa')) && (await texto(p)).includes('Quero ser dizimista'));
+  await ir(p, 'doacoes'); {
+    const sem = await texto(p);
+    t_('sem configuração: página orienta falar com a secretaria, sem Pix/cartão fictício', sem.includes('ainda não cadastrou seus meios de doação') && sem.includes('Falar com a secretaria') && !sem.includes(TESTE_PIX.pix_key) && !sem.includes('Doar com cartão'), sem);
+  }
   B.doacoes['p-1'] = {parish_id:'p-1', ...TESTE_PIX, ...TESTE_CARTAO};
   p = await aparelho(); await publico(p); await clk(p, '#tabs [data-tab="contato"]'); await esperar(900);
   const pos = await p.evaluate(() => { const d = document.querySelector('.cta-diz'), b = document.querySelector('.cta-doa'); return b && d ? {abaixo:b.getBoundingClientRect().top >= d.getBoundingClientRect().bottom, txt:b.textContent} : null; });
@@ -250,9 +253,9 @@ console.log('== doações');
   t_('só cartão: sem Pix', (await p.$$('.doa-card')).length === 1 && !(await p.$('#pixQR')) && !!(await p.$('#doarCartao')));
   B.doacoes['p-1'] = {parish_id:'p-1', ...TESTE_PIX, ...TESTE_CARTAO};
   const sc = await aparelho({url:'/?p=santa-clara-e-sao-francisco-mineirao'}); await publico(sc); await clk(sc, '#tabs [data-tab="contato"]'); await esperar(900);
-  t_('isolamento: Santa Clara NÃO mostra a doação de Santo Antônio', !(await sc.$('.cta-doa')));
+  t_('isolamento: Santa Clara abre doações sem herdar a configuração de Santo Antônio', !!(await sc.$('.cta-doa')) && !(await texto(sc)).includes(TESTE_PIX.pix_key));
   const ng = await aparelho({url:'/?p=nossa-senhora-das-gracas-ibirite'}); await publico(ng); await ir(ng, 'doacoes'); await esperar(900);
-  t_('isolamento: N. Sra. das Graças sem doações', (await texto(ng)).includes('ainda não configurou doações') && !(await texto(ng)).includes(TESTE_PIX.pix_key));
+  t_('isolamento: N. Sra. das Graças sem doações configuradas', (await texto(ng)).includes('ainda não cadastrou seus meios de doação') && !(await texto(ng)).includes(TESTE_PIX.pix_key));
   t_('doações públicas: sem erros de JS', ![...p.erros, ...d.erros, ...sc.erros, ...ng.erros].length, [...p.erros, ...d.erros].join(' | '));
 }
 

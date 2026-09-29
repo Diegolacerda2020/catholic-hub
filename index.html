@@ -252,6 +252,8 @@ button.stat[aria-pressed="true"]{border-color:var(--lit);background:var(--lit-so
 .cta-diz{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:16px;margin:14px 0 10px}
 .cta-diz h3{font-family:var(--serif);font-size:1.25rem}
 .cta-diz p{margin:4px 0 12px}
+.participar-grid{display:grid;grid-template-columns:1fr;gap:8px;margin:2px 0 16px}
+.participar-grid .acao{min-height:104px}
 /* orações guiadas */
 .oracao{font-family:var(--serif);font-size:1.12rem;line-height:1.55;margin:8px 0 0;white-space:pre-line}
 .passos{margin:8px 0 0;padding-left:22px}
@@ -480,7 +482,7 @@ nav.tabs .so-lateral{display:none}
 .ag-periodo{border-color:var(--gold)}
 .dir-nome{color:var(--ink);font-weight:700;font-size:1rem;padding:0;text-align:left}
 .dir-row{align-items:center}
-@media (min-width:600px){.acoes-grid{grid-template-columns:repeat(3,1fr)}.acoes-grid .acao:last-child:nth-child(odd){grid-column:auto}}
+@media (min-width:600px){.acoes-grid{grid-template-columns:repeat(3,1fr)}.acoes-grid .acao:last-child:nth-child(odd){grid-column:auto}.participar-grid{grid-template-columns:1fr 1fr}}
 /* =========================================================
    Página pública responsiva — só pela LARGURA da tela (nada de user-agent):
    celular ≤767 (uma coluna, barra embaixo) · tablet 768–1199 · computador ≥1200.
@@ -608,7 +610,7 @@ const CFG_VAZIA = () => ({nome:'', padroeiro:'', endereco:'', telefone:'', whats
   tom:'acolhedor', emoji:true, assinatura:'Deus abençoe!', youtube:'', rec:{}, pix:''});
 const PATRONOS_TENANT = {
   'santo-antonio-jaragua': [{nome:'Santo Antônio', genero:'m', oracao:'santoAntonio'}],
-  'nossa-senhora-das-gracas-ibirite': [{nome:'Nossa Senhora das Graças', genero:'f'}],
+  'nossa-senhora-das-gracas-ibirite': [{nome:'Nossa Senhora das Graças', genero:'f', oracao:'nossaSenhoraDasGracas'}],
   'santa-clara-e-sao-francisco-mineirao': [{nome:'Santa Clara', genero:'f'}, {nome:'São Francisco', genero:'m'}]
 };
 const limparTexto = v => String(v || '').trim();
@@ -2236,7 +2238,13 @@ async function carregarDoacoes(){
   if (S.mode === 'publico' && ['contato', 'doacoes'].includes(S.pubTab)) renderSeguro();
 }
 const ctaDoacaoHTML = () => { if (!vendoAtiva()) return ''; carregarDoacoes();
-  return DOA.dados ? `<button type="button" class="btn ghost block-w cta-doa" data-pub="doacoes">💝 Quero fazer uma doação</button>` : ''; };
+  return `<button type="button" class="btn ghost block-w cta-doa" data-pub="doacoes">💝 Quero fazer uma doação</button>`; };
+function contatoDoacaoHTML(){
+  const c = S.cfg, msg = 'Olá! Gostaria de falar com a secretaria sobre doações para a ' + (c.nome || 'paróquia') + '.';
+  if (c.whats) return `<a class="btn wa block-w" href="${waLink(c.whats,msg)}" target="_blank" rel="noopener">Falar com a secretaria</a>`;
+  if (c.telefone) return `<a class="btn block-w" href="${telLink(c.telefone)}">Falar com a secretaria</a>`;
+  return '<button class="btn block-w" data-pub="contato">Falar com a secretaria</button>';
+}
 const TIPO_CHAVE = {cpf:'CPF', cnpj:'CNPJ', email:'e-mail', telefone:'telefone', aleatoria:'chave aleatória'};
 // Pix "copia e cola" (BR Code estático do Banco Central, sem valor): o fiel escolhe o valor no app do banco.
 function crc16Pix(s){ let c = 0xFFFF; for (let i = 0; i < s.length; i++){ c ^= s.charCodeAt(i) << 8; for (let j = 0; j < 8; j++) c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF; } return c.toString(16).toUpperCase().padStart(4, '0'); }
@@ -2272,7 +2280,9 @@ function doacoesPubHTML(){
   if (!vendoAtiva()) return topo + `<div class="empty">Esta paróquia ainda não recebe doações por aqui.</div>`;
   if (DOA.slug !== TENANT || DOA.estado !== 'ok'){ carregarDoacoes(); return topo + `<div class="status" role="status"><span class="spinner"></span>Carregando…</div>`; }
   const d = DOA.dados;
-  if (!d) return topo + `<div class="empty">Esta paróquia ainda não configurou doações por aqui. Fale com a secretaria.</div>`;
+  if (!d) return topo + `<div class="block"><p style="margin-top:0">Esta paróquia ainda não cadastrou seus meios de doação na Central Paroquial.</p>
+    <p>Para contribuir, entre em contato diretamente com a secretaria.</p>${contatoDoacaoHTML()}
+    <p class="doa-nota" style="margin-top:10px">A Central Paroquial não recebe nem intermedeia doações.</p></div>`;
   const p = d.pix, c = d.card;
   return `${topo}<p class="lead">Sua doação ajuda a ${esc(S.cfg.nome || 'paróquia')} a manter a liturgia, a evangelização e o cuidado com quem mais precisa. Obrigado!</p>
   <div class="doa-grade${p && c ? '' : ' uma'}">
@@ -2578,7 +2588,9 @@ const TXT = {
   exame:'Faça um momento de silêncio. Lembre-se do seu dia: agradeça a Deus pelo que foi bom, peça perdão pelo que não foi e confie a Ele o dia de amanhã.',
   contricao:'Meu Deus, eu me arrependo de todo o coração de vos ter ofendido, porque sois infinitamente bom e amável. Prometo, com a vossa graça, esforçar-me para ser bom e não mais pecar. Meu Jesus, misericórdia!',
   noite:'Senhor, ficai conosco, porque a noite vem chegando. Guardai-me durante este descanso, protegei minha família e todos os que amo. Em vossas mãos, Senhor, entrego o meu espírito. Amém.',
-  santoAntonio:'Glorioso Santo Antônio, padroeiro da nossa paróquia, amigo dos pobres e dos que sofrem, vós que tivestes a graça de acolher em vossos braços o Menino Jesus, intercedei por nós junto de Deus.\n\nAlcançai-nos a graça que humildemente pedimos (faça em silêncio o seu pedido), se for para a glória de Deus e o bem da nossa alma.\n\nProtegei nossas famílias, nossa comunidade e todos os que buscam a vossa intercessão. Santo Antônio, rogai por nós. Amém.'
+  santoAntonio:'Glorioso Santo Antônio, padroeiro da nossa paróquia, amigo dos pobres e dos que sofrem, vós que tivestes a graça de acolher em vossos braços o Menino Jesus, intercedei por nós junto de Deus.\n\nAlcançai-nos a graça que humildemente pedimos (faça em silêncio o seu pedido), se for para a glória de Deus e o bem da nossa alma.\n\nProtegei nossas famílias, nossa comunidade e todos os que buscam a vossa intercessão. Santo Antônio, rogai por nós. Amém.',
+  gracas1:'Lembrai-vos, ó puríssima Virgem Maria, do poder ilimitado que vos deu o vosso Divino Filho sobre o seu coração adorável. Cheio de confiança na vossa intercessão, venho implorar o vosso auxílio. Tendes, em vossas mãos, a fonte de todas as graças que brotam do coração amantíssimo de Jesus Cristo; abri-a em meu favor, concedendo-me a graça que ardentemente vos peço. Não quero ser o único por vós rejeitado, sois minha Mãe, sois a soberana do coração de vosso Divino Filho.',
+  gracas2:'Sim, ó Virgem Santa, não esqueçais as tristezas dessa terra; lançai um olhar de vontade aos que estão no sofrimento, aos que não cessam de provar o cálice das amarguras da vida. Tende piedade dos que se amam e que estão separados pela discórdia, pela doença, pelo cárcere, exílio ou morte. Tende piedade dos que choram, dos que suplicam, e dai a todos o conforto, a esperança e a paz! Atendei, pois, a minha humilde súplica e alcançai-me as graças que agora fervorosamente vos peço por intermédio de vossa santa Medalha Milagrosa!\n\nAmém.'
 };
 const MISTERIOS = {
   gozosos:{nome:'Mistérios Gozosos', adj:'Gozoso', itens:['A anunciação do Anjo a Maria','A visitação de Maria a Isabel','O nascimento de Jesus em Belém','A apresentação de Jesus no Templo','A perda e o encontro de Jesus no Templo']},
@@ -2620,7 +2632,9 @@ function oracaoGuiada(k){
   if (k.startsWith('padroeiro:')){
     const p = patronosParoquia()[Number(k.split(':')[1])];
     if (p){
-      const texto = p.oracao === 'santoAntonio' ? TXT.santoAntonio : `${p.nome}, rogai por nós e por nossa comunidade. Ajudai-nos a seguir Jesus com fé, esperança e caridade. Amém.`;
+      if (p.oracao === 'santoAntonio') return {titulo:`Oração a ${p.nome}`, passos:[{titulo:`Oração a ${p.nome}`, textos:[['Sinal da Cruz',TXT.sinal],['Oração breve da comunidade',TXT.santoAntonio],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
+      if (p.oracao === 'nossaSenhoraDasGracas') return {titulo:`Oração a ${p.nome}`, passos:[{titulo:`Oração a ${p.nome}`, textos:[['Sinal da Cruz',TXT.sinal],['',TXT.gracas1],['Supliquemos o auxílio de Nossa Senhora das Graças',TXT.gracas2],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
+      const texto = `${p.nome}, rogai por nós e por nossa comunidade. Ajudai-nos a seguir Jesus com fé, esperança e caridade. Amém.`;
       return {titulo:`Oração a ${p.nome}`, passos:[{titulo:`Oração a ${p.nome}`, textos:[['Sinal da Cruz',TXT.sinal],['Oração breve da comunidade',texto],['Pai-Nosso',TXT.pai],['Ave-Maria',TXT.ave],['Glória',TXT.gloria]], botao:'Amém'}]};
     }
   }
@@ -3530,6 +3544,13 @@ function acoesHTML(completa = true){
   return `<nav class="acoes-grid" aria-label="O que você quer fazer">${a.map(([k, ic, tit, sub]) =>
     `<button type="button" class="acao" ${k === 's24' ? 'data-s24-abrir' : `data-acao="${k}"`}><span class="ic" aria-hidden="true">${ic}</span><b>${tit}</b><span class="small">${esc(sub)}</span></button>`).join('')}</nav>`;
 }
+function participarHTML(){
+  if (!vendoAtiva()) return '';
+  return `<h2>Participar da paróquia</h2><nav class="participar-grid" aria-label="Participar da paróquia">
+    <button type="button" class="acao" data-acao="dizimista"><span class="ic" aria-hidden="true">❤️</span><b>Quero ser dizimista</b><span class="small">A equipe da paróquia conversa com você</span></button>
+    <button type="button" class="acao" data-acao="doacoes"><span class="ic" aria-hidden="true">💝</span><b>Quero fazer uma doação</b><span class="small">Veja os meios informados pela paróquia</span></button>
+  </nav>`;
+}
 /* Acesso rápido: nas subpáginas, uma faixa com os atalhos da Home (sem voltar ao início). */
 const TELAS_ACESSO = ['liturgia', 'rezar', 'intencao', 'velas', 'devocao', 'secretaria', 'doacoes'];
 function acessoRapidoHTML(){
@@ -3562,6 +3583,7 @@ function igrejaPubHTML(){
   // próximo evento à esquerda; notícias e "Assistir" à direita.
   return `<h2 class="sr">Início</h2>
   ${acoesHTML()}
+  ${participarHTML()}
   <div class="home-grade"><div class="home-princ">
   ${missaHTML()}
   ${hoje.length ? `<h2>Hoje na paróquia</h2>${hoje.map(eventoHojeCard).join('')}` : ''}

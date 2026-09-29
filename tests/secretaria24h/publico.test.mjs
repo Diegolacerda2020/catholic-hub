@@ -81,6 +81,8 @@ for (const [w, h] of [[390, 844], [768, 1024], [1024, 768], [1366, 768], [1920, 
   if (w === 390){
     const acoes = await p.$$eval('.acoes-grid .acao b', l => l.map(b => b.textContent));
     t_('Home começa com as 5 ações, no mesmo nível', JSON.stringify(acoes) === JSON.stringify(['Liturgia de hoje','Rezar','Pedir intenção de Missa','Acender uma vela','Secretaria 24h']), acoes);
+    const participar = await p.$$eval('.participar-grid .acao b', l => l.map(b => b.textContent));
+    t_('Home mostra Dizimista + Doações em "Participar da paróquia"', JSON.stringify(participar) === JSON.stringify(['Quero ser dizimista','Quero fazer uma doação']), participar);
     t_('sem o bloco repetido "Hoje na Igreja" (nome + data + título)', !t.includes('Hoje na Igreja') && await p.evaluate(() => document.querySelector('#view > :not(.sr)')?.classList.contains('acoes-grid')));
     t_('Liturgia é uma ação (não um bloco de texto grande)', !t.includes('Leituras e Evangelho no site oficial') && await p.$('.acoes-grid [data-acao="liturgia"]') !== null);
     t_('evento de HOJE em destaque', t.includes('HOJE NA PARÓQUIA') || t.includes('Hoje na paróquia') && t.includes('Almoço Beneficente'));
@@ -125,6 +127,9 @@ console.log('== Rezar por paróquia');
 { const p = await aparelho({url:'/?p=nossa-senhora-das-gracas-ibirite', largura:1366, altura:768}); await publico(p); await acao(p, 'rezar');
   const t = await texto(p);
   t_('Graças: não herda Santo Antônio', !t.includes('Oração a Santo Antônio') && t.includes('Oração a Nossa Senhora das Graças') && t.includes('Nossa padroeira'), t);
+  await clk(p, '[data-rezar^="padroeiro:"]'); await esperar(400);
+  const o = await texto(p);
+  t_('Graças: nova oração própria aparece', o.includes('Lembrai-vos, ó puríssima Virgem Maria') && o.includes('Supliquemos o auxílio de Nossa Senhora das Graças') && o.includes('santa Medalha Milagrosa') && !o.includes('Glorioso Santo Antônio'), o);
   await foto(p, 'rezar-gracas-1366');
   t_('Graças Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
 }
@@ -138,6 +143,22 @@ console.log('== Rezar por paróquia');
   const t = await texto(p);
   t_('paróquia sem padroeiro configurado: não herda Santo Antônio', !t.includes('Oração a Santo Antônio') && !t.includes('Nosso padroeiro'), t);
   t_('paróquia sem padroeiro Rezar: sem erros de JS', !p.erros.length, p.erros.join(' | '));
+}
+
+// ================= Dizimista + Doações na Home =================
+console.log('== Dizimista + Doações na Home');
+{ const p = await aparelho(); await publico(p);
+  t_('Santo Antônio: Home mostra Dizimista + Doações', (await texto(p)).includes('Quero ser dizimista') && (await texto(p)).includes('Quero fazer uma doação'));
+  await clk(p, '[data-acao="dizimista"]'); await esperar(400);
+  t_('Home › Dizimista abre o fluxo existente', !!(await p.$('#dzPubF')) && (await texto(p)).includes('Ser dizimista é participar'));
+  await clk(p, '[data-pub="igreja"]'); await esperar(300);
+  await clk(p, '[data-acao="doacoes"]'); await esperar(900); let t = await texto(p);
+  t_('sem configuração financeira: Doações abre orientação útil e secretaria', t.includes('ainda não cadastrou seus meios de doação') && t.includes('Falar com a secretaria') && !t.includes('Pix') && !t.includes('Doar com cartão'), t);
+  B.doacoes['p-1'] = {parish_id:'p-1', pix_enabled:true, pix_key:'doacoes@paroquia-teste.invalid', pix_key_type:'email', pix_beneficiary:'PAROQUIA TESTE', pix_city:'BELO HORIZONTE', card_enabled:true, payment_provider:'Teste', checkout_url:'https://pagamentos.paroquia-teste.invalid/doar'};
+  const q = await aparelho(); await publico(q); await clk(q, '[data-acao="doacoes"]'); await esperar(1200); t = await texto(q);
+  t_('com configuração financeira simulada: meios continuam aparecendo', t.includes('Pix') && t.includes('doacoes@paroquia-teste.invalid') && t.includes('PAROQUIA TESTE') && t.includes('Doar com cartão'), t);
+  t_('Dizimista + Doações: sem erros de JS', ![...p.erros, ...q.erros].length, [...p.erros, ...q.erros].join(' | '));
+  delete B.doacoes['p-1'];
 }
 
 // ================= Sala das Velas =================
@@ -264,6 +285,7 @@ let ctxFiel;
   t = await texto(p); const c = await cab(p);
   t_('Santa Clara: cabeçalho com o próprio nome', c.includes('Paróquia Santa Clara e São Francisco – Mineirão'));
   t_('Santa Clara: nada de Santo Antônio na Home', !/Almoço Beneficente|Aviso de Santo Antônio|Santo Antônio/.test(t), t.slice(0, 300));
+  t_('Santa Clara: Home mostra Dizimista + Doações', t.includes('Quero ser dizimista') && t.includes('Quero fazer uma doação'), t);
   t_('Santa Clara: sem Secretaria 24h (não tem catálogo) e sem evento de hoje', !(await p.$('.acoes-grid [data-s24-abrir]')) && !(await p.$('.hoje-ev')));
   await foto(p, 'home-santa-clara-390');
   await clk(p, '#tabs [data-tab="agenda"]'); await esperar(400); t = await texto(p);
@@ -287,7 +309,9 @@ let ctxFiel;
 for (const [slug, nome] of [['nossa-senhora-das-gracas-ibirite', 'Nossa Senhora das Graças – Ibirité']]){
   for (const w of [390, 1366]){
     const p = await aparelho({url:'/?p=' + slug, largura:w, altura:w === 390 ? 844 : 768}); await publico(p);
-    t_(`${slug} (${w}): Home própria`, (await cab(p)).includes(nome) && !(await texto(p)).includes('Almoço Beneficente'));
+    const t = await texto(p);
+    t_(`${slug} (${w}): Home própria`, (await cab(p)).includes(nome) && !t.includes('Almoço Beneficente'));
+    t_(`${slug} (${w}): Home mostra Dizimista + Doações`, t.includes('Quero ser dizimista') && t.includes('Quero fazer uma doação'), t);
     await foto(p, `home-gracas-${w}`, w === 390);
     t_(`${slug} (${w}): sem erros de JS`, !p.erros.length, p.erros.join(' | '));
   }
