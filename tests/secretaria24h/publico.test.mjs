@@ -50,7 +50,7 @@ let ok = 0, falha = 0; const t_ = (n, c, x = '') => { c ? ok++ : falha++; consol
 const errosGlobais = [];
 // data fixa (para testar destaques): troca só o "agora" do navegador
 const RELOGIO = d => `(() => { const D = Date, delta = ${Date.parse(d)} - D.now(); class F extends D { constructor(...a){ super(...(a.length ? a : [D.now() + delta])); } static now(){ return D.now() + delta; } } globalThis.Date = F; })();`;
-async function aparelho({url = '/', largura = 390, altura = 844, ua = null, data = null, ctx = null} = {}){
+async function aparelho({url = '/?p=santo-antonio-jaragua', largura = 390, altura = 844, ua = null, data = null, ctx = null} = {}){
   const c = ctx || await browser.createBrowserContext(); const page = await c.newPage();
   await page.setViewport({width:largura, height:altura, deviceScaleFactor:1});
   if (ua) await page.setUserAgent(ua);
@@ -175,7 +175,7 @@ console.log('== Sala das Velas');
   t_('vela acesa', (await texto(p)).includes('Sua vela está acesa'));
   // muitas velas: limite visual de 50
   B.estado.data.velas = Array.from({length:187}, (_, i) => ({id:1000 + i, ts:Date.now() - i * 60e3, para:'mim', por:'', pedido:'', nome:'', rezar:false}));
-  const q = await aparelho({url:'/'}); await publico(q); await acao(q, 'velas');
+  const q = await aparelho(); await publico(q); await acao(q, 'velas');
   t = await texto(q);
   t_('187 velas: 50 desenhadas + "+137 pessoas rezando conosco"', (await q.$$('.sala-velas .mv')).length === 50 && t.includes('+137 pessoas rezando conosco'), t.slice(0, 200));
   await foto(q, 'sala-das-velas-187-390');
@@ -246,9 +246,10 @@ console.log('== Agenda unificada e "Adicionar à minha agenda"');
   await clk(ios, '[data-agenda-add="e-prox"]'); await esperar(400);
   const ics = await ios.evaluate(() => ({ics:window.__ics, nome:window.__download, abertos:window.__abertos}));
   t_('iPhone: arquivo de calendário (.ics) para o app Calendário, sem Google', ics.nome?.endsWith('.ics') && /BEGIN:VEVENT[\s\S]*SUMMARY:Missa de São Francisco/.test(ics.ics || '') && !ics.abertos.length, JSON.stringify(ics).slice(0, 200));
-  await clk(p, '#tabs [data-tab="igreja"]'); await esperar(300); await clk(p, '[data-ev-ver="e-hoje"]'); await esperar(400);
-  t_('"Ver detalhes" do evento de hoje abre o evento', (await texto(p)).includes('Almoço Beneficente') && (await p.$$('[data-agenda-add]')).length === 1);
-  t_('agenda: sem erros de JS', ![...p.erros, ...android.erros, ...ios.erros].length, [...p.erros, ...android.erros, ...ios.erros].join(' | '));
+  const hoje = await aparelho(); await publico(hoje);
+  await clk(hoje, '[data-ev-ver="e-hoje"]'); await esperar(400);
+  t_('"Ver detalhes" do evento de hoje abre o evento', (await texto(hoje)).includes('Almoço Beneficente') && (await hoje.$$('[data-agenda-add]')).length === 1);
+  t_('agenda: sem erros de JS', ![...p.erros, ...android.erros, ...ios.erros, ...hoje.erros].length, [...p.erros, ...android.erros, ...ios.erros, ...hoje.erros].join(' | '));
 }
 { // sem evento hoje: o bloco some
   const salvo = B.t.events.splice(0, 1);
@@ -266,7 +267,7 @@ let ctxFiel;
   t_('Trocar abre "Encontre sua paróquia" com as ativas', t.includes('Encontre sua paróquia') && t.includes('Com a Central Paroquial') && t.includes('Santa Clara e São Francisco'), t.slice(0, 400));
   await p.type('#buscaPar', 'ibirité graças'); await esperar(800);
   t = await texto(p);
-  t_('busca por município + nome: N. Sra. das Graças ativa', t.includes('Nossa Senhora das Graças') && t.includes('Centro · Ibirité') && t.includes('✓ Central Paroquial ativa'));
+  t_('busca por município + nome: N. Sra. das Graças ativa', t.includes('Nossa Senhora das Graças') && t.includes('Centro · Ibirité') && t.includes('Central Paroquial ativa'));
   await foto(p, 'busca-ativa-390');
   await p.$eval('#buscaPar', e => e.value = ''); await p.type('#buscaPar', 'bom pastor'); await esperar(800);
   t = await texto(p);
@@ -280,9 +281,9 @@ let ctxFiel;
   await clk(p, '#voltarAtual'); await esperar(400);
   await clk(p, '#hdrName'); await esperar(400);
   await p.type('#buscaPar', 'mineirão'); await esperar(800);
-  await p.evaluate(() => [...document.querySelectorAll('[data-dir-abrir]')].find(b => b.textContent.trim() === 'Acessar').click());
+  await p.click('[data-dir-minha="santa-clara-e-sao-francisco-mineirao"]');
   await p.waitForNavigation({waitUntil:'networkidle0'}).catch(() => {}); await esperar(700);
-  t_('Acessar paróquia ativa: mesmo código, contexto pelo endereço (?p=slug)', p.url().includes('?p=santa-clara-e-sao-francisco-mineirao'));
+  t_('Escolher paróquia ativa: mesmo código, contexto pelo endereço (?p=slug)', p.url().includes('?p=santa-clara-e-sao-francisco-mineirao'));
   t = await texto(p); const c = await cab(p);
   t_('Santa Clara: cabeçalho com o próprio nome', c.includes('Paróquia Santa Clara e São Francisco – Mineirão'));
   t_('Santa Clara: nada de Santo Antônio na Home', !/Almoço Beneficente|Aviso de Santo Antônio|Santo Antônio/.test(t), t.slice(0, 300));

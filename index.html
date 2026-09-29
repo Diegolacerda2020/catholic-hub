@@ -447,6 +447,19 @@ nav.tabs .so-lateral{display:none}
 .filtros-dir{margin-bottom:12px}
 #buscaPar{width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:1rem}
 #buscaPar:focus{border-color:var(--lit);outline:none}
+.boas-vindas{max-width:760px;margin:0 auto}
+.boas-hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 18px;margin-bottom:14px}
+.boas-hero .marca-publica{font-weight:700;color:var(--lit);margin-bottom:10px}
+.boas-hero h2{font-size:1.75rem;margin:0 0 8px}
+.boas-hero p{font-size:1.06rem;margin:0 0 16px}
+.boas-busca label{display:block;font-weight:700;margin:0 0 6px}
+.boas-busca input{min-height:54px;font-size:1.08rem}
+.boas-opcoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.boas-opcoes .btn{min-height:46px}
+.minha-faixa{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.minha-faixa b{display:block}
+.minha-faixa .btn{flex-shrink:0}
+.minha-faixa.outro{border-color:var(--gold);background:var(--gold-soft)}
 .dir-grade{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
 .dir-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .dir-card.ativa{border-color:var(--lit)}
@@ -581,16 +594,27 @@ nav.tabs .so-lateral{display:none}
    "minha paróquia" guardada neste aparelho; senão, da paróquia padrão do config.js. Cada paróquia tem o
    próprio estado neste aparelho (nada de uma aparece na outra) e trocar de paróquia recarrega a página. */
 const NAV_KEY = 'central-paroquial-navegacao'; // minha paróquia e recentes: valem para o aparelho, não para uma paróquia
+const MINHA_PAROQUIA_KEY = 'central_paroquial_minha_paroquia';
 const SLUG_OK = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const PILOTO = (window.CENTRAL_CONFIG || {}).parishSlug || 'santo-antonio-jaragua';
-function lerNav(){ try { const n = JSON.parse(localStorage.getItem(NAV_KEY)); return n && typeof n === 'object' ? {minha:n.minha || null, recentes:Array.isArray(n.recentes) ? n.recentes.slice(0, 6) : []} : {minha:null, recentes:[]}; } catch(e){ return {minha:null, recentes:[]}; } }
-function gravarNav(n){ try { localStorage.setItem(NAV_KEY, JSON.stringify(n)); } catch(e){} }
+function lerNav(){
+  try {
+    const n = JSON.parse(localStorage.getItem(NAV_KEY));
+    const nav = n && typeof n === 'object' ? {minha:n.minha || null, recentes:Array.isArray(n.recentes) ? n.recentes.slice(0, 6) : []} : {minha:null, recentes:[]};
+    const slug = localStorage.getItem(MINHA_PAROQUIA_KEY);
+    if (!nav.minha && slug && SLUG_OK.test(slug)) nav.minha = {slug, tenant_slug:slug, active:true, rotulo:''};
+    return nav;
+  } catch(e){ return {minha:null, recentes:[]}; }
+}
+function gravarNav(n){ try { localStorage.setItem(NAV_KEY, JSON.stringify(n)); if (n.minha?.tenant_slug) localStorage.setItem(MINHA_PAROQUIA_KEY, n.minha.tenant_slug); else localStorage.removeItem(MINHA_PAROQUIA_KEY); } catch(e){} }
 const TENANT = (() => {
   const p = new URLSearchParams(location.search).get('p');
   if (p && SLUG_OK.test(p)) return p;
   const m = lerNav().minha;
   return m?.tenant_slug && SLUG_OK.test(m.tenant_slug) ? m.tenant_slug : PILOTO;
 })();
+const LINK_DIRETO = (() => { const p = new URLSearchParams(location.search).get('p'); return !!(p && SLUG_OK.test(p)); })();
+const RAIZ_SEM_MINHA = !LINK_DIRETO && !lerNav().minha;
 const E_PILOTO = TENANT === PILOTO; // só a paróquia piloto tem conteúdo inicial de exemplo
 const KEY = 'central-paroquial-v02' + (E_PILOTO ? '' : '@' + TENANT); // a piloto mantém a chave antiga
 const ATIVA = 'atual'; // S.vendo: a paróquia desta página; 'dir:<slug>' = uma paróquia do diretório ainda não ativa
@@ -813,7 +837,13 @@ async function salvarAgora(){
 }
 async function atualizarPublico(){
   const {data, error} = await NUVEM.sb.rpc('get_public_parish', {p_slug:NUVEM.slug});
-  if (error || !data) return;
+  if (error || !data) {
+    const n = lerNav();
+    if (!LINK_DIRETO && n.minha?.tenant_slug === TENANT){
+      n.minha = null; gravarNav(n); S.pubTab = 'onboarding'; renderSeguro();
+    }
+    return;
+  }
   const antes = JSON.stringify([S.cfg, S.avisos, NUVEM.velasPub, S.pubRel]);
   if (data.cfg && Object.keys(data.cfg).length) S.cfg = {...S.cfg, ...data.cfg};
   if (!S.cfg.nome && data.name) S.cfg.nome = data.name;
@@ -1045,10 +1075,12 @@ async function baixar(filename, data){
 /* ---------- cabeçalho e modo ---------- */
 function renderHeader(){
   const hn = document.getElementById('hdrName'), d = new Date(), r = vendoRede();
-  if (S.mode==='painel'){ hn.textContent = S.cfg.nome; hn.classList.remove('pick'); hn.removeAttribute('aria-label'); }
+  if (S.mode==='publico' && S.pubTab === 'onboarding'){ hn.textContent = 'Central Paroquial'; hn.classList.remove('pick'); hn.removeAttribute('aria-label'); }
+  else if (S.mode==='painel'){ hn.textContent = S.cfg.nome; hn.classList.remove('pick'); hn.removeAttribute('aria-label'); }
   else { hn.innerHTML = `${esc(nomeVendo())}<span class="caret" aria-hidden="true">trocar ▾</span>`; hn.classList.add('pick'); hn.setAttribute('aria-label', 'Paróquia: '+nomeVendo()+'. Trocar ou pesquisar outra paróquia'); }
   document.getElementById('hdrSub').textContent = S.mode==='painel'
     ? `Painel da paróquia, ${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`
+    : S.pubTab === 'onboarding' ? 'Escolha sua paróquia'
     : [(vendoAtiva() ? S.cfg.forania : r?.forania) ? 'Forania ' + (vendoAtiva() ? S.cfg.forania : r.forania) : '', siglaRegiao(vendoAtiva() ? S.cfg.regiao : r?.episcopal_region), eMinha() ? 'Minha paróquia' : ''].filter(Boolean).join(' · ');
   document.title = 'Central Paroquial — ' + ((S.mode==='painel' ? S.cfg.nome : nomeVendo()) || 'Paróquia');
   document.getElementById('mPainel').setAttribute('aria-pressed', S.mode==='painel');
@@ -1064,7 +1096,12 @@ function renderHeader(){
 }
 document.getElementById('btnSair').onclick = () => sair();
 document.getElementById('mPainel').onclick = () => { S.mode='painel'; save(); render(); scrollTo(0,0); };
-document.getElementById('mPublico').onclick = () => { S.mode='publico'; S.vendo = ATIVA; if (S.pubTab in SUBTELAS_PUB) S.pubTab = 'igreja'; dzPubEnviado = false; save(); render(); scrollTo(0,0); };
+document.getElementById('mPublico').onclick = () => {
+  const equipe = logado();
+  S.mode='publico'; S.vendo = ATIVA;
+  S.pubTab = equipe ? 'igreja' : (NUVEM.ativo && RAIZ_SEM_MINHA && !lerNav().minha ? 'onboarding' : 'igreja');
+  dzPubEnviado = false; save(); render(); scrollTo(0,0);
+};
 document.getElementById('hdrName').onclick = () => { if (S.mode!=='publico') return; S.pubTab='escolher'; buscaPar=''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); };
 document.getElementById('op').onchange = e => { S.operador = e.target.value; save(); toast('Usando como: '+e.target.selectedOptions[0].text); };
 
@@ -1096,9 +1133,10 @@ const BARRA = ['inicio','comunicar','agenda','intencoes'];
 const navItens = () => NAV.filter(([k]) => pode(k) && (k !== 'secretaria24h' || window.S24));
 const tabsFor = () => S.mode==='painel'
   ? [...navItens().filter(([k]) => BARRA.includes(k)), ['mais','Mais']]
+  : S.pubTab === 'onboarding' ? []
   : [['igreja','Igreja'],['agenda','Agenda'],['comunidades','Comunidades'],['avisos','Avisos'],['contato','Paróquia']];
 // Telas públicas que não têm botão próprio na barra (abrem a partir de outra aba).
-const SUBTELAS_PUB = {escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja',
+const SUBTELAS_PUB = {onboarding:null, escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja',
   liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda', doacoes:'contato'};
 // Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
 const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
@@ -3088,7 +3126,7 @@ function lembrar(item){
 }
 function eMinha(){
   const m = lerNav().minha;
-  if (!m) return vendoAtiva() && E_PILOTO; // como antes: sem escolha, a piloto é a "minha"
+  if (!m) return false;
   return vendoAtiva() ? m.tenant_slug === TENANT : m.slug === S.vendo.slice(4);
 }
 function abrirParoquia(item){
@@ -3099,6 +3137,17 @@ function abrirParoquia(item){
     return;
   }
   S.vendo = 'dir:' + item.slug; S.pubTab = 'igreja'; velaStep = 'inicio'; save(); render(); scrollTo(0,0);
+}
+function definirMinhaParoquia(item){
+  if (!item?.active || !item.tenant_slug) return false;
+  const n = lerNav(); n.minha = item; gravarNav(n); lembrar(item);
+  toast('Pronto! Esta agora é sua paróquia na Central Paroquial.');
+  return true;
+}
+function escolherMinhaParoquia(item){
+  if (!definirMinhaParoquia(item)) return;
+  if (item.tenant_slug === TENANT){ S.vendo = ATIVA; S.pubTab = 'igreja'; save(); render(); scrollTo(0,0); return; }
+  location.href = location.pathname + '?p=' + encodeURIComponent(item.tenant_slug);
 }
 
 let buscaPar = '', dirTipo = 'todos';
@@ -3112,8 +3161,9 @@ function linhaDir(e){
       <button type="button" class="link-btn dir-nome" data-dir-abrir="${esc(e.slug)}">${esc(titulo)}</button>
       ${localDir(e) ? `<div class="dir-local">${esc(localDir(e))}</div>` : ''}
       ${e.forania ? `<div class="small muted">Forania ${esc(e.forania)}</div>` : ''}
-      <div class="tagline">${chipsDir(e)}${at ? '<span class="chip">✓ Central Paroquial ativa</span>' : '<span class="chip gold">Central Paroquial ainda não ativada</span>'}</div>
-      <div class="dir-acao">${at ? `<button type="button" class="btn sm" data-dir-abrir="${esc(e.slug)}">Acessar</button>` : `<button type="button" class="btn sm ghost" data-dir-ativar="${esc(e.slug)}">Solicitar ativação</button>`}</div></article>`;
+      <div class="tagline">${chipsDir(e)}${at ? '<span class="chip">Central Paroquial ativa</span>' : '<span class="chip gold">Central Paroquial ainda não ativada</span>'}</div>
+      <div class="dir-acao">${at ? `<button type="button" class="btn sm" data-dir-minha="${esc(e.slug)}">Escolher esta paróquia</button>` : `<button type="button" class="btn sm ghost" data-dir-ativar="${esc(e.slug)}">Solicitar ativação</button>`}</div>
+      ${at ? `<button type="button" class="link-btn" style="align-self:flex-start;color:var(--lit);padding-left:0" data-dir-abrir="${esc(e.slug)}">Ver sem mudar minha paróquia</button>` : `<p class="small muted" style="margin:0">Esta paróquia ainda não possui página ativa na Central Paroquial.</p>`}</article>`;
 }
 const gradeDir = l => `<div class="dir-grade">${l.map(linhaDir).join('')}</div>`;
 function resultadosHTML(){
@@ -3145,6 +3195,24 @@ function escolherHTML(){
   ${DIR.semBanco || !NUVEM.ativo ? `<p class="small muted" style="margin:10px 4px">Por enquanto, a busca inclui as ${REDE.length} paróquias e santuários da RENSC.</p>` : ''}
   <button class="btn ghost block-w" id="pickVoltar">Voltar</button>`;
 }
+function onboardingHTML(){
+  if (buscandoDir() && DIR.busca.chave !== chaveBusca() && DIR.busca.estado !== 'carregando') setTimeout(dispararBusca, 0);
+  return `<div class="boas-vindas"><section class="boas-hero" aria-labelledby="boasT">
+    <div class="marca-publica">Central Paroquial</div>
+    <h2 id="boasT">Bem-vindo!</h2>
+    <p>Qual é a sua paróquia?</p>
+    <p class="lead">Escolha sua paróquia para ver missas, avisos, orações, eventos e serviços da sua comunidade.</p>
+    <div class="boas-busca">
+      <label for="buscaPar">Digite o nome da paróquia, bairro ou cidade</label>
+      <input type="search" id="buscaPar" placeholder="Ex.: Jaraguá, Graças, Mineirão" value="${esc(buscaPar)}" autocomplete="off">
+    </div>
+    <div class="boas-opcoes">
+      <button type="button" class="btn ghost" id="semMinha">Ainda não tenho uma paróquia</button>
+      <button type="button" class="btn ghost" id="explorarPar">Explorar paróquias</button>
+    </div>
+  </section>
+  <div id="dirRes" aria-live="polite">${resultadosHTML()}</div></div>`;
+}
 function dispararBusca(){
   clearTimeout(DIR.timer);
   const q = buscaPar.trim(), tipo = tipoBusca(), chave = chaveBusca();
@@ -3161,6 +3229,7 @@ function dispararBusca(){
 function bindDirLinhas(root, lista){
   const achar = slug => lista().find(x => x.slug === slug);
   root.querySelectorAll('[data-dir-abrir]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAbrir); if (e) abrirParoquia(e.rotulo ? e : itemDir(e)); });
+  root.querySelectorAll('[data-dir-minha]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirMinha); if (e) escolherMinhaParoquia(e.rotulo ? e : itemDir(e)); });
   root.querySelectorAll('[data-dir-ativar]').forEach(b => b.onclick = () => { const e = achar(b.dataset.dirAtivar); if (!e) return; abrirParoquia(e.rotulo ? e : itemDir(e)); setTimeout(() => document.getElementById('ativacao')?.scrollIntoView({block:'start'}), 400); });
 }
 const ativasHTML = () => { const l = (DIR.ativas || []).filter(e => passaTipo(e, tipoBusca())); return l.length ? `<h2>Com a Central Paroquial</h2>${gradeDir(l)}` : ''; };
@@ -3182,6 +3251,15 @@ function bindEscolher(root){
   bindDirLinhas(root, todas);
   root.querySelector('#pickVoltar').onclick = () => { S.pubTab = 'igreja'; save(); render(); };
 }
+function bindOnboarding(root){
+  const b = root.querySelector('#buscaPar');
+  b?.addEventListener('input', () => { buscaPar = b.value; dispararBusca(); });
+  b?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); dispararBusca(); } });
+  root.querySelector('#semMinha')?.addEventListener('click', () => { S.pubTab = 'escolher'; buscaPar = ''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); });
+  root.querySelector('#explorarPar')?.addEventListener('click', () => { S.pubTab = 'escolher'; buscaPar = ''; save(); render(); scrollTo(0,0); });
+  bindDirLinhas(root, () => DIR.busca.lista);
+  setTimeout(() => b?.focus(), 80);
+}
 function minhaBtn(){
   return eMinha()
     ? `<div class="small muted" style="text-align:center;margin:10px 0">★ Esta é a sua paróquia</div>`
@@ -3189,7 +3267,7 @@ function minhaBtn(){
 }
 function bindMinha(root){ root.querySelector('#tornarMinha')?.addEventListener('click', () => {
   const d = vendoDir(), item = vendoAtiva() ? atualComoItem() : d ? itemDir(d) : null; if (!item) return;
-  const n = lerNav(); n.minha = item; gravarNav(n); lembrar(item); render(); toast('Agora esta é a sua paróquia');
+  definirMinhaParoquia(item); render();
 }); }
 
 /* página informativa de paróquia que ainda não ativou a Central Paroquial */
@@ -3568,6 +3646,17 @@ function bindAcoes(root){
     S.pubTab = b.dataset.acao; save(); render(); scrollTo(0,0);
   });
 }
+function minhaFaixaHTML(){
+  if (S.mode !== 'publico' || S.pubTab === 'onboarding' || S.pubTab === 'escolher' || !vendoAtiva()) return '';
+  const m = lerNav().minha, nome = esc(S.cfg.nome || 'Paróquia');
+  if (!m) return '';
+  if (eMinha()) return `<section class="minha-faixa" aria-label="Minha paróquia"><div><span class="small muted">Minha paróquia</span><b>${nome}</b></div><button type="button" class="btn sm ghost" id="trocarMinha">Trocar de paróquia</button></section>`;
+  return `<section class="minha-faixa outro" aria-label="Esta paróquia"><div><span class="small muted">${m ? 'Você está visitando' : 'Esta é sua paróquia?'}</span><b>${nome}</b></div><button type="button" class="btn sm" id="tornarMinhaTopo">Tornar esta minha paróquia</button></section>`;
+}
+function bindMinhaFaixa(root){
+  root.querySelector('#trocarMinha')?.addEventListener('click', () => { S.pubTab='escolher'; buscaPar=''; save(); render(); scrollTo(0,0); setTimeout(()=>document.getElementById('buscaPar')?.focus(),50); });
+  root.querySelector('#tornarMinhaTopo')?.addEventListener('click', () => { definirMinhaParoquia(atualComoItem()); render(); });
+}
 const hojeSPpub = () => diaSP(new Date().toISOString());
 const eventosDeHoje = () => eventosPublicos().filter(e => diaSP(e.starts_at) === hojeSPpub() && Date.parse(fimEvento(e)) >= now());
 function eventoHojeCard(e){
@@ -3846,11 +3935,13 @@ function render(){
     contato:[contatoPubHTML, r => bindDirLinhas(r, () => DIR.vizinhas || [])], doacoes:[doacoesPubHTML, bindDoacoes] };
   if (S.mode==='publico'){
     const pickBind = r => r.querySelectorAll('[data-pick]').forEach(x => { if (!x.onclick) x.onclick = () => { S.vendo = x.dataset.pick; S.pubTab='igreja'; save(); render(); scrollTo(0,0); }; });
+    map.onboarding = [onboardingHTML, bindOnboarding];
     map.escolher = [escolherHTML, bindEscolher];
     if (!vendoAtiva()){ map.igreja=[inativaInicioHTML,bindInativa]; map.avisos=[inativaAvisosHTML,bindInativa]; map.agenda=[inativaMissasHTML,()=>{}]; map.contato=[inativaContatoHTML,bindInativa]; map.comunidades=map.comunidade=[inativaComunidadesHTML,bindInativa]; }
-    const [h,b] = map[S.pubTab]; v.innerHTML = acessoRapidoHTML() + h() + rodapePubHTML(); b(v); pickBind(v);
+    const [h,b] = map[S.pubTab]; v.innerHTML = acessoRapidoHTML() + minhaFaixaHTML() + h() + rodapePubHTML(); b(v); pickBind(v);
     v.querySelectorAll('[data-pub]').forEach(x => { if (!x.onclick) x.onclick = () => { S.pubTab = x.dataset.pub; if (S.pubTab !== 'dizimista') dzPubEnviado = false; save(); render(); scrollTo(0,0); }; });
     if (S.pubTab==='contato' && vendoAtiva()) bindMinha(v);
+    bindMinhaFaixa(v);
     bindAcoes(v); bindDestaques(v);
     return;
   }
@@ -3860,8 +3951,9 @@ function render(){
   if (window.S24 && pode('secretaria24h')) S24.iniciar(); // badge, 🔔 e aviso de nova solicitação em qualquer tela
   atualizarSino();
 }
+if (NUVEM.ativo && location.hash !== '#painel') S.mode = 'publico';
 if (NUVEM.ativo && location.hash === '#painel') S.mode = 'painel';
-S.pubTab = 'igreja'; // a página pública sempre abre na Home (Igreja)
+S.pubTab = NUVEM.ativo && RAIZ_SEM_MINHA && S.mode === 'publico' ? 'onboarding' : 'igreja';
 render();
 iniciarNuvem();
 </script>

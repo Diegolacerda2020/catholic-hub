@@ -66,7 +66,7 @@ const {B, op} = criarBackend({});
 B.estado.data = {cfg:{nome:'Paróquia Santo Antônio – Jaraguá', padroeiro:'Santo Antônio', paroco:'Pe. Antônio Roberto', endereco:'Praça Santo Antônio, 2 – Jaraguá', telefone:'(31) 3427-2866', forania:'Santo Antônio (Pampulha)', regiao:'Região Episcopal Nossa Senhora da Conceição – RENSC', secretaria:'Segunda a sexta, 8h às 12h', missas:'', whats:'', email:''}, avisos:[], velas:[], intencoes:[]};
 const browser = await puppeteer.launch({executablePath:process.env.CHROME || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless:true, args:['--no-sandbox']});
 const erros = [];
-async function aparelho({url = '/', largura = 390, altura = 844} = {}){
+async function aparelho({url = '/?p=santo-antonio-jaragua', largura = 390, altura = 844} = {}){
   const c = await browser.createBrowserContext(); const page = await c.newPage();
   await page.setViewport({width:largura, height:altura, deviceScaleFactor:1});
   await page.exposeFunction('__sb', q => op(q)); await page.evaluateOnNewDocument(CLI);
@@ -133,7 +133,7 @@ console.log('== instituição ACTIVE: sem CTA de ativação');
   t_('ativa: só o contato geral no rodapé (WhatsApp + e-mail da Central)', r.length === 2 && r[0].startsWith(`https://wa.me/${WA}?text=`) && r[1].startsWith(`mailto:${EMAIL}?`), JSON.stringify(r));
   t_('ativa: rodapé sem o aviso do diretório (não é página do diretório)', !(await p.$eval('.pub-rodape', f => f.innerText)).includes('Catálogo 2026'));
   await ir(p, 'escolher'); await buscar(p, 'mineirao');
-  t_('cartão da ativa no diretório: [Acessar], sem [Solicitar ativação]', await p.$$eval('#dirRes .dir-card', l => { const c = l.find(x => /Santa Clara/.test(x.innerText)); return !!c && /Acessar/.test(c.innerText) && !/Solicitar ativação/.test(c.innerText); }));
+  t_('cartão da ativa no diretório: [Escolher esta paróquia], sem [Solicitar ativação]', await p.$$eval('#dirRes .dir-card', l => { const c = l.find(x => /Santa Clara/.test(x.innerText)); return !!c && /Escolher esta paróquia/.test(c.innerText) && !/Solicitar ativação/.test(c.innerText); }));
   const sa = await aparelho(); const home = await texto(sa);
   t_('Home (Santo Antônio): contato geral discreto no rodapé, sem CTA de ativação', home.includes('Falar com a Central Paroquial') && !/Você representa esta paróquia|Solicitar ativação/.test(home));
   await ir(sa, 'contato'); const contato = await texto(sa);

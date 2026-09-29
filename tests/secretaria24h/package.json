@@ -4,7 +4,7 @@
   "description": "Testes locais da Secretaria 24h. Não usam o Supabase real.",
   "type": "module",
   "scripts": {
-    "test": "node sql-base.test.mjs && node sql-multiparoquia-migracao.test.mjs && node sql-diretorio.test.mjs && node sql-doacoes.test.mjs && node homologacao.test.mjs && node demo-multitenant.test.mjs && node noticias.test.mjs && node jsdom.test.mjs && node jsdom.test.mjs sem-modulo && node navegador.test.mjs && node ux.test.mjs && node publico.test.mjs && node polimento.test.mjs && node privacidade.test.mjs"
+    "test": "node sql-base.test.mjs && node sql-multiparoquia-migracao.test.mjs && node sql-diretorio.test.mjs && node sql-doacoes.test.mjs && node homologacao.test.mjs && node demo-multitenant.test.mjs && node noticias.test.mjs && node jsdom.test.mjs && node jsdom.test.mjs sem-modulo && node navegador.test.mjs && node ux.test.mjs && node publico.test.mjs && node minha-paroquia.test.mjs && node polimento.test.mjs && node privacidade.test.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",

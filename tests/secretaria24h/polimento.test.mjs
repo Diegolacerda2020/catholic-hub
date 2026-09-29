@@ -48,7 +48,7 @@ const op = ponte(opFake, banco, {});
 const browser = await puppeteer.launch({executablePath:process.env.CHROME || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless:true, args:['--no-sandbox']});
 let ok = 0, falha = 0; const t_ = (n, c, x = '') => { c ? ok++ : falha++; console.log(c ? '  ok  ' : '  FALHOU', n, c ? '' : String(x).slice(0, 500)); };
 const errosGlobais = [];
-async function aparelho({url = '/', largura = 390, altura = 844, movimento = false} = {}){
+async function aparelho({url = '/?p=santo-antonio-jaragua', largura = 390, altura = 844, movimento = false} = {}){
   const c = await browser.createBrowserContext(); const page = await c.newPage();
   await page.setViewport({width:largura, height:altura, deviceScaleFactor:1});
   if (movimento) await page.emulateMediaFeatures([{name:'prefers-reduced-motion', value:'no-preference'}]);
@@ -87,8 +87,8 @@ console.log('== diretório: paróquias e santuários');
   t_('São Paulo da Cruz: [Solicitar ativação]', c[0]?.acao === 'Solicitar ativação');
   await foto(p, 'diretorio-sao-paulo-da-cruz-390');
   await buscar(p, 'São Paulo da Cruz'); c = await cartoes(p); t_('com acento e maiúsculas: o mesmo resultado', c[0]?.titulo === 'Santuário Arquidiocesano São Paulo da Cruz');
-  for (const [q, achar] of [['sto antonio jaragua', x => /Santo Antônio/.test(x.titulo) && /Jaraguá/.test(x.local) && x.acao === 'Acessar'],
-    ['N. S. das Graças Ibirité', x => /Nossa Senhora das Graças/.test(x.titulo) && x.acao === 'Acessar'], ['santa clara', x => /Santa Clara e São Francisco/.test(x.titulo) && x.acao === 'Acessar'],
+  for (const [q, achar] of [['sto antonio jaragua', x => /Santo Antônio/.test(x.titulo) && /Jaraguá/.test(x.local) && x.acao === 'Escolher esta paróquia'],
+    ['N. S. das Graças Ibirité', x => /Nossa Senhora das Graças/.test(x.titulo) && x.acao === 'Escolher esta paróquia'], ['santa clara', x => /Santa Clara e São Francisco/.test(x.titulo) && x.acao === 'Escolher esta paróquia'],
     ['são judas tadeu graça', x => x.titulo === 'Santuário Arquidiocesano São Judas Tadeu' && x.chips.includes('Paróquia')], ['piedade', x => /Piedade/.test(x.titulo) && x.chips.includes('Santuário Estadual')],
     ['schoenstatt', x => /Schoenstatt/.test(x.titulo) && !x.chips.includes('Paróquia') && x.chips.includes('Santuário')], ['saúde e paz', x => /Saúde e da Paz/.test(x.titulo) && !x.chips.includes('Paróquia')],
     ['lagoinha', x => /Conceição dos Pobres/.test(x.titulo) && x.chips.includes('Santuário Arquidiocesano')]]){
