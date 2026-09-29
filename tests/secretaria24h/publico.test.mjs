@@ -205,6 +205,7 @@ console.log('== destaques litúrgicos');
       await p.evaluate(() => { S.devVendo = 'aparecida'; S.pubTab = 'devocao'; render(); }); await esperar(300);
       const ta = await texto(p);
       t_('página devocional Aparecida: evento da paróquia relacionado + link oficial', ta.includes('Terço de Nossa Senhora Aparecida') && !!(await p.$('a[href="https://www.a12.com/"]')));
+      t_('página devocional Aparecida: oração atualizada', ta.includes('Ó Maria Santíssima, pelos méritos de Nosso Senhor Jesus Cristo') && ta.includes('Assim seja!') && ta.includes('Amém.') && !ta.includes('Salve, Rainha, Mãe de misericórdia'), ta);
       await foto(p, 'devocional-aparecida-390');
     }
     if (d.startsWith('2026-10-06')){
