@@ -552,6 +552,7 @@ nav.tabs .so-lateral{display:none}
 }
 </style>
 <link rel="stylesheet" href="secretaria24h.css">
+<link rel="stylesheet" href="agente.css">
 </head>
 <body>
 <div class="app">
@@ -590,6 +591,8 @@ nav.tabs .so-lateral{display:none}
 
 <script src="config.js"></script>
 <script src="secretaria24h.js"></script>
+<script src="agente-core.js"></script>
+<script src="agente.js"></script>
 <script>
 /* =========================================================
    Central Paroquial — protótipo 0.1
@@ -920,7 +923,7 @@ const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(
 // Matriz de acesso: espelha can_access() do schema.sql. As áreas que já existiam no piloto
 // continuam abertas a toda a equipe nesta versão; dizimistas (dados pessoais) só padre e secretaria.
 const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes','secretaria24h','equipe'], pascom:['avisos','agenda','comunidades','noticias']};
-const AREAS_ABERTAS = ['inicio','comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
+const AREAS_ABERTAS = ['inicio','assistente','comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
 const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
 const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas', contribs:'dizimistas'};
 // Contribuições: só os últimos 24 meses (o suficiente para a tela e o histórico).
@@ -1128,6 +1131,7 @@ const I = {
   comunidades:'<path d="M2.5 21V12l5-4 5 4v9"/><path d="M12.5 21v-6.5l4.5-3.5 4.5 3.5V21"/><path d="M7.5 3v5M5.8 4.7h3.4M1.5 21h21"/>',
   dizimistas:'<path d="M12 20s-7-4.2-7-9.5A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.5C19 15.8 12 20 12 20z"/><path d="M12 11v4M10 13h4"/>',
   secretaria24h:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  assistente:'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
   equipe:'<circle cx="8" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2.5 20c.8-3.8 3.1-5.8 5.5-5.8s4.7 2 5.5 5.8"/><path d="M13.5 15.2c2.6.2 4.7 1.9 5.8 4.8"/>',
   inicio:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   mais:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
@@ -1136,10 +1140,10 @@ const I = {
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 // Painel: no celular, a barra de baixo tem as 4 tarefas do dia a dia + "Mais"; no tablet e no
 // computador, o menu lateral mostra todas as áreas (mesmo HTML; o CSS escolhe pela largura da tela).
-const NAV = [['inicio','Início'],['secretaria24h','Secretaria 24h'],['comunicar','Comunicar'],['agenda','Agenda'],['intencoes','Intenções'],
+const NAV = [['inicio','Início'],['assistente','Assistente'],['secretaria24h','Secretaria 24h'],['comunicar','Comunicar'],['agenda','Agenda'],['intencoes','Intenções'],
   ['equipe','Equipe'],['dizimistas','Dizimistas'],['mensagens','Mensagens'],['pessoas','Pessoas'],['comunidades','Comunidades'],['uso','Uso'],['ajustes','Ajustes']];
 const BARRA = ['inicio','comunicar','agenda','intencoes'];
-const navItens = () => NAV.filter(([k]) => pode(k) && (k !== 'secretaria24h' || window.S24));
+const navItens = () => NAV.filter(([k]) => pode(k) && (k !== 'secretaria24h' || window.S24) && (k !== 'assistente' || window.AGENTE));
 const tabsFor = () => S.mode==='painel'
   ? [...navItens().filter(([k]) => BARRA.includes(k)), ['mais','Mais']]
   : S.pubTab === 'onboarding' ? []
@@ -1148,7 +1152,8 @@ const tabsFor = () => S.mode==='painel'
 const SUBTELAS_PUB = {onboarding:null, escolher:null, comunidade:'comunidades', assistir:'igreja', noticias:'igreja', rezar:'igreja', dizimista:'igreja', secretaria:'igreja',
   liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda', doacoes:'contato'};
 // Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
-const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
+const MAIS = [...(window.AGENTE ? [['assistente','✨ Assistente Paroquial','Fale normalmente. A Central organiza para você.']] : []),
+  ...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
   ['equipe','Equipe da Paróquia','Padre, secretaria e PASCOM da sua paróquia'],
   ['dizimistas','Dizimistas','Cadastro, acompanhamento do dízimo e interessados'],
   ['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
@@ -3558,18 +3563,19 @@ function inicioHTML(){
   const papel = papelAtual(), d = new Date(), h = hojeDados();
   const cab = `<div class="ini-cab"><div class="ini-data">${cap(DIAS[d.getDay()])}, ${d.getDate()} de ${MESES[d.getMonth()]}</div><h2>${saudacao()}, ${esc(SAUDA_PAPEL[papel] || 'equipe')}</h2></div>`;
   const notif = window.S24 && pode('secretaria24h') ? S24.notifCardHTML() : '';
-  if (papel === 'padre' || papel === 'admin') return cab + `<section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Como está a paróquia hoje</h3>
+  const ag = window.AGENTE ? AGENTE.cardInicioHTML() : '';
+  if (papel === 'padre' || papel === 'admin') return cab + ag + `<section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Como está a paróquia hoje</h3>
     <div class="ini-cards">${cardS24()}${cardAgenda(h, 3)}${cardDatas(h)}${cardDizimo()}${cardAvisos(h)}${cardIntencoes(h)}${cardLeads(h)}${cardNovosDizimistas()}</div></section>
     <div class="ini-colunas">
       <section aria-labelledby="iniEv"><h3 class="ini-h" id="iniEv">Próximos eventos (7 dias)</h3>${eventosSemanaHTML(h)}</section>
       <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section>
     </div>${notif}`;
-  if (papel === 'pascom') return cab + `<div class="ini-grade">
+  if (papel === 'pascom') return cab + ag + `<div class="ini-grade">
     <section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Hoje na paróquia</h3>
       <div class="ini-cards">${cardAgenda(h)}${cardAvisos(h)}${pode('comunidades') ? cartaoIni({ir:'comunidades', ic:'⛪', k:'Comunidades', v:comunidadesAtivas().length, t:'comunidades ativas', go:'Ver comunidades'}) : ''}</div>
       <h3 class="ini-h" id="iniEv">Próximos eventos (7 dias)</h3>${eventosSemanaHTML(h)}</section>
     <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section></div>`;
-  return cab + s24BlocoHTML() + notif + `<div class="ini-grade">
+  return cab + ag + s24BlocoHTML() + notif + `<div class="ini-grade">
     <section aria-labelledby="iniHoje"><h3 class="ini-h" id="iniHoje">Hoje na paróquia</h3>
       <div class="ini-cards">${cardAgenda(h)}${cardIntencoes(h)}${cardAvisos(h)}${cardDatas(h)}${cardLeads(h)}</div></section>
     <section aria-labelledby="iniRap"><h3 class="ini-h" id="iniRap">Ações rápidas</h3>${rapidasHTML()}</section>
@@ -3579,6 +3585,7 @@ function bindInicio(root){
   root.querySelectorAll('[data-ir]').forEach(b => b.onclick = () => { const k = b.dataset.ir; if (k.startsWith('s24')) S24.abrirFila(k.split(':')[1]); else irPara(k); });
   root.querySelectorAll('[data-s24-abre]').forEach(b => b.onclick = () => S24.abrirSolicitacao(b.dataset.s24Abre));
   window.S24?.bindNotif(root);
+  window.AGENTE?.bindCard(root);
 }
 
 /* ---------- avisos com ação (sem alert do navegador) ----------
@@ -3972,7 +3979,8 @@ function render(){
   const map = S.mode==='painel' ? {
     inicio:[inicioHTML,bindInicio], comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
     comunidades:[comunidadesAdmHTML,bindComunidadesAdm], equipe:[equipeHTML,bindEquipe], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
-    ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]})
+    ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]}),
+    ...(window.AGENTE && {assistente:[AGENTE.painelHTML, AGENTE.bindPainel]})
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='velas'; velaStep='inicio'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[rezarPubHTML, bindRezarPub], liturgia:[liturgiaPubHTML, bindLiturgia], intencao:[intencaoPubHTML, bindIntencaoForm],
     velas:[velasPubHTML, bindVela], devocao:[devocaoPubHTML, r => { bindEventos(r); bindDestaques(r); }], evento:[eventoPubHTML, bindEventoPub], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],
     comunidades:[comunidadesPubHTML,bindComunidadesPub], comunidade:[comunidadePubHTML,bindComunidadesPub],

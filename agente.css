@@ -1,0 +1,57 @@
+/* Central Paroquial — Assistente Paroquial (módulo isolado).
+   Só classes ag-*; usa as cores do index.html (--lit, --gold…), que já mudam no modo escuro. */
+
+/* card no Início do painel */
+.ag-card{background:var(--surface);border:1.5px solid var(--gold);border-radius:14px;padding:14px 16px;margin:10px 0 14px}
+.ag-card-t{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.ag-card p{margin:2px 0 10px;color:var(--muted)}
+.ag-ini-form{display:flex;gap:8px}
+.ag-ini-form input{flex:1;min-width:0}
+
+/* tela */
+.ag-cab h2{margin-bottom:2px}
+.ag-sub{margin:0 4px 12px;color:var(--muted)}
+.ag-vazio{margin:0 0 12px}
+.ag-vazio p{margin:0 4px 6px}
+.ag-sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ag-chip{border:1px solid var(--line);background:var(--surface);color:var(--lit);border-radius:999px;padding:6px 12px;font-size:.9rem;text-align:left;line-height:1.25;max-width:100%}
+.ag-chip:hover{border-color:var(--lit)}
+
+/* conversa */
+.ag-conversa{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.ag-msg{display:flex}
+.ag-eu{justify-content:flex-end}
+.ag-bolha{max-width:92%;border-radius:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);overflow-wrap:anywhere}
+.ag-eu .ag-bolha{background:var(--lit);color:#fff;border-color:var(--lit);border-bottom-right-radius:4px;white-space:pre-line}
+.ag-ele .ag-bolha{border-bottom-left-radius:4px;width:100%}
+.ag-bolha p{margin:0 0 6px}
+.ag-bolha p:last-child{margin-bottom:0}
+.ag-negado{border-color:var(--gold);background:var(--gold-soft)}
+.ag-erro{border-color:var(--danger)}
+.ag-feito{border-color:var(--lit);background:var(--lit-soft)}
+.ag-ok{float:left;font-weight:700;color:var(--lit);margin-right:6px}
+.ag-pensando{display:flex;align-items:center;gap:8px;color:var(--muted);width:auto}
+.ag-itens{list-style:none;padding:0;margin:6px 0 8px;display:flex;flex-direction:column;gap:6px}
+.ag-itens li{border-left:3px solid var(--lit);padding:2px 0 2px 10px}
+.ag-itens li b{display:block;line-height:1.25}
+.ag-itens li span{display:block;font-size:.88rem;color:var(--muted)}
+.ag-item-acoes{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.ag-botoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* confirmação humana */
+.ag-conf{border:1.5px solid var(--gold);border-radius:12px;padding:12px 14px;margin-top:8px;background:var(--bg)}
+.ag-conf-t{font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;font-size:.8rem;margin-bottom:6px}
+.ag-dl{margin:0 0 6px;display:grid;gap:4px}
+.ag-dl div{display:grid;grid-template-columns:minmax(92px,140px) 1fr;gap:8px}
+.ag-dl dt{color:var(--muted);font-size:.9rem}
+.ag-dl dd{margin:0;font-weight:500}
+.ag-conf .signal{margin:6px 0}
+.ag-fim{opacity:.72;border-style:dashed}
+.ag-fim-t{margin:6px 0 0;font-weight:700}
+.ag-edit .field{margin-bottom:10px}
+.ag-edit [aria-invalid="true"]{border-color:var(--danger)}
+
+/* entrada */
+.ag-form{display:flex;gap:8px;align-items:flex-end;padding:4px 0}
+.ag-form textarea{flex:1;min-width:0;min-height:48px;resize:vertical}
+.ag-rodape{margin:4px 4px 0}

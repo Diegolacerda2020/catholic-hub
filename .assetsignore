@@ -5,6 +5,10 @@
 !config.js
 !secretaria24h.js
 !secretaria24h.css
+# Assistente Paroquial (núcleo + tela do painel)
+!agente-core.js
+!agente.js
+!agente.css
 # extração das notícias (mesmo código do Worker), usada pelo navegador quando o Worker só tem o espelho
 !worker/
 !worker/noticias.js

@@ -1,0 +1,13 @@
+{
+  "name": "testes-agente-paroquial",
+  "private": true,
+  "description": "Testes locais do Assistente Paroquial. Não usam o Supabase real.",
+  "type": "module",
+  "scripts": {
+    "test": "node core.test.mjs && node sql.test.mjs && node navegador.test.mjs && node segredos.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "puppeteer-core": "^25.12.0"
+  }
+}
