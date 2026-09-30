@@ -33,25 +33,33 @@ const entrada = (s, extra = {}) => ({channel:'painel', sender:{userId:s.userId, 
 /* ---------- backend: Supabase (com login) ou dados deste aparelho (demonstração) ---------- */
 function backendReal(){
   const b = Core.criarBackendSupabase(NUVEM.sb, {slug:NUVEM.slug});
-  return {...b,
-    horariosMissa: async () => S.cfg?.missas || '',
+  const agenda = {...b.agenda,
     async criarEvento(a){
-      const r = await b.criarEvento(a);
+      const r = await b.agenda.criarEvento(a);
       try { registrar('criou-evento', r?.title || a.evento.title); await relCarregar(); } catch(e){} // Uso + Agenda do painel
       return r;
     }
   };
+  return {...b, agenda, horariosMissa: async () => S.cfg?.missas || ''};
 }
 const soDemo = () => Object.assign(new Error('demo'), {code:'DEMO'});
+// Demonstração: a mesma Agenda Central (mesmo contrato e mesmas validações), com os dados deste aparelho.
+function agendaDemo(){
+  return {
+    async consultarAgenda({inicio, fim}){ return rel('events').filter(e => e.starts_at >= inicio && e.starts_at < fim).map(Core.deLinhaEvento); },
+    async criarEvento({parishId, evento}){
+      Core.validarEventoAgenda(evento, parishId);
+      if (evento.community_id && !rel('communities').some(c => c.id === evento.community_id && c.active !== false)) throw Object.assign(new Error('agenda:comunidade_de_outra_paroquia'), {code:'42501'});
+      const r = await relGravar('events', {...Core.paraLinhaEvento(evento), highlight_home:false, cancelled:false, image_url:null}); if (!r) throw new Error('falha ao gravar');
+      registrar('criou-evento', r.title); return Core.deLinhaEvento(r);
+    },
+    async atualizarEvento(){ throw soDemo(); }
+  };
+}
 function backendDemo(){
   return {
-    async listarEventos({inicio, fim}){ return rel('events').filter(e => e.starts_at >= inicio && e.starts_at < fim); },
+    agenda: agendaDemo(),
     async listarComunidades(){ return rel('communities'); },
-    async criarEvento({evento}){
-      const {parish_id, source, ...o} = evento;
-      const r = await relGravar('events', o); if (!r) throw new Error('falha ao gravar');
-      registrar('criou-evento', r.title); return r;
-    },
     async listarServicos(){ throw soDemo(); },
     async listarSolicitacoes(){ throw soDemo(); },
     async atualizarSolicitacao(){ throw soDemo(); },
@@ -83,7 +91,7 @@ async function falar(texto){
 async function responder(fn){
   let r;
   try { r = await fn(); }
-  catch(e){ r = {tipo:'erro', linhas:['Não consegui responder agora. Tente de novo em instantes.']}; console.warn('Assistente: falha', e); }
+  catch(e){ r = {tipo:'erro', linhas:['Não consegui responder agora. Tente de novo em instantes.']}; console.warn('Assistente: falha', e?.code || e?.name || 'erro'); } // só o código: o objeto de erro pode trazer dados da linha
   if (r?.tipo === 'erro' && /consultar agora|concluir agora/.test((r.linhas || []).join(' ')) && !real()) r = {tipo:'resposta', linhas:[ERRO_DEMO]};
   if (r?.confirmacao?.faltando?.length) E.editando = r.confirmacao.id; // falta dado: já abre o "Corrigir"
   E.msgs.push({de:'agente', r}); E.ocupado = false; E.rolar = true; redesenhar();
@@ -104,7 +112,7 @@ function confHTML(c, idx){
     <dl class="ag-dl">${c.campos.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
     ${avisos}${c.nota ? `<p class="small muted">${esc(c.nota)}</p>` : ''}
     ${fim ? `<p class="small ag-fim-t">${esc(fim)}</p>` : `<div class="ag-botoes">
-      <button type="button" class="btn" data-ag-conf="${esc(c.id)}" ${c.faltando?.length ? 'disabled aria-disabled="true"' : ''}>Confirmar</button>
+      <button type="button" class="btn" data-ag-conf="${esc(c.id)}" data-ag-ass="${esc(c.assinatura || '')}" ${c.faltando?.length ? 'disabled aria-disabled="true"' : ''}>Confirmar</button>
       <button type="button" class="btn ghost" data-ag-corr="${esc(c.id)}">Corrigir</button>
       <button type="button" class="btn ghost" data-ag-canc="${esc(c.id)}">Cancelar</button></div>`}
   </div>`;
@@ -173,7 +181,7 @@ function bindPainel(root){
   root.querySelectorAll('[data-ag-conf]').forEach(b => b.onclick = () => {
     const id = b.dataset.agConf; if (E.resolvidas[id] || E.ocupado) return;
     b.disabled = true; E.resolvidas[id] = 'Confirmado.'; E.ocupado = true; redesenhar();
-    responder(() => a.agente.confirmar(entrada(a.s, {confirmacaoId:id})));
+    responder(() => a.agente.confirmar(entrada(a.s, {confirmacaoId:id, assinatura:b.dataset.agAss})));
   });
   root.querySelectorAll('[data-ag-corr]').forEach(b => b.onclick = () => { E.editando = b.dataset.agCorr; redesenhar(); root.querySelector('[data-ag-form] input, [data-ag-form] select')?.focus(); });
   root.querySelectorAll('[data-ag-canc]').forEach(b => b.onclick = () => {
@@ -223,7 +231,7 @@ function bindCard(root){
 }
 
 // Falha isolada: nenhum erro deste módulo sobe para o render() do index.html.
-const seguro = (fn, reserva) => (...a) => { try { return fn(...a); } catch(e){ console.warn('Assistente: falha em ' + fn.name, e); return reserva(); } };
+const seguro = (fn, reserva) => (...a) => { try { return fn(...a); } catch(e){ console.warn('Assistente: falha em ' + fn.name, e?.name || 'erro'); return reserva(); } };
 window.AGENTE = {
   painelHTML: seguro(painelHTML, () => '<h2>✨ Assistente Paroquial</h2><div class="signal wait">O Assistente está temporariamente indisponível. O resto do painel continua funcionando.</div>'),
   bindPainel: seguro(bindPainel, () => {}),

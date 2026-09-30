@@ -10,10 +10,12 @@
    paróquia da SESSÃO AUTENTICADA; a paróquia nunca vem do texto da mensagem.
 
    Separação:
-   - interpretar(texto) → intenção + dados (parser determinístico V1; um LLM pode entrar no lugar
-     devolvendo o mesmo formato, sem mudar as ferramentas);
+   - interpretarMensagem(texto, contexto) → intenção + dados: provedor de IA opcional → lista branca →
+     regras (parser determinístico V1). A IA só interpreta; nunca executa nem escolhe paróquia/permissão;
    - executar → ferramentas (consultas = VERDE; alterações = AMARELO: preparar → confirmar → executar;
-     VERMELHO: nunca sozinho).
+     VERMELHO: nunca sozinho);
+   - eventos → Agenda Central (criarAgendaSupabase). O núcleo não depende de Google Calendar nem de
+     nenhuma integração externa: elas ficam DOWNSTREAM da Agenda Central.
    ========================================================= */
 (function(raiz){
 'use strict';
@@ -93,9 +95,11 @@ const PENDENTES = ['new','in_progress','waiting_user'];
    channel/sender/parish vêm da sessão autenticada do canal (painel: login do Supabase; WhatsApp oficial,
    no futuro: número verificado → usuário vinculado). Nunca do texto. */
 const CANAIS = ['painel','whatsapp','app'];
-function validarEntrada(e){
+// canaisAutenticados: canais em que QUEM CHAMA já autenticou o remetente. "channel: 'whatsapp'" sozinho não
+// autentica ninguém: só vale numa instância criada no servidor que mapeou número → usuário → paróquia → papel.
+function validarEntrada(e, canaisAutenticados = ['painel']){
   if (!e || typeof e !== 'object') return 'entrada';
-  if (!CANAIS.includes(e.channel)) return 'canal';
+  if (!CANAIS.includes(e.channel) || !canaisAutenticados.includes(e.channel)) return 'canal';
   if (!e.sender || typeof e.sender.userId !== 'string' || !e.sender.userId || !PAPEIS.includes(e.sender.papel)) return 'anonimo';
   if (!e.parish || typeof e.parish.id !== 'string' || !e.parish.id) return 'anonimo';
   return null;
@@ -350,6 +354,62 @@ function interpretarDeterministico(texto, {agora = new Date()} = {}){
 }
 
 /* =========================================================
+   INTENÇÃO: lista branca. Tudo o que vier do interpretador (regras ou IA futura) passa por aqui.
+   Intenção fora da lista, dado fora do formato, estado inventado ou campo extra (parish_id, ids, SQL…)
+   é descartado. A IA só INTERPRETA: ela nunca escolhe ferramenta de execução, paróquia ou permissão.
+   ========================================================= */
+const DIA_RE = /^\d{4}-\d{2}-\d{2}$/, HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const txt = (v, max) => typeof v === 'string' && limpa(v) ? limpa(v).slice(0, max) : null;
+const dia = v => typeof v === 'string' && DIA_RE.test(v) && diaValido(...v.split('-').map(Number)) ? v : null;
+const hora = v => typeof v === 'string' && HORA_RE.test(v) ? v : null;
+const bool = v => v === true;
+const proto = v => typeof v === 'string' && /^SA-\d{4}-[0-9A-F]{8}$/.test(v.toUpperCase()) ? v.toUpperCase() : null;
+const periodo = it => {
+  const inicio = dia(it.inicio), fim = dia(it.fim);
+  if (!inicio || !fim || fim < inicio || (utcDe(fim) - utcDe(inicio)) > 366 * 864e5) return null;
+  return {inicio, fim, rotulo:txt(it.rotulo, 60), dia:bool(it.dia) && inicio === fim, comunidade:txt(it.comunidade, 80)};
+};
+const MOTIVOS_VERMELHOS = ['massa','exclusao','usuarios','pagamentos','sensivel','paroquia','criar_comunidade'];
+const INTENCOES = {
+  ajuda: () => ({}),
+  desconhecido: () => ({}),
+  vermelho: it => ({motivo:MOTIVOS_VERMELHOS.includes(it.motivo) ? it.motivo : 'acao'}),
+  consultar_agenda: periodo,
+  consultar_eventos: periodo,
+  consultar_comunidades: it => ({comunidade:txt(it.comunidade, 80)}),
+  consultar_servicos: () => ({}),
+  atualizar_servico: () => ({}),
+  consultar_solicitacoes: it => ({filtro:['pendentes','todas', ...Object.keys(STATUS)].includes(it.filtro) ? it.filtro : 'pendentes', protocolo:proto(it.protocolo)}),
+  preparar_evento: it => ({titulo:txt(it.titulo, 160), dia:dia(it.dia), hora:hora(it.hora), horaFim:hora(it.horaFim), local:txt(it.local, 200),
+    comunidade:txt(it.comunidade, 80), dataInvalida:bool(it.dataInvalida), horaInvalida:bool(it.horaInvalida), semanaSemData:bool(it.semanaSemData)}),
+  preparar_atualizacao_solicitacao: it => ({status:STATUS[it.status] ? it.status : null, protocolo:proto(it.protocolo), referencia:bool(it.referencia)})
+};
+function normalizarIntencao(it){
+  if (!it || typeof it !== 'object' || typeof it.intent !== 'string' || !Object.hasOwn(INTENCOES, it.intent)) return {intent:'desconhecido'};
+  const dados = INTENCOES[it.intent](it);
+  return dados ? {intent:it.intent, ...dados} : {intent:'desconhecido'};
+}
+/* interpretar_mensagem(texto, contexto): provedor de IA (opcional) → se falhar/não servir → regras.
+   O provedor recebe só o texto e {agora, canal}; nunca ids, paróquia, papel ou dados do banco. */
+async function interpretarMensagem(texto, {agora = new Date(), canal = 'painel'} = {}, {provedor = null} = {}){
+  if (typeof provedor === 'function'){
+    try {
+      const it = normalizarIntencao(await provedor(texto, Object.freeze({agora:new Date(agora), canal})));
+      if (it.intent !== 'desconhecido') return {intencao:it, origem:'ia'};
+    } catch(x){ /* IA fora do ar: segue com as regras */ }
+  }
+  return {intencao:normalizarIntencao(interpretarDeterministico(texto, {agora})), origem:'regras'};
+}
+// Assinatura do payload revisado (liga a confirmação ao conteúdo, ao usuário, à paróquia e ao canal).
+function estavel(v){ return Array.isArray(v) ? '[' + v.map(estavel).join(',') + ']' : v && typeof v === 'object' ? '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + estavel(v[k])).join(',') + '}' : JSON.stringify(v ?? null); }
+function assinar(tool, dados, e){
+  const s = [tool, e.sender.userId, e.parish.id, e.channel, estavel(dados)].join('\u0001');
+  let a = 0x811c9dc5, b = 0x01000193 ^ 0x5bd1e995;
+  for (let i = 0; i < s.length; i++){ const c = s.charCodeAt(i); a = Math.imul(a ^ c, 0x01000193) >>> 0; b = Math.imul(b ^ c, 0x5bd1e995) >>> 0; b ^= b >>> 15; }
+  return a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0');
+}
+
+/* =========================================================
    RESPOSTAS em linguagem humana (sem ids, JSON, nomes técnicos)
    ========================================================= */
 const R = {
@@ -391,14 +451,22 @@ function tipoErro(e){
 /* =========================================================
    AGENTE
    backend: funções assíncronas que falam com o banco da SESSÃO (ver criarBackendSupabase).
-   interpretar: (texto, {agora}) → intenção. Padrão: interpretarDeterministico.
+   agenda: Agenda Central (consultarAgenda, criarEvento, atualizarEvento). Padrão: backend.agenda.
+   provedorIA: (texto, {agora, canal}) → intenção (opcional; sem ele, só regras).
+   canaisAutenticados: canais em que quem chama já autenticou o remetente. Padrão: só 'painel'.
    ========================================================= */
-function criarAgente({backend, interpretar = interpretarDeterministico, agora = () => new Date(), validadeMs = 10 * 60e3, gerarId} = {}){
+function criarAgente({backend, agenda:agendaCentral = backend?.agenda, provedorIA = null, interpretar = null, canaisAutenticados = ['painel'],
+  agora = () => new Date(), validadeMs = 10 * 60e3, gerarId} = {}){
   if (!backend) throw new Error('backend obrigatório');
+  if (!agendaCentral) throw new Error('agenda obrigatória');
+  const provedor = provedorIA || interpretar; // "interpretar" = nome antigo da mesma opção
+  const canais = CANAIS.filter(c => canaisAutenticados.includes(c));
   const pendentes = new Map();   // confirmações abertas (só em memória)
   const conversas = new Map();   // contexto curto por usuário+paróquia (solicitação em foco)
   const trilha = [];             // últimas auditorias (memória; o banco guarda via backend.auditar)
   const novoId = gerarId || (() => { const b = new Uint8Array(12); (raiz.crypto || globalThis.crypto).getRandomValues(b); return [...b].map(x => x.toString(16).padStart(2, '0')).join(''); });
+  const invalida = e => validarEntrada(e, canais);
+  const negarEntrada = inv => R.negado(inv === 'canal' ? 'Este canal ainda não está autorizado a usar o Assistente.' : 'Entre com seu usuário da paróquia para usar o Assistente.');
   const chave = e => e.sender.userId + '|' + e.parish.id;
   const conversa = e => { const k = chave(e); if (!conversas.has(k)) conversas.set(k, {foco:null}); return conversas.get(k); };
   const hoje = () => diaSP(agora());
@@ -442,10 +510,10 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
       if (achou.length > 1) return R.texto(`Encontrei ${achou.length} comunidades parecidas. Qual delas?`, {acoes:achou.slice(0, 6).map(c => ({rotulo:c.name, tipo:'perguntar', valor:`Agenda da comunidade ${c.name} ${it.rotulo || ''}`.trim()}))});
       com = achou[0];
     }
-    const r = await usar(e, tool, () => backend.listarEventos({parishId:e.parish.id, inicio:isoSP(it.inicio, '00:00'), fim:isoSP(somaDias(it.fim, 1), '00:00')}));
+    const r = await usar(e, tool, () => agendaCentral.consultarAgenda({parishId:e.parish.id, inicio:isoSP(it.inicio, '00:00'), fim:isoSP(somaDias(it.fim, 1), '00:00')}));
     if (!r.ok) return r.negado ? semPermissao(null) : R.erro(ERRO_MSG[r.erro]);
     const h = hoje();
-    let evs = r.ok.filter(x => !x.cancelled).sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    let evs = r.ok.filter(x => !x.cancelled).sort((a, b) => a.start_at.localeCompare(b.start_at));
     if (com) evs = evs.filter(x => x.community_id === com.id);
     const quando = it.dia ? diaExtenso(it.inicio, h) : it.rotulo;
     const onde = com ? ` na ${/^(comunidade|capela)\b/i.test(com.name) ? '' : 'comunidade '}${com.name}` : '';
@@ -454,7 +522,7 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
     if (it.dia && !com && backend.horariosMissa){
       try { missas = linhasMissa(await backend.horariosMissa({parishId:e.parish.id}), it.inicio); } catch(x){}
     }
-    const itens = evs.slice(0, 12).map(x => ({titulo:x.title, detalhe:[it.dia ? horaBR(horaSP(x.starts_at)) : cap(diaExtenso(diaSP(x.starts_at), h)) + ' · ' + horaBR(horaSP(x.starts_at)), x.location, x.public === false ? 'só a equipe vê' : ''].filter(Boolean).join(' · ')}));
+    const itens = evs.slice(0, 12).map(x => ({titulo:x.title, detalhe:[it.dia ? horaBR(horaSP(x.start_at)) : cap(diaExtenso(diaSP(x.start_at), h)) + ' · ' + horaBR(horaSP(x.start_at)), x.location, x.visibility === 'equipe' ? 'só a equipe vê' : ''].filter(Boolean).join(' · ')}));
     const mais = evs.length > 12 ? [`E mais ${evs.length - 12}. Veja todos na Agenda.`] : [];
     const acoes = [{rotulo:'Abrir a Agenda', tipo:'ir', valor:'agenda'}];
     if (!evs.length){
@@ -522,12 +590,16 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
   }
 
   /* ---------- AMARELO: preparar → confirmar → executar ---------- */
+  // A pendência guarda uma CÓPIA CONGELADA do que foi mostrado ao humano e a assinatura desse conteúdo.
+  // Confirmar exige a mesma assinatura; a execução usa só esta cópia (nada vindo do cliente na confirmação).
   function abrirPendencia(e, tool, dados){
     for (const [id, p] of pendentes) if (p.k === chave(e) && p.tool === tool) pendentes.delete(id); // uma pendência por tipo
-    const id = novoId();
-    pendentes.set(id, {id, k:chave(e), userId:e.sender.userId, parishId:e.parish.id, channel:e.channel, tool, dados, expira:agora().getTime() + validadeMs});
+    const id = novoId(), congelado = Object.freeze(JSON.parse(JSON.stringify(dados)));
+    pendentes.set(id, Object.freeze({id, k:chave(e), userId:e.sender.userId, parishId:e.parish.id, channel:e.channel, tool, dados:congelado,
+      assinatura:assinar(tool, congelado, e), expira:agora().getTime() + validadeMs}));
     return id;
   }
+  const assinaturaDe = id => pendentes.get(id)?.assinatura || '';
   function validarEvento(d, h, agoraMs){
     const faltando = [], avisos = [];
     if (!d.titulo || d.titulo.length < 2) faltando.push('titulo');
@@ -545,7 +617,7 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
     const h = hoje(), {faltando, avisos} = validarEvento(d, h, agora().getTime());
     const com = d.comunidadeId ? coms.find(c => c.id === d.comunidadeId) : null;
     return {tipo:'confirmacao', linhas:[faltando.length ? 'Entendi. Falta completar alguns dados antes de confirmar:' : 'Entendi. Confira antes de criar:'],
-      confirmacao:{id, tipo:'evento', titulo:'Novo evento', faltando,
+      confirmacao:{id, assinatura:assinaturaDe(id), tipo:'evento', titulo:'Novo evento', faltando,
         avisos:[...extraAvisos, ...avisos],
         campos:[
           ['Evento', d.titulo || '— escreva o título —'],
@@ -562,7 +634,7 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
   async function prepararEvento(e, it){
     if (!podeArea(e.sender.papel, 'agenda')){ await auditar(e, 'preparar_evento', 'negado'); return semPermissao('agenda'); }
     const d = {titulo:it.titulo ? limpa(it.titulo).slice(0, 160) : '', dia:it.dia, hora:it.hora, horaFim:it.horaFim, local:it.local ? limpa(it.local) : '',
-      descricao:'', comunidadeId:null, comunidadePendente:false, publico:true, source:'agente'};
+      descricao:'', comunidadeId:null, comunidadePendente:false, publico:true};
     const avisos = [];
     if (it.dataInvalida) avisos.push('Não entendi a data. Escolha no formulário.');
     if (it.horaInvalida) avisos.push('Não entendi o horário.');
@@ -604,7 +676,7 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
     return cartaoStatus(id, s, it.status);
   }
   const cartaoStatus = (id, s, para) => ({tipo:'confirmacao', linhas:['Entendi. Confira antes de alterar:'],
-    confirmacao:{id, tipo:'solicitacao', titulo:'Alterar situação da solicitação', faltando:[], avisos:[],
+    confirmacao:{id, assinatura:assinaturaDe(id), tipo:'solicitacao', titulo:'Alterar situação da solicitação', faltando:[], avisos:[],
       campos:[['Serviço', s.service_title || s.servico || 'Secretaria 24h'], ['Protocolo', s.protocol], ['Situação atual', STATUS[s.status || s.de].situacao], ['Nova situação', STATUS[para].situacao]],
       nota:'O fiel verá a nova situação ao acompanhar o protocolo. Nenhuma mensagem é enviada.',
       editar:{status:para, opcoes:Object.keys(STATUS).filter(k => k !== (s.status || s.de)).map(k => ({valor:k, rotulo:STATUS[k].situacao}))}}});
@@ -619,7 +691,7 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
   }
 
   async function corrigir(entrada, campos = {}){
-    const inv = validarEntrada(entrada); if (inv) return R.negado('Entre com seu usuário da paróquia para usar o Assistente.');
+    const inv = invalida(entrada); if (inv) return negarEntrada(inv);
     const {p, erro, negado} = pegarPendencia(entrada, entrada.confirmacaoId);
     if (!p) return negado ? R.negado(erro) : R.texto(erro);
     if (p.tool === 'criar_evento_confirmado'){
@@ -653,20 +725,25 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
   }
 
   async function confirmar(entrada){
-    const inv = validarEntrada(entrada); if (inv) return R.negado('Entre com seu usuário da paróquia para usar o Assistente.');
+    const inv = invalida(entrada); if (inv) return negarEntrada(inv);
     const {p, erro, negado} = pegarPendencia(entrada, entrada.confirmacaoId);
     if (!p){ if (negado) await auditar(entrada, 'confirmacao', 'negado'); return negado ? R.negado(erro) : R.texto(erro); }
+    // O que o humano revisou tem que ser exatamente o que está guardado (e o guardado não pode ter mudado).
+    if (typeof entrada.assinatura !== 'string' || entrada.assinatura !== p.assinatura || assinar(p.tool, p.dados, entrada) !== p.assinatura){
+      await auditar(entrada, 'confirmacao', 'negado');
+      return R.negado('Esta confirmação não corresponde ao que foi revisado. Nada foi alterado. Revise de novo, por favor.');
+    }
     const f = FERRAMENTAS[p.tool];
     if (!podeArea(entrada.sender.papel, f.area)){ pendentes.delete(p.id); await auditar(entrada, p.tool, 'negado', true); return semPermissao(f.area); }
     if (p.tool === 'criar_evento_confirmado'){
       const d = p.dados, {faltando} = validarEvento(d, hoje(), agora().getTime());
       if (faltando.length) return R.texto('Ainda faltam dados. Use “Corrigir” para completar.');
       pendentes.delete(p.id); // antes de executar: dois cliques não criam dois eventos
-      const evento = {parish_id:p.parishId, community_id:d.comunidadeId || null, scope:d.comunidadeId ? 'community' : 'parish',
-        title:d.titulo, description:d.descricao || '', starts_at:isoSP(d.dia, d.hora), ends_at:d.horaFim ? isoSP(d.dia, d.horaFim) : null,
-        location:d.local || '', public:!!d.publico, highlight_home:false, cancelled:false, source:'agente', google_event_id:null};
+      // Executa exatamente o payload confirmado (congelado na preparação), na paróquia da sessão.
+      const evento = eventoAgenda({parishId:p.parishId, titulo:d.titulo, descricao:d.descricao, dia:d.dia, hora:d.hora, horaFim:d.horaFim,
+        local:d.local, comunidadeId:d.comunidadeId, publico:d.publico});
       try {
-        const r = await backend.criarEvento({parishId:p.parishId, evento});
+        const r = await agendaCentral.criarEvento({parishId:p.parishId, evento});
         await auditar(entrada, p.tool, 'ok', true);
         const h = hoje();
         return {tipo:'feito', linhas:[`Pronto! O evento “${r?.title || d.titulo}” foi criado para ${diaExtenso(d.dia, h)}, às ${horaBR(d.hora)}.`, d.publico ? 'Ele já aparece na agenda pública da paróquia.' : 'Só a equipe vê este evento.'],
@@ -688,14 +765,14 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
     return R.texto('Nada a confirmar.');
   }
   async function cancelar(entrada){
-    const inv = validarEntrada(entrada); if (inv) return R.negado('Entre com seu usuário da paróquia para usar o Assistente.');
+    const inv = invalida(entrada); if (inv) return negarEntrada(inv);
     const {p} = pegarPendencia(entrada, entrada.confirmacaoId);
     if (p){ pendentes.delete(p.id); await auditar(entrada, p.tool, 'cancelado'); }
     return R.texto('Tudo bem, não fiz nenhuma alteração.');
   }
   // "Usar esta": a UI escolhe uma solicitação da lista (só vale se for desta paróquia).
   async function focar(entrada, requestId){
-    const inv = validarEntrada(entrada); if (inv) return R.negado('Entre com seu usuário da paróquia para usar o Assistente.');
+    const inv = invalida(entrada); if (inv) return negarEntrada(inv);
     const r = await usar(entrada, 'consultar_solicitacoes', () => listaSolicitacoes(entrada));
     if (r.negado) return semPermissao('secretaria24h');
     if (!r.ok) return R.erro(ERRO_MSG[r.erro]);
@@ -707,12 +784,11 @@ function criarAgente({backend, interpretar = interpretarDeterministico, agora = 
   }
 
   async function receber(entrada){
-    const inv = validarEntrada(entrada);
-    if (inv) return R.negado('Entre com seu usuário da paróquia para usar o Assistente.');
+    const inv = invalida(entrada);
+    if (inv) return negarEntrada(inv);
     const texto = limpa(entrada.message).slice(0, 1000);
-    let it;
-    try { it = await interpretar(texto, {agora:agora()}); } catch(x){ it = null; }
-    if (!it || !it.intent) it = interpretarDeterministico(texto, {agora:agora()}); // sem IA (ou se ela falhar): parser V1
+    // Só interpreta (IA opcional → regras). Executar continua exigindo permissão → preparação → confirmação.
+    const {intencao:it} = await interpretarMensagem(texto, {agora:agora(), canal:entrada.channel}, {provedor});
     // Outra paróquia citada no texto: nega (a paróquia é sempre a da sessão; o texto nunca troca de paróquia).
     let conhecidas = [], coms = [];
     try { conhecidas = (await backend.paroquiasConhecidas?.()) || []; } catch(x){}
@@ -745,6 +821,100 @@ function linhasMissa(texto, dia){
 }
 
 /* =========================================================
+   AGENDA CENTRAL — contrato interno do evento
+   O Agente fala só com a Agenda Central. Ele NÃO conhece Google, calendários externos, ids externos,
+   OAuth, tokens nem estado de sincronização: tudo isso é integração DOWNSTREAM da Agenda (outra camada
+   sincroniza depois, a partir de events). A origem gravada no banco (events.source) também pertence à
+   Agenda: o Agente não escreve essa coluna; o evento criado aqui é um evento comum da Agenda Central.
+
+   evento = {parish_id, title, description, start_at, end_at, timezone, location, community_id, visibility, source}
+   - parish_id: sempre o da sessão (a camada recusa qualquer outro);
+   - community_id: null ou uma comunidade ATIVA da mesma paróquia (conferido antes de gravar);
+   - timezone: 'America/Sao_Paulo' (único aceito nesta versão);
+   - visibility: 'publico' | 'equipe';  source: 'central' (evento da Agenda Central).
+   ========================================================= */
+const CAMPOS_EVENTO = ['parish_id','title','description','start_at','end_at','timezone','location','community_id','visibility','source'];
+const ALTERAVEIS_EVENTO = ['title','description','start_at','end_at','location','community_id','visibility'];
+const erroAgenda = (motivo, code = '22023') => Object.assign(new Error('agenda:' + motivo), {code});
+const isoOk = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v) && !isNaN(Date.parse(v));
+function eventoAgenda({parishId, titulo, descricao, dia, hora, horaFim, local, comunidadeId, publico}){
+  return {parish_id:parishId, title:titulo, description:descricao || '', start_at:isoSP(dia, hora), end_at:horaFim ? isoSP(dia, horaFim) : null,
+    timezone:TZ, location:local || '', community_id:comunidadeId || null, visibility:publico ? 'publico' : 'equipe', source:'central'};
+}
+// Confere o contrato. parcial = alteração (só os campos alteráveis).
+function validarEventoAgenda(ev, parishId, {parcial = false} = {}){
+  if (!ev || typeof ev !== 'object' || Array.isArray(ev)) throw erroAgenda('evento_invalido');
+  const permitidos = parcial ? ALTERAVEIS_EVENTO : CAMPOS_EVENTO;
+  for (const k of Object.keys(ev)) if (!permitidos.includes(k)) throw erroAgenda('campo_nao_permitido');
+  if (!parcial){
+    if (ev.parish_id !== parishId) throw erroAgenda('paroquia_diferente', '42501');
+    if (ev.timezone !== TZ) throw erroAgenda('fuso_nao_suportado');
+    if (ev.source !== 'central') throw erroAgenda('origem_invalida');
+  }
+  const tem = k => !parcial || k in ev;
+  if (tem('title') && (typeof ev.title !== 'string' || limpa(ev.title).length < 2 || ev.title.length > 160)) throw erroAgenda('titulo_invalido');
+  if (tem('description') && (typeof (ev.description ?? '') !== 'string' || (ev.description || '').length > 4000)) throw erroAgenda('descricao_invalida');
+  if (tem('location') && (typeof (ev.location ?? '') !== 'string' || (ev.location || '').length > 200)) throw erroAgenda('local_invalido');
+  if (tem('start_at') && !isoOk(ev.start_at)) throw erroAgenda('inicio_invalido');
+  if (tem('end_at') && ev.end_at !== null && !isoOk(ev.end_at)) throw erroAgenda('fim_invalido');
+  if (ev.start_at && ev.end_at && Date.parse(ev.end_at) < Date.parse(ev.start_at)) throw erroAgenda('fim_antes_do_inicio');
+  if (tem('visibility') && !['publico','equipe'].includes(ev.visibility)) throw erroAgenda('visibilidade_invalida');
+  if (tem('community_id') && ev.community_id !== null && typeof ev.community_id !== 'string') throw erroAgenda('comunidade_invalida');
+  return true;
+}
+// Contrato → linha de events (colunas que existem hoje; nada de origem/fuso/sincronização: o banco decide os padrões).
+function paraLinhaEvento(ev){
+  const l = {};
+  if ('title' in ev) l.title = limpa(ev.title);
+  if ('description' in ev) l.description = ev.description || '';
+  if ('start_at' in ev) l.starts_at = new Date(ev.start_at).toISOString();
+  if ('end_at' in ev) l.ends_at = ev.end_at ? new Date(ev.end_at).toISOString() : null;
+  if ('location' in ev) l.location = limpa(ev.location || '');
+  if ('community_id' in ev){ l.community_id = ev.community_id || null; l.scope = ev.community_id ? 'community' : 'parish'; }
+  if ('visibility' in ev) l.public = ev.visibility === 'publico';
+  return l;
+}
+const deLinhaEvento = x => ({id:x.id, title:x.title, start_at:x.starts_at, end_at:x.ends_at ?? null, timezone:TZ, location:x.location || '',
+  community_id:x.community_id || null, visibility:x.public === false ? 'equipe' : 'publico', cancelled:!!x.cancelled});
+
+function criarAgendaSupabase(sb){
+  const falhou = error => { if (error) throw error; };
+  async function comunidadeDaParoquia(parishId, communityId){
+    if (!communityId) return;
+    const {data, error} = await sb.from('communities').select('id, active').eq('id', communityId).eq('parish_id', parishId);
+    falhou(error);
+    if (!(data || []).some(c => c.id === communityId && c.active !== false)) throw erroAgenda('comunidade_de_outra_paroquia', '42501');
+  }
+  return {
+    async consultarAgenda({parishId, inicio, fim}){
+      const {data, error} = await sb.from('events').select('id, title, starts_at, ends_at, location, community_id, public, cancelled')
+        .eq('parish_id', parishId).gte('starts_at', inicio).lt('starts_at', fim).order('starts_at');
+      falhou(error); return (data || []).map(deLinhaEvento);
+    },
+    async criarEvento({parishId, evento}){
+      validarEventoAgenda(evento, parishId);
+      await comunidadeDaParoquia(parishId, evento.community_id);
+      const linha = {parish_id:parishId, ...paraLinhaEvento(evento), highlight_home:false, cancelled:false};
+      const {data, error} = await sb.from('events').insert(linha).select('id, title, starts_at, ends_at, location, community_id, public, cancelled').single();
+      falhou(error); return deLinhaEvento(data);
+    },
+    async atualizarEvento({parishId, eventoId, alteracoes}){
+      validarEventoAgenda(alteracoes, parishId, {parcial:true});
+      if (!Object.keys(alteracoes).length) throw erroAgenda('nada_alterado');
+      const {data:atual, error:e1} = await sb.from('events').select('id, starts_at, ends_at').eq('id', eventoId).eq('parish_id', parishId);
+      falhou(e1);
+      if (!(atual || []).length) throw erroAgenda('evento_de_outra_paroquia', '42501');
+      if ('community_id' in alteracoes) await comunidadeDaParoquia(parishId, alteracoes.community_id);
+      const ini = alteracoes.start_at || atual[0].starts_at, fim = 'end_at' in alteracoes ? alteracoes.end_at : atual[0].ends_at;
+      if (fim && Date.parse(fim) < Date.parse(ini)) throw erroAgenda('fim_antes_do_inicio');
+      const {data, error} = await sb.from('events').update(paraLinhaEvento(alteracoes)).eq('id', eventoId).eq('parish_id', parishId)
+        .select('id, title, starts_at, ends_at, location, community_id, public, cancelled').single();
+      falhou(error); return deLinhaEvento(data);
+    }
+  };
+}
+
+/* =========================================================
    BACKEND Supabase (painel hoje; Worker/WhatsApp no futuro com o JWT do usuário)
    Só tabelas/funções que já existem e que o banco protege:
    events/communities (RLS: membro lê; can_access 'agenda' grava), public_service_catalog,
@@ -754,13 +924,8 @@ function linhasMissa(texto, dia){
 function criarBackendSupabase(sb, {slug} = {}){
   const falhou = error => { if (error) throw error; };
   let conhecidasCache = null;
-  let semOrigem = false; // events.source ainda não existe no banco (supabase/agente.sql não rodou)
   return {
-    async listarEventos({parishId, inicio, fim}){
-      const {data, error} = await sb.from('events').select('id, title, starts_at, ends_at, location, community_id, public, cancelled')
-        .eq('parish_id', parishId).gte('starts_at', inicio).lt('starts_at', fim).order('starts_at');
-      falhou(error); return data || [];
-    },
+    agenda: criarAgendaSupabase(sb), // eventos passam SEMPRE pela Agenda Central
     async listarComunidades({parishId}){
       const {data, error} = await sb.from('communities').select('id, name, patron, mass_schedule, active').eq('parish_id', parishId);
       falhou(error); return data || [];
@@ -778,16 +943,6 @@ function criarBackendSupabase(sb, {slug} = {}){
       falhou(cat.error); falhou(req.error);
       const tit = new Map((cat.data || []).map(c => [c.id, c.title]));
       return (req.data || []).map(r => ({...r, service_title:tit.get(r.service_id) || ''}));
-    },
-    async criarEvento({parishId, evento}){
-      const linha = {...evento, parish_id:parishId};
-      if (semOrigem) delete linha.source;
-      let {data, error} = await sb.from('events').insert(linha).select('id, title, starts_at').single();
-      if (error && !semOrigem && /source/.test(error.message || '') && ['PGRST204','42703'].includes(error.code)){
-        semOrigem = true; delete linha.source;
-        ({data, error} = await sb.from('events').insert(linha).select('id, title, starts_at').single());
-      }
-      falhou(error); return data;
     },
     async atualizarSolicitacao({requestId, status}){
       // Função segura que já existe: confere can_access(parish,'secretaria24h') e grava o histórico.
@@ -809,7 +964,8 @@ function criarBackendSupabase(sb, {slug} = {}){
   };
 }
 
-const api = {criarAgente, criarBackendSupabase, interpretarDeterministico, podeArea, FERRAMENTAS, STATUS, CANAIS,
+const api = {criarAgente, criarBackendSupabase, criarAgendaSupabase, interpretarMensagem, interpretarDeterministico, normalizarIntencao,
+  eventoAgenda, validarEventoAgenda, paraLinhaEvento, deLinhaEvento, CAMPOS_EVENTO, podeArea, FERRAMENTAS, STATUS, CANAIS,
   util:{diaSP, horaSP, isoSP, somaDias, norm, outraParoquia, aliasesParoquia, lerData, lerHoras}};
 if (typeof module === 'object' && module.exports) module.exports = api;
 else raiz.AgenteCore = api;

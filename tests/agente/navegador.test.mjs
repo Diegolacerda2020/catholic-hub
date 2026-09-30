@@ -111,7 +111,8 @@ async function aparelho({hash = '#painel', largura = 390, escuro = false} = {}){
   await page.setViewport({width:largura, height:844, deviceScaleFactor:1});
   if (escuro) await page.emulateMediaFeatures([{name:'prefers-color-scheme', value:'dark'}]);
   await page.exposeFunction('__sb', x => op(x)); await page.evaluateOnNewDocument(CLIENTE);
-  page.erros = [];
+  page.erros = []; page.logs = [];
+  page.on('console', m => page.logs.push(m.text()));
   page.on('pageerror', e => page.erros.push(e.message));
   page.on('console', m => { if (m.type() === 'error' && !/404|Failed to load resource/.test(m.text())) page.erros.push(m.text()); });
   page.on('dialog', d => d.accept());
@@ -168,8 +169,8 @@ await sec.evaluate(() => { const b = [...document.querySelectorAll('[data-ag-con
 await sec.waitForFunction(() => !document.querySelector('.ag-pensando'), {timeout:15000}); await esperar(300);
 r = await ultima(sec);
 t('gravou 1 evento (duplo clique não duplica)', await nEv() === ev0 + 1 && /Pronto! O evento “Missa da Juventude” foi criado/.test(r), r);
-const ev = (await q(`select source, created_by, title from events where parish_id=$1 order by created_at desc limit 1`, [PID[SC]]))[0];
-t('evento com origem "agente" e autora a secretaria', ev.source === 'agente' && ev.created_by === UID['u-sc'], ev);
+const ev = (await q(`select created_by, title, scope, public from events where parish_id=$1 order by created_at desc limit 1`, [PID[SC]]))[0];
+t('evento comum da Agenda Central, autora a secretaria (sem origem própria do Agente)', ev.created_by === UID['u-sc'] && ev.scope === 'parish' && ev.public === true && !('source' in ev), ev);
 await sec.evaluate(() => [...document.querySelectorAll('.ag-ele')].at(-1).querySelector('[data-ag-acao]').click()); await esperar(600);
 t('"Abrir a Agenda" mostra o evento no painel', (await view(sec)).includes('Missa da Juventude'), (await view(sec)).slice(0, 300));
 
@@ -191,6 +192,13 @@ t('tela sem termos técnicos nem ids', !TECNICO.test(tela), (tela.match(TECNICO)
 t('sem rolagem lateral (390 px)', await semRolagemLateral(sec));
 t('Assistente no "Mais"', await sec.evaluate(() => { S.tab = 'mais'; render(); return document.getElementById('view').innerText.includes('Assistente Paroquial'); }));
 t('sem erros de JavaScript', !sec.erros.length, sec.erros.join(' | '));
+const guardado = await sec.evaluate(() => JSON.stringify({...localStorage}) + JSON.stringify({...sessionStorage}));
+t('privacidade: mensagens, protocolos e respostas não vão para localStorage/sessionStorage', ![pSC1.protocol, pSC2.protocol, 'Quais solicitações', 'Crie um evento', 'Encontrei', 'Fiel de Teste', 'Pronto!'].some(x => guardado.includes(x)), guardado.slice(0, 200));
+const usoLog = await sec.evaluate(() => S.log.filter(l => /Missa da Juventude/.test(l.extra)).map(l => l.acao));
+t('único rastro persistido: a entrada de Uso do evento criado (igual ao formulário da Agenda)', JSON.stringify(usoLog) === '["criou-evento"]', usoLog);
+t('privacidade: nada da conversa no console', !sec.logs.some(l => [pSC1.protocol, pSC2.protocol, 'Missa da Juventude', 'Fiel de Teste'].some(x => l.includes(x))), sec.logs.join(' | ').slice(0, 300));
+await clk(sec, '#btnSair'); await esperar(900);
+t('ao sair, a conversa some da tela e da memória', !(await sec.evaluate(() => document.body.innerText)).includes(pSC1.protocol) && await sec.evaluate(() => !AGENTE.painelHTML().includes('Encontrei')));
 t('auditoria gravada para a Santa Clara', (await q(`select count(*)::int n from agent_audit_log where parish_id=$1 and user_id=$2`, [PID[SC], UID['u-sc']]))[0].n > 5);
 
 console.log('== PASCOM da Santa Clara');

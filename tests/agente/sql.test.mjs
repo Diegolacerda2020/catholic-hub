@@ -52,6 +52,11 @@ function cliente(db, uid){
   async function rodar(q){
     try {
       const vals = [], w = q.filtros.map(([c, op, v]) => { vals.push(v); return `${c} ${op} $${vals.length}`; });
+      if (q.op === 'update'){
+        const cols = Object.keys(q.row), base = vals.length; vals.push(...cols.map(c => q.row[c]));
+        const r = await como(db, uid, tx => tx.query(`update ${q.table} set ${cols.map((c, i) => `${c} = $${base + i + 1}`).join(', ')}${w.length ? ' where ' + w.join(' and ') : ''} returning ${q.ret || '*'}`, vals));
+        return {data:JSON.parse(JSON.stringify(q.single ? r.rows[0] ?? null : r.rows)), error:q.single && !r.rows.length ? {code:'PGRST116', message:'0 rows'} : null};
+      }
       if (q.op === 'insert'){
         const cols = Object.keys(q.row), v = cols.map(c => q.row[c]);
         const r = await como(db, uid, tx => tx.query(`insert into ${q.table} (${cols.join(', ')}) values (${cols.map((_, i) => '$' + (i + 1)).join(', ')}) returning ${q.ret || '*'}`, v));
@@ -67,7 +72,7 @@ function cliente(db, uid){
       const q = {table, op:'select', cols:'*', filtros:[], ordem:null, lim:null};
       const b = {
         select(c){ if (q.op === 'select') q.cols = c || '*'; else q.ret = c || '*'; return b; },
-        insert(row){ q.op = 'insert'; q.row = row; return b; },
+        insert(row){ q.op = 'insert'; q.row = row; return b; }, update(row){ q.op = 'update'; q.row = row; return b; },
         eq(c, v){ q.filtros.push([c, '=', v]); return b; }, gte(c, v){ q.filtros.push([c, '>=', v]); return b; }, lt(c, v){ q.filtros.push([c, '<', v]); return b; },
         order(c, o = {}){ q.ordem = [c, o.ascending !== false]; return b; }, limit(n){ q.lim = n; return b; }, single(){ q.single = true; return b; },
         then(a, r){ return rodar(q).then(a, r); }
@@ -122,9 +127,10 @@ t('Santo Antônio tem as solicitações de demonstração', !!idSA);
 const TABS = ['parishes','parish_users','parish_state','communities','tither_profiles','service_catalog','service_requests','service_request_history'];
 const foto = async () => JSON.stringify(await Promise.all(TABS.map(tb => q(`select * from ${tb} order by 1`)))) + JSON.stringify(await q(`select id, title, starts_at, parish_id from events order by id`));
 const antes = await foto();
+const colunasEvents0 = JSON.stringify(await q(`select column_name, data_type, column_default from information_schema.columns where table_name='events' order by ordinal_position`));
 for (const i of [1, 2]){ let e = null; try { await db.exec(ler('supabase/agente.sql')); } catch(x){ e = x.message; } t(`agente.sql rodou (${i}ª vez)`, !e, e); }
 t('agente.sql não muda nenhum dado existente', await foto() === antes);
-t('events.source existe com padrão "painel"', (await q(`select column_default from information_schema.columns where table_name='events' and column_name='source'`))[0]?.column_default?.includes('painel'));
+t('agente.sql não cria nem altera colunas em events (origem/fuso/sincronização são da Agenda)', colunasEvents0 === JSON.stringify(await q(`select column_name, data_type, column_default from information_schema.columns where table_name='events' order by ordinal_position`)));
 t('can_access não foi alterada (PASCOM continua sem secretaria24h)', !(await q(`select pg_get_functiondef('can_access(uuid,text)'::regprocedure) d`))[0].d.match(/pascom' then p_area in \([^)]*secretaria24h/));
 
 // ---------------------------------------------------------------- agentes por usuário
@@ -163,13 +169,13 @@ t('nenhuma comunidade criada', (await q(`select count(*)::int n from communities
 r = await scSec.ag.corrigir(scSec.ent({confirmacaoId:r.confirmacao.id}), {comunidadeId:'', titulo:'Missa da Comunidade', local:'Matriz'});
 t('corrigido para Toda a paróquia', !r.confirmacao.faltando.length && Object.fromEntries(r.confirmacao.campos).Comunidade === 'Toda a paróquia', texto(r));
 t('não gravou antes da confirmação', await nEv(PID[SC]) === ev0);
-const idConf = r.confirmacao.id;
-let c = await ngSec.ag.confirmar(ngSec.ent({confirmacaoId:idConf}));
+const idConf = r.confirmacao.id, assConf = r.confirmacao.assinatura;
+let c = await ngSec.ag.confirmar(ngSec.ent({confirmacaoId:idConf, assinatura:assConf}));
 t('secretaria de Graças não confirma a ação de Santa Clara', c.tipo !== 'feito' && await nEv(PID[SC]) === ev0, texto(c));
-c = await scSec.ag.confirmar(scSec.ent({confirmacaoId:idConf}));
+c = await scSec.ag.confirmar(scSec.ent({confirmacaoId:idConf, assinatura:assConf}));
 t('gravou após a confirmação', c.tipo === 'feito' && await nEv(PID[SC]) === ev0 + 1, c);
 const ev = (await q(`select * from events where parish_id=$1 order by created_at desc limit 1`, [PID[SC]]))[0];
-t('evento com paróquia da sessão, autor, origem "agente", escopo paróquia', ev.title === 'Missa da Comunidade' && ev.created_by === U.scSec && ev.source === 'agente' && ev.scope === 'parish' && ev.community_id === null && ev.public === true, ev);
+t('evento comum da Agenda Central: paróquia da sessão, autor, escopo paróquia, público', ev.title === 'Missa da Comunidade' && ev.created_by === U.scSec && ev.scope === 'parish' && ev.community_id === null && ev.public === true && !('source' in ev), ev);
 const pub = (await q(`select get_public_parish($1) p`, [SC]))[0].p;
 t('aparece na agenda pública, sem expor a origem', pub.events?.some(e => e.title === 'Missa da Comunidade') && !pub.events.some(e => 'source' in e || 'created_by' in e), pub.events);
 r = await scSec.diga('O que temos sábado?');
@@ -181,7 +187,7 @@ const nHist = async id => (await q(`select count(*)::int n from service_request_
 r = await scSec.diga(`Marque ${pSC1.protocol} como em atendimento`);
 t('prepara (estado real in_progress)', r.tipo === 'confirmacao' && Object.fromEntries(r.confirmacao.campos)['Nova situação'] === 'Em atendimento', texto(r));
 t('não mudou antes da confirmação', await st(idSC1) === 'new' && await nHist(idSC1) === 1);
-c = await scSec.ag.confirmar(scSec.ent({confirmacaoId:r.confirmacao.id}));
+c = await scSec.ag.confirmar(scSec.ent({confirmacaoId:r.confirmacao.id, assinatura:r.confirmacao.assinatura}));
 t('mudou após a confirmação (staff_update_service_request)', c.tipo === 'feito' && await st(idSC1) === 'in_progress', texto(c));
 const h = (await q(`select status, note, public_note, created_by from service_request_history where request_id=$1 order by created_at desc limit 1`, [idSC1]))[0];
 t('histórico: mudança pública, sem texto, com autor', h.status === 'in_progress' && h.note === null && h.public_note === true && h.created_by === U.scSec, h);
@@ -192,17 +198,38 @@ console.log('== Graças secretaria → não acessa Santa Clara (mesmo forçando)
 r = await ngSec.diga('Quais solicitações estão pendentes?');
 t('Graças vê só a própria', texto(r).includes(pNG.protocol) && !texto(r).includes(pSC1.protocol) && !texto(r).includes(pSC2.protocol), texto(r));
 t('forçar o id de Santa Clara: RLS devolve vazio', (await ngSec.backend.listarSolicitacoes({parishId:PID[SC]})).length === 0);
-t('forçar eventos de Santa Clara: nenhum (não é membro)', (await ngSec.backend.listarEventos({parishId:PID[SC], inicio:'2000-01-01', fim:'2100-01-01'})).length === 0);
+t('forçar eventos de Santa Clara: nenhum (não é membro)', (await ngSec.backend.agenda.consultarAgenda({parishId:PID[SC], inicio:'2000-01-01', fim:'2100-01-01'})).length === 0);
 let e = null; try { await ngSec.backend.atualizarSolicitacao({requestId:idSC1, status:'completed'}); } catch(x){ e = x; }
 t('forçar mudança em solicitação de Santa Clara: 42501', e?.code === '42501' && await st(idSC1) === 'in_progress', e);
-e = null; try { await ngSec.backend.criarEvento({parishId:PID[SC], evento:{title:'Invasão', starts_at:new Date(Date.now() + 864e5).toISOString(), scope:'parish', source:'agente'}}); } catch(x){ e = x; }
+const amanha = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+e = null; try { await ngSec.backend.agenda.criarEvento({parishId:PID[SC], evento:Core.eventoAgenda({parishId:PID[SC], titulo:'Invasão', dia:amanha, hora:'20:00', publico:true})}); } catch(x){ e = x; }
 t('forçar evento em Santa Clara: RLS bloqueia', !!e && await nEv(PID[SC]) === ev0 + 1, e);
 const falso = sessao(U.ngSec, 'secretaria', SC); // cliente adulterado dizendo que a paróquia é Santa Clara
 r = await falso.diga('Quais solicitações estão pendentes?');
 t('sessão adulterada (paróquia trocada no cliente): o banco não entrega nada', !texto(r).includes(pSC1.protocol) && !texto(r).includes(pSC2.protocol), texto(r));
 r = await falso.diga('Crie missa amanhã às 20h');
-c = r.confirmacao ? await falso.ag.confirmar(falso.ent({confirmacaoId:r.confirmacao.id})) : r;
+c = r.confirmacao ? await falso.ag.confirmar(falso.ent({confirmacaoId:r.confirmacao.id, assinatura:r.confirmacao.assinatura})) : r;
 t('sessão adulterada: criar evento em Santa Clara falha e nada é gravado', c.tipo !== 'feito' && await nEv(PID[SC]) === ev0 + 1, texto(c));
+
+console.log('== Agenda Central: atualizar_evento e tenant adulterado');
+const evSC = (await q(`select id from events where parish_id=$1 and title='Missa da Comunidade'`, [PID[SC]]))[0].id;
+let a = await scSec.backend.agenda.atualizarEvento({parishId:PID[SC], eventoId:evSC, alteracoes:{title:'Missa da Comunidade (novo horário)', location:'Salão'}});
+t('Santa Clara atualiza o próprio evento pela Agenda Central', a.title === 'Missa da Comunidade (novo horário)' && a.location === 'Salão' && a.timezone === 'America/Sao_Paulo', a);
+e = null; try { await ngSec.backend.agenda.atualizarEvento({parishId:PID[NG], eventoId:evSC, alteracoes:{title:'Invasão'}}); } catch(x){ e = x; }
+t('Graças não atualiza evento de Santa Clara (mesmo passando o id)', e?.code === '42501' && (await q(`select title from events where id=$1`, [evSC]))[0].title === 'Missa da Comunidade (novo horário)', e);
+e = null; try { await ngSec.backend.agenda.atualizarEvento({parishId:PID[SC], eventoId:evSC, alteracoes:{title:'Invasão'}}); } catch(x){ e = x; }
+t('Graças fingindo ser Santa Clara: RLS bloqueia', !!e && (await q(`select title from events where id=$1`, [evSC]))[0].title === 'Missa da Comunidade (novo horário)', e);
+for (const alt of [{parish_id:PID[NG]}, {source:'google'}, {google_event_id:'x'}, {sync_status:'synced'}, {cancelled:true}]){
+  e = null; try { await scSec.backend.agenda.atualizarEvento({parishId:PID[SC], eventoId:evSC, alteracoes:alt}); } catch(x){ e = x; }
+  t(`alteração fora do contrato recusada: ${Object.keys(alt)[0]}`, /campo_nao_permitido/.test(e?.message), e);
+}
+await db.exec(`insert into communities (id, parish_id, name, slug) values ('00000000-0000-0000-0000-0000000c0a01', '${PID[NG]}', 'Comunidade de Graças', 'comunidade-gracas')`);
+e = null; try { await scSec.backend.agenda.atualizarEvento({parishId:PID[SC], eventoId:evSC, alteracoes:{community_id:'00000000-0000-0000-0000-0000000c0a01'}}); } catch(x){ e = x; }
+t('comunidade de outra paróquia: recusada antes de gravar', e?.code === '42501' && (await q(`select community_id from events where id=$1`, [evSC]))[0].community_id === null, e);
+e = null; try { await scSec.backend.agenda.criarEvento({parishId:PID[SC], evento:{...Core.eventoAgenda({parishId:PID[SC], titulo:'Evento teste', dia:amanha, hora:'20:00', publico:true}), community_id:'00000000-0000-0000-0000-0000000c0a01'}}); } catch(x){ e = x; }
+t('criar com comunidade de outra paróquia: recusado', e?.code === '42501', e);
+e = null; try { await scSec.backend.agenda.criarEvento({parishId:PID[SC], evento:{...Core.eventoAgenda({parishId:PID[SC], titulo:'Evento teste', dia:amanha, hora:'20:00', publico:true}), parish_id:PID[NG]}}); } catch(x){ e = x; }
+t('contrato com parish_id diferente da sessão: recusado', e?.code === '42501');
 
 console.log('== Santo Antônio isolado; suporte (admin) só no tenant vinculado');
 r = await saSec.diga('Quais solicitações estão pendentes?');
@@ -265,10 +292,25 @@ const b2 = Core.criarBackendSupabase(cliente(db2, U.scSec), {slug:SC});
 const ag2 = Core.criarAgente({backend:b2});
 const ent2 = m => ({channel:'painel', sender:{userId:U.scSec, papel:'secretaria'}, parish:{id:pid2, slug:SC, nome:NOMES[SC]}, message:m});
 r = await ag2.receber(ent2('Crie missa amanhã às 20h'));
-c = await ag2.confirmar({...ent2(''), confirmacaoId:r.confirmacao.id});
-t('cria evento sem a coluna source (tenta de novo sem ela)', c.tipo === 'feito' && (await db2.query(`select count(*)::int n from events where parish_id=$1`, [pid2])).rows[0].n === 1, texto(c));
+c = await ag2.confirmar({...ent2(''), confirmacaoId:r.confirmacao.id, assinatura:r.confirmacao.assinatura});
+t('sem migração: cria evento pela Agenda Central', c.tipo === 'feito' && (await db2.query(`select count(*)::int n from events where parish_id=$1`, [pid2])).rows[0].n === 1, texto(c));
 r = await ag2.receber(ent2('Quais comunidades estão cadastradas?'));
 t('sem agent_log_action: auditoria não derruba a resposta', /ainda não possui comunidades/.test(texto(r)), texto(r));
+
+console.log('== compatibilidade com a Agenda Central (simulação do contrato de origem/fuso)');
+// Simula SÓ as duas colunas do contrato da Agenda que a integração Google usa para escolher o que sincronizar
+// (source default 'central' e timezone default 'America/Sao_Paulo'). Não é o SQL da integração.
+const db3 = await criarBanco({agente:true});
+await db3.exec(`alter table events add column source text not null default 'central' check (source in ('central','google'));
+  alter table events add column timezone text not null default 'America/Sao_Paulo';`);
+const pid3 = (await db3.query(`select id from parishes where slug=$1`, [SC])).rows[0].id;
+await db3.exec(`insert into auth.users values ('${U.scSec}', 's@t'); insert into parish_users values ('${U.scSec}', '${pid3}', 'secretaria');`);
+const ag3 = Core.criarAgente({backend:Core.criarBackendSupabase(cliente(db3, U.scSec), {slug:SC})});
+const ent3 = m => ({channel:'painel', sender:{userId:U.scSec, papel:'secretaria'}, parish:{id:pid3, slug:SC, nome:NOMES[SC]}, message:m});
+r = await ag3.receber(ent3('Crie missa amanhã às 20h'));
+c = await ag3.confirmar({...ent3(''), confirmacaoId:r.confirmacao.id, assinatura:r.confirmacao.assinatura});
+const ev3 = (await db3.query(`select source, timezone from events where parish_id=$1`, [pid3])).rows[0];
+t('evento criado pelo Assistente vira evento "central" (entra na sincronização da Agenda)', c.tipo === 'feito' && ev3?.source === 'central' && ev3?.timezone === 'America/Sao_Paulo', ev3);
 
 console.log(`\n${ok} ok, ${falha} falhas`);
 process.exit(falha ? 1 : 0);

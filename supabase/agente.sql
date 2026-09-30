@@ -1,15 +1,16 @@
 -- Central Paroquial — Agente Paroquial V1 (migração do módulo).
--- PREPARADO, NÃO EXECUTADO. Rodar no SQL Editor só depois de revisão.
+-- PROPOSTA LOCAL, NÃO EXECUTADA. Rodar no SQL Editor só depois de revisão.
 -- Seguro para rodar de novo: não há DROP TABLE, TRUNCATE nem DELETE; não mexe em dados existentes,
 -- em usuários, vínculos nem permissões (can_access não muda).
 --
 -- O Assistente funciona SEM esta migração (consulta e cria usando o que já existe: RLS de events e
--- communities, public_service_catalog, service_requests e staff_update_service_request). Ela só acrescenta:
---   1. agent_audit_log + agent_log_action(): auditoria mínima do que o Assistente fez (sem o texto da conversa);
---   2. events.source: de onde veio o evento ('painel' por padrão; 'agente' quando criado pelo Assistente).
+-- communities, public_service_catalog, service_requests e staff_update_service_request). Ela só acrescenta
+-- a auditoria mínima do que o Assistente fez (sem o texto da conversa): agent_audit_log + agent_log_action().
+--
+-- Este arquivo NÃO altera a tabela events. Origem (events.source), fuso e qualquer campo de sincronização
+-- (Google Calendar ou outro) pertencem à Agenda Central e à integração dela, não ao Agente.
 --
 -- Rollback: `drop function agent_log_action(uuid, text, text, text, boolean); drop table agent_audit_log;`
--- e, se quiser, `alter table events drop column source;` (nenhuma outra parte do sistema depende dela).
 
 -- ---------- 1. Auditoria ----------
 -- Guarda só: quem, qual paróquia, qual ferramenta, por qual canal, quando, resultado e se houve confirmação humana.
@@ -72,16 +73,3 @@ $$;
 
 revoke all on function agent_log_action(uuid, text, text, text, boolean) from public, anon;
 grant execute on function agent_log_action(uuid, text, text, text, boolean) to authenticated;
-
--- ---------- 2. Origem do evento ----------
--- Prepara a agenda para vários canais (painel, Assistente, Google Agenda, WhatsApp oficial).
--- A sincronização com o Google Agenda continua usando events.google_event_id (já existe).
--- get_public_parish monta os eventos campo a campo: esta coluna não aparece na página pública.
-alter table events add column if not exists source text not null default 'painel';
-do $$
-begin
-  if not exists (select 1 from pg_constraint where conname = 'events_source_check' and conrelid = 'events'::regclass) then
-    alter table events add constraint events_source_check check (source in ('painel','agente','google','whatsapp','importacao'));
-  end if;
-end;
-$$;

@@ -22,11 +22,14 @@ for (const f of ['agente-core.js', 'agente.js']){
   const s = semComentarios(fs.readFileSync(path.join(REPO, f), 'utf8'));
   t(`${f}: não chama provedor de IA nem WhatsApp não oficial pelo navegador`, !/anthropic\.com|openai\.com|generativelanguage|web\.whatsapp\.com|wa\.me|api\.z-api|evolution/i.test(s));
   t(`${f}: sem fetch/XMLHttpRequest próprio (só o cliente Supabase da sessão)`, !/\bfetch\(|XMLHttpRequest/.test(s));
+  t(`${f}: não depende de Google Calendar nem de sincronização externa`, !/google|external_|sync_status|calendar_id|oauth|refresh_token/i.test(s), (s.match(/google|external_|sync_status|calendar_id|oauth|refresh_token/i) || [])[0]);
+  t(`${f}: sem console.log/debug de dados`, !/console\.(log|debug|info|table|dir)\(/.test(s));
   t(`${f}: nada em localStorage (conversa só em memória)`, !/localStorage|sessionStorage|indexedDB/.test(s));
 }
 const w = fs.readFileSync(path.join(REPO, 'wrangler.jsonc'), 'utf8');
 t('wrangler.jsonc sem vars/segredos', !/"vars"|api_key|secret/i.test(w));
-const rastreados = execSync('git ls-files', {cwd:REPO}).toString().split('\n').filter(f => f && !/\.(png|jpg|pdf|pem)$/.test(f));
+// este próprio teste contém os padrões que procura
+const rastreados = execSync('git ls-files', {cwd:REPO}).toString().split('\n').filter(f => f && !/\.(png|jpg|pdf|pem)$/.test(f) && f !== 'tests/agente/segredos.test.mjs');
 const com = rastreados.filter(f => { try { return SEGREDO.test(fs.readFileSync(path.join(REPO, f), 'utf8').replace(/NUNCA coloque aqui a chave "service_role"[^\n]*|service_role[^\n]*(repositório|no navegador|nunca)/gi, '')); } catch(e){ return false; } });
 t('nenhum segredo em arquivos do repositório', !com.length, com.join(', '));
 console.log(`\n${ok} ok, ${falha} falhas`);
