@@ -227,6 +227,13 @@ button.stat[aria-pressed="true"]{border-color:var(--lit);background:var(--lit-so
 .mais-item svg{width:24px;height:24px;color:var(--lit);flex-shrink:0}
 .mais-item .grow{flex:1;min-width:0}
 .mais-item .badge{position:static;margin-left:auto}
+.team-list{display:grid;gap:10px;margin-top:12px}
+.team-row{display:flex;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.team-row:first-child{border-top:0}
+.team-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--lit-soft);color:var(--lit);font-weight:800;flex:0 0 auto}
+.team-row .grow{min-width:0}
+.team-row b,.team-row span{overflow-wrap:anywhere}
+.team-soon{margin-top:14px}
 /* home Igreja */
 .hoje{background:var(--lit);color:#fff;border-radius:16px;padding:16px 18px;margin-bottom:10px;position:relative;overflow:hidden}
 .hoje .par{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85;font-weight:700}
@@ -725,7 +732,8 @@ const NUVEM = {
   ativo: !!(CONF.supabase?.url && CONF.supabase?.anonKey),
   slug: TENANT,
   sb:null, sessao:null, parishId:null, papel:null, estado:'off',
-  base:null, baseTs:null, velasPub:null, timer:null, salvando:false, deNovo:false, renderPendente:false
+  base:null, baseTs:null, velasPub:null, timer:null, salvando:false, deNovo:false, renderPendente:false,
+  equipe:{estado:'idle', parishId:null, itens:[]}
 };
 if (NUVEM.ativo) NUVEM.estado = 'carregando';
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -911,7 +919,7 @@ const rel = k => NUVEM.ativo ? REL[k] : (S.rel[k] ||= []);
 const tabelaFaltando = e => ['42P01','PGRST205','PGRST202','PGRST204'].includes(e?.code) || /does not exist|schema cache/i.test(e?.message||'');
 // Matriz de acesso: espelha can_access() do schema.sql. As áreas que já existiam no piloto
 // continuam abertas a toda a equipe nesta versão; dizimistas (dados pessoais) só padre e secretaria.
-const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes','secretaria24h'], pascom:['avisos','agenda','comunidades','noticias']};
+const ACESSO = {secretaria:['avisos','agenda','comunidades','dizimistas','pessoas','intencoes','mensagens','ajustes','secretaria24h','equipe'], pascom:['avisos','agenda','comunidades','noticias']};
 const AREAS_ABERTAS = ['inicio','comunicar','mensagens','pessoas','intencoes','uso','ajustes','mais'];
 const pode = area => !NUVEM.ativo || ['padre','admin'].includes(NUVEM.papel) || AREAS_ABERTAS.includes(area) || (ACESSO[NUVEM.papel]||[]).includes(area);
 const AREA_TABELA = {communities:'comunidades', events:'agenda', tithers:'dizimistas', leads:'dizimistas', contribs:'dizimistas'};
@@ -1120,6 +1128,7 @@ const I = {
   comunidades:'<path d="M2.5 21V12l5-4 5 4v9"/><path d="M12.5 21v-6.5l4.5-3.5 4.5 3.5V21"/><path d="M7.5 3v5M5.8 4.7h3.4M1.5 21h21"/>',
   dizimistas:'<path d="M12 20s-7-4.2-7-9.5A3.9 3.9 0 0 1 12 8a3.9 3.9 0 0 1 7 2.5C19 15.8 12 20 12 20z"/><path d="M12 11v4M10 13h4"/>',
   secretaria24h:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  equipe:'<circle cx="8" cy="8" r="3.2"/><circle cx="16.5" cy="9" r="2.7"/><path d="M2.5 20c.8-3.8 3.1-5.8 5.5-5.8s4.7 2 5.5 5.8"/><path d="M13.5 15.2c2.6.2 4.7 1.9 5.8 4.8"/>',
   inicio:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   mais:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   contato:'<path d="M12 2v5M10 4h4M5 21V11l7-4 7 4v10M9 21v-5h6v5"/>'
@@ -1128,7 +1137,7 @@ const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 // Painel: no celular, a barra de baixo tem as 4 tarefas do dia a dia + "Mais"; no tablet e no
 // computador, o menu lateral mostra todas as áreas (mesmo HTML; o CSS escolhe pela largura da tela).
 const NAV = [['inicio','Início'],['secretaria24h','Secretaria 24h'],['comunicar','Comunicar'],['agenda','Agenda'],['intencoes','Intenções'],
-  ['dizimistas','Dizimistas'],['mensagens','Mensagens'],['pessoas','Pessoas'],['comunidades','Comunidades'],['uso','Uso'],['ajustes','Ajustes']];
+  ['equipe','Equipe'],['dizimistas','Dizimistas'],['mensagens','Mensagens'],['pessoas','Pessoas'],['comunidades','Comunidades'],['uso','Uso'],['ajustes','Ajustes']];
 const BARRA = ['inicio','comunicar','agenda','intencoes'];
 const navItens = () => NAV.filter(([k]) => pode(k) && (k !== 'secretaria24h' || window.S24));
 const tabsFor = () => S.mode==='painel'
@@ -1140,6 +1149,7 @@ const SUBTELAS_PUB = {onboarding:null, escolher:null, comunidade:'comunidades', 
   liturgia:'igreja', intencao:'igreja', velas:'igreja', devocao:'igreja', evento:'agenda', doacoes:'contato'};
 // Celular: o que não cabe na barra fica em "Mais" (nenhuma função some).
 const MAIS = [...(window.S24 ? [['secretaria24h','Secretaria 24h','Solicitações recebidas pela secretaria digital']] : []),
+  ['equipe','Equipe da Paróquia','Padre, secretaria e PASCOM da sua paróquia'],
   ['dizimistas','Dizimistas','Cadastro, acompanhamento do dízimo e interessados'],
   ['mensagens','Mensagens','Aniversários, bodas e mensagens para grupos'],['pessoas','Pessoas','Paroquianos e agentes de pastoral'],
   ['comunidades','Comunidades','Comunidades da paróquia e seus horários'],
@@ -1163,6 +1173,41 @@ function maisHTML(){
   return `<h2>Mais</h2><div class="list">${maisItens().map(([k,l,d]) => `<button class="mais-item" data-mais="${k}">${icon(k)}<span class="grow"><b>${l}</b><span class="small muted" style="display:block">${d}</span></span>${c[k] ? badgeHTML(c[k], k) : '<span class="muted" aria-hidden="true">›</span>'}</button>`).join('')}</div>`;
 }
 const bindMais = root => root.querySelectorAll('[data-mais]').forEach(b => b.onclick = () => { S.tab = b.dataset.mais; save(); render(); scrollTo(0,0); });
+
+const equipePode = () => NUVEM.ativo && logado() && ['padre','secretaria','admin'].includes(NUVEM.papel);
+const papelEquipe = r => PAPEIS[r] || 'Equipe';
+const inicialEquipe = p => (p.display_name || p.email || '?').trim().slice(0, 1).toUpperCase();
+async function equipeCarregar(forcar = false){
+  if (!equipePode() || !NUVEM.parishId) return;
+  const E = NUVEM.equipe;
+  if (!forcar && E.estado === 'ok' && E.parishId === NUVEM.parishId) return;
+  E.estado = 'carregando'; E.parishId = NUVEM.parishId; if (S.mode === 'painel' && S.tab === 'equipe') renderSeguro();
+  try{
+    const {data, error} = await NUVEM.sb.rpc('staff_list_parish_team', {p_parish:NUVEM.parishId});
+    if (error) throw error;
+    E.itens = Array.isArray(data) ? data : [];
+    E.estado = 'ok';
+  }catch(e){
+    console.warn('Central Paroquial: falha ao ler equipe da paróquia', e);
+    E.estado = tabelaFaltando(e) ? 'faltando' : 'erro';
+    E.itens = [];
+  }
+  if (S.mode === 'painel' && S.tab === 'equipe') renderSeguro();
+}
+function equipeHTML(){
+  if (!NUVEM.ativo) return `<h2>Equipe da Paróquia</h2><div class="signal wait">Entre no painel conectado ao banco para ver a equipe real da paróquia.</div>`;
+  if (!equipePode()) return `<h2>Equipe da Paróquia</h2><div class="signal wait">Esta área fica disponível para padre e secretaria.</div>`;
+  const E = NUVEM.equipe;
+  if (E.parishId !== NUVEM.parishId || E.estado === 'idle') setTimeout(() => equipeCarregar(), 0);
+  if (E.estado === 'carregando' || E.parishId !== NUVEM.parishId) return `<h2>Equipe da Paróquia</h2><div class="status" role="status"><span class="spinner"></span>Carregando a equipe…</div>`;
+  if (E.estado === 'faltando') return `<h2>Equipe da Paróquia</h2><div class="signal wait" role="status">Esta parte precisa da atualização do banco para mostrar a equipe da paróquia.</div>`;
+  if (E.estado === 'erro') return `<h2>Equipe da Paróquia</h2><div class="signal wait" role="status">Não foi possível carregar a equipe agora.</div><button type="button" class="btn ghost block-w" id="equipeRetry">Tentar de novo</button>`;
+  const linhas = E.itens.map(p => `<div class="team-row"><span class="team-avatar" aria-hidden="true">${esc(inicialEquipe(p))}</span><span class="grow"><b>${esc(p.display_name || p.email || 'Integrante da equipe')}</b><span class="small muted" style="display:block">${esc(papelEquipe(p.role))}${p.email && p.display_name ? ' · ' + esc(p.email) : ''}${p.active === false ? ' · Inativo' : ''}</span></span></div>`).join('');
+  return `<h2>Equipe da Paróquia</h2><p class="lead small">Pessoas vinculadas ao painel desta paróquia.</p>
+    <div class="block team-list">${linhas || '<div class="empty">Nenhuma pessoa vinculada ainda.</div>'}</div>
+    <div class="signal wait team-soon" role="status">Gestão de usuários em breve</div>`;
+}
+const bindEquipe = root => root.querySelector('#equipeRetry')?.addEventListener('click', () => equipeCarregar(true));
 function renderTabs(){
   const cur = abaAtual();
   if (S.mode !== 'painel'){
@@ -3926,7 +3971,7 @@ function render(){
   const v = document.getElementById('view');
   const map = S.mode==='painel' ? {
     inicio:[inicioHTML,bindInicio], comunicar:[comunicarHTML,bindComunicar], mais:[maisHTML,bindMais], agenda:[agendaAdmHTML,bindAgendaAdm], mensagens:[mensagensHTML,bindMensagens], intencoes:[intencoesHTML,bindIntencoes], pessoas:[pessoasHTML,bindPessoas],
-    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
+    comunidades:[comunidadesAdmHTML,bindComunidadesAdm], equipe:[equipeHTML,bindEquipe], dizimistas:[dizimistasHTML,bindDizimistas], uso:[usoHTML,()=>{}], ajustes:[ajustesHTML,bindAjustes],
     ...(window.S24 && {secretaria24h:[S24.painelHTML, S24.bindPainel]})
   } : { avisos:[avisosPubHTML, r => { bindEventos(r); r.querySelector('#goVela').onclick = () => { S.pubTab='velas'; velaStep='inicio'; save(); render(); scrollTo(0,0); }; }], igreja:[igrejaPubHTML, bindIgreja], noticias:[noticiasPubHTML, carregarNoticias], dizimista:[dizimistaPubHTML, bindDizimistaPub], rezar:[rezarPubHTML, bindRezarPub], liturgia:[liturgiaPubHTML, bindLiturgia], intencao:[intencaoPubHTML, bindIntencaoForm],
     velas:[velasPubHTML, bindVela], devocao:[devocaoPubHTML, r => { bindEventos(r); bindDestaques(r); }], evento:[eventoPubHTML, bindEventoPub], assistir:[assistirHTML,bindAssistir], agenda:[agendaPubHTML,bindAgendaPub],

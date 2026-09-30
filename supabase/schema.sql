@@ -124,6 +124,45 @@ revoke all on function can_access(uuid, text) from public, anon;
 grant execute on function is_parish_member(uuid) to authenticated;
 grant execute on function can_access(uuid, text) to authenticated;
 
+-- ---------- Equipe da paróquia ----------
+-- Leitura mínima da equipe vinculada à própria paróquia.
+-- Não expõe auth.users inteiro: só nome público (quando houver), e-mail,
+-- papel pastoral/administrativo e um status simples.
+create or replace function staff_list_parish_team(p_parish uuid)
+returns table (
+  display_name text,
+  email text,
+  role text,
+  active boolean
+)
+language sql
+stable
+security definer
+set search_path = public, auth
+as $$
+  select
+    null::text as display_name,
+    u.email::text as email,
+    pu.role::text as role,
+    true as active
+  from parish_users pu
+  join auth.users u on u.id = pu.user_id
+  where pu.parish_id = p_parish
+    and exists (
+      select 1
+      from parish_users me
+      where me.parish_id = p_parish
+        and me.user_id = auth.uid()
+        and me.role in ('padre', 'secretaria', 'admin')
+    )
+  order by
+    case pu.role when 'padre' then 1 when 'secretaria' then 2 when 'pascom' then 3 when 'admin' then 4 else 9 end,
+    u.email;
+$$;
+
+revoke all on function staff_list_parish_team(uuid) from public, anon;
+grant execute on function staff_list_parish_team(uuid) to authenticated;
+
 create or replace function touch_updated_at() returns trigger
 language plpgsql set search_path = public as $$
 begin

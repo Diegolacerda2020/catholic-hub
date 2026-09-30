@@ -36,7 +36,7 @@ if (semModulo){
   ok(!/Secretaria 24h/.test(view()) && /Secretaria paroquial/.test(view()), 'Paróquia abre normal, sem botão');
   $('#mPainel').click(); await tick();
   w.eval("S.tab='mais'; render()"); await tick();
-  ok(!$('[data-mais="secretaria24h"]') && $$('[data-mais]').map(b => b.dataset.mais).join() === 'dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'Mais com os itens de antes (+ Dizimistas, que saiu da barra do celular)');
+  ok(!$('[data-mais="secretaria24h"]') && $$('[data-mais]').map(b => b.dataset.mais).join() === 'equipe,dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'Mais com os itens de antes (+ Equipe e Dizimistas, que saíram da barra do celular)');
   ok(!erros.length, 'sem erros de JS ' + erros.join(' | '));
   console.log(fails ? `\n${fails} FALHA(S)` : '\nTUDO OK'); process.exit(fails ? 1 : 0);
 }
@@ -112,7 +112,7 @@ $('#mPainel').click(); await tick();
 const ptabs = $$('#tabs [data-tab]:not(.so-lateral)').map(b => b.dataset.tab).join();
 ok(ptabs === 'inicio,comunicar,agenda,intencoes,mais', 'barra do celular: ' + ptabs);
 const lat = $$('#tabs [data-tab]:not(.so-barra)').map(b => b.dataset.tab).join();
-ok(lat === 'inicio,secretaria24h,comunicar,agenda,intencoes,dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'menu lateral com todas as áreas: ' + lat);
+ok(lat === 'inicio,secretaria24h,comunicar,agenda,intencoes,equipe,dizimistas,mensagens,pessoas,comunidades,uso,ajustes', 'menu lateral com todas as áreas: ' + lat);
 ok(w.eval('S.tab') === 'inicio' && /Secretaria 24h/.test(view()) && $('[data-ir="s24"]'), 'painel abre no Início, com a Secretaria 24h em destaque');
 w.eval("S.tab='mais'; render()"); await tick();
 ok($('[data-mais="secretaria24h"]') && /Solicitações recebidas pela secretaria digital/.test(view()), 'item "Secretaria 24h" em Mais');
@@ -153,6 +153,8 @@ const itens = papel => w.eval(`(() => { const a = NUVEM.ativo, p = NUVEM.papel; 
 ok(itens('secretaria').includes('secretaria24h'), 'secretaria vê o item');
 ok(itens('padre').includes('secretaria24h') && itens('admin').includes('secretaria24h'), 'padre e suporte veem o item');
 ok(!itens('pascom').includes('secretaria24h'), 'PASCOM não vê o item: ' + itens('pascom'));
+ok(itens('secretaria').includes('equipe') && itens('padre').includes('equipe') && itens('admin').includes('equipe'), 'padre, secretaria e suporte veem Equipe');
+ok(!itens('pascom').includes('equipe'), 'PASCOM não vê Equipe: ' + itens('pascom'));
 
 ok(!erros.length, 'sem erros de JS ' + erros.join(' | '));
 console.log(fails ? `\n${fails} FALHA(S)` : '\nTUDO OK');

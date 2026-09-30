@@ -15,7 +15,9 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
   const PID = 'p-1';
   const usuarios = {'secretaria@teste':{id:'u-sec', senha:'123456', role:'secretaria'}, 'padre@teste':{id:'u-padre', senha:'123456', role:'padre'},
     'pascom@teste':{id:'u-pascom', senha:'123456', role:'pascom'}, 'semvinculo@teste':{id:'u-x', senha:'123456', role:null},
-    'sc@teste':{id:'u-sc', senha:'123456', role:'secretaria', pid:'p-2'}};
+    'sc@teste':{id:'u-sc', senha:'123456', role:'secretaria', pid:'p-2'}, 'padre.sc@teste':{id:'u-padre-sc', senha:'123456', role:'padre', pid:'p-2'},
+    'pascom.sc@teste':{id:'u-pascom-sc', senha:'123456', role:'pascom', pid:'p-2'}, 'gracas@teste':{id:'u-ng-sec', senha:'123456', role:'secretaria', pid:'p-3'},
+    'padre.gracas@teste':{id:'u-ng-padre', senha:'123456', role:'padre', pid:'p-3'}};
   const B = {migrado, estado:{data:{}, updated_at:new Date().toISOString()}, t:{communities:[], events:[], tither_profiles:[], tither_leads:[], tither_contributions:[]}, log:[], diretorio, doacoes:{}, doacoesMigrado:true};
   // Tenants novos: estado próprio, só com dados do catálogo (como o diretorio_ativacao.sql)
   const cfgDir = d => ({nome:'Paróquia ' + d.display_name + ' – ' + (d.neighborhood && !/^centro$/i.test(d.neighborhood) ? d.neighborhood : d.municipality),
@@ -55,6 +57,13 @@ export function criarBackend({migrado = true, semContrib = false, diretorio = tr
         B.estados[PID] = B.estado;
         const est = B.estados[pid], k = q.args.p_kind === 'vela' ? 'velas' : 'intencoes'; const it = {...q.args.p_item, id:Date.now()*1000, ts:Date.now()}; if (k === 'intencoes') it.status = 'nova';
         est.data[k] = [...(est.data[k] || []), it]; est.updated_at = tick(); return {data:true}; }
+      if (q.fn === 'staff_list_parish_team'){
+        if (!['padre', 'secretaria', 'admin'].includes(papel(uid)) || q.args.p_parish !== pidDe(uid)) return {error:{code:'42501', message:'Sem permissão'}};
+        const ordem = {padre:1, secretaria:2, pascom:3, admin:4};
+        return {data:Object.entries(usuarios).filter(([, u]) => u.role && (u.pid || PID) === q.args.p_parish)
+          .sort((a, b) => (ordem[a[1].role] || 9) - (ordem[b[1].role] || 9) || a[0].localeCompare(b[0]))
+          .map(([email, u]) => ({display_name:null, email, role:u.role, active:true}))};
+      }
       if (q.fn === 'public_directory_search' || q.fn === 'public_directory_entry'){
         if (!B.diretorio) return {error:{code:'PGRST202', message:'Could not find the function in the schema cache'}};
         const norm = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

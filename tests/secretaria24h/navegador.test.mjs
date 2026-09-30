@@ -125,6 +125,10 @@ const reqId = (await banco.db.query(`select id from service_requests where proto
 for (const [email, rotulo, nome] of [['padre@teste', 'PADRE', 'padre'], ['secretaria@teste', 'SECRETARIA', 'sec']]){
   const {p, itens} = await equipe(email, rotulo);
   t_(`${rotulo}: vê o item em Mais`, itens.includes('secretaria24h'));
+  t_(`${rotulo}: vê Equipe da Paróquia`, itens.includes('equipe'));
+  await p.evaluate(() => { S.tab = 'equipe'; render(); }); await esperar(900); t = await texto(p);
+  t_(`${rotulo}: Equipe mostra só Santo Antônio`, t.includes('padre@teste') && t.includes('secretaria@teste') && t.includes('pascom@teste') && !t.includes('sc@teste') && !t.includes('gracas@teste'));
+  t_(`${rotulo}: Equipe não mostra campos internos`, !/user_id|parish_id|token|senha|uuid/i.test(t));
   await p.evaluate(() => { S.tab = 'mais'; render(); }); await esperar(200);
   await clicarTexto(p, '[data-mais]', 'Secretaria 24h'); await esperar(900); t = await texto(p);
   t_(`${rotulo}: vê a fila (1 real + 5 demo)`, (await p.$$('.s24-row')).length === 6 && t.includes('Ana Lúcia Ferreira'), (await p.$$('.s24-row')).length);
@@ -152,6 +156,7 @@ t_('consulta sem rolagem lateral', await semRolagemLateral(fiel)); await foto(fi
 
 { const {p, itens} = await equipe('pascom@teste', 'PASCOM');
   t_('PASCOM: não vê o item', !itens.includes('secretaria24h'), itens);
+  t_('PASCOM: não vê Equipe', !itens.includes('equipe'), itens);
   await p.evaluate(() => { S.tab = 'secretaria24h'; render(); }); await esperar(300);
   t_('PASCOM: forçar a tela volta ao início', await p.evaluate(() => S.tab) === 'inicio');
   const r = await p.evaluate(async () => { const a = await NUVEM.sb.from('service_requests').select('*').eq('parish_id', NUVEM.parishId); const c = await NUVEM.sb.from('service_request_history').select('*'); return [a.data?.length ?? -1, c.data?.length ?? -1]; });
@@ -160,6 +165,21 @@ t_('consulta sem rolagem lateral', await semRolagemLateral(fiel)); await foto(fi
   t_('PASCOM: RPC da equipe negada', s === '42501', s);
   t_('PASCOM: status não mudou', (await banco.db.query(`select status from service_requests where id=$1`, [reqId])).rows[0].status === 'waiting_user');
 }
+
+console.log('== equipe da paróquia (multi-tenant)');
+SRV.slug = 'santa-clara-e-sao-francisco-mineirao';
+{ const {p, itens} = await equipe('sc@teste', 'SECRETARIA SANTA CLARA');
+  t_('Santa Clara: secretaria vê Equipe', itens.includes('equipe'));
+  await p.evaluate(() => { S.tab = 'equipe'; render(); }); await esperar(900); t = await texto(p);
+  t_('Santa Clara: vê só equipe Santa Clara', t.includes('sc@teste') && t.includes('padre.sc@teste') && t.includes('pascom.sc@teste') && !t.includes('secretaria@teste') && !t.includes('gracas@teste'));
+}
+SRV.slug = 'nossa-senhora-das-gracas-ibirite';
+{ const {p, itens} = await equipe('padre.gracas@teste', 'PADRE GRAÇAS');
+  t_('Graças: padre vê Equipe', itens.includes('equipe'));
+  await p.evaluate(() => { S.tab = 'equipe'; render(); }); await esperar(900); t = await texto(p);
+  t_('Graças: não vê Santa Clara nem Santo Antônio', t.includes('padre.gracas@teste') && t.includes('gracas@teste') && !t.includes('sc@teste') && !t.includes('secretaria@teste'));
+}
+SRV.slug = 'santo-antonio-jaragua';
 
 // ---------------------------------------------------------------- desktop + modo escuro
 console.log('== desktop (1280 px) e modo escuro');

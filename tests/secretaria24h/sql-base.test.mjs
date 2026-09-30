@@ -167,6 +167,32 @@ const db = await cenario('produção: schema antigo + migração 2x + schema nov
     ok(!r.s && r.a && r.n, 'PASCOM: sem secretaria24h, mantém avisos/noticias');
   });
 
+  await como(db, 'anon', null, async () => {
+    ok(!!await erro(db.query(`select * from staff_list_parish_team((select id from parishes where slug=$1))`, [SLUG])), 'anon não executa staff_list_parish_team');
+  });
+  await como(db, 'authenticated', PADRE, async () => {
+    const r = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug=$1))`, [SLUG])).rows;
+    ok(r.map(x => x.email).sort().join() === 'admin@x,padre@x,pascom@x,sec@x', 'padre vê somente a equipe da própria paróquia');
+    ok(Object.keys(r[0]).sort().join() === 'active,display_name,email,role', 'RPC da equipe retorna só campos mínimos');
+    ok(!JSON.stringify(r).match(/user_id|parish_id|created_at|token|password|ip/i), 'RPC da equipe não expõe dados sensíveis');
+    const outra = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug='outra'))`)).rows;
+    ok(outra.length === 0, 'padre não vê equipe de outra paróquia');
+  });
+  await como(db, 'authenticated', SEC, async () => {
+    const r = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug=$1))`, [SLUG])).rows;
+    ok(r.length === 4 && r.some(x => x.role === 'pascom'), 'secretaria vê a equipe da própria paróquia');
+  });
+  await como(db, 'authenticated', OUTRA, async () => {
+    const r = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug='outra'))`)).rows;
+    ok(r.map(x => x.email).join() === 'outra@x', 'secretaria de outra paróquia vê somente a equipe dela');
+    const a = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug=$1))`, [SLUG])).rows;
+    ok(a.length === 0, 'secretaria de outra paróquia não vê Santo Antônio');
+  });
+  await como(db, 'authenticated', PASCOM, async () => {
+    const r = (await db.query(`select * from staff_list_parish_team((select id from parishes where slug=$1))`, [SLUG])).rows;
+    ok(r.length === 0, 'PASCOM não acessa a equipe nesta fase');
+  });
+
   // limite por WhatsApp (5/h): já há 2 deste número; a 3ª..5ª passam, a 6ª não
   await como(db, 'anon', null, async () => {
     for (const c of ['matrimonio','catequese','atendimento_padre']) await criar(c, 'Maria', '31998765432', 'whatsapp', c === 'matrimonio' ? {nome_noivo:'a', nome_noiva:'b'} : c === 'catequese' ? {nome_catequizando:'a'} : {assunto:'a'});
