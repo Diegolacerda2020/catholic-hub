@@ -46,7 +46,8 @@ async function aparelho({hash = '', largura = 390, escuro = false} = {}){
   page.on('pageerror', e => { page.erros.push(e.message); errosGlobais.push(e.message); });
   page.on('console', m => { if (m.type() === 'error' && !/404|Failed to load resource/.test(m.text())) { page.erros.push(m.text()); errosGlobais.push(m.text()); } });
   page.on('dialog', d => d.accept());
-  await page.goto(`http://localhost:${PORTA}/${hash}`, {waitUntil:'networkidle0', timeout:60000}); await esperar(500);
+  const destino = hash.startsWith('#') ? `?p=${encodeURIComponent(SRV.slug)}${hash}` : (hash || `?p=${encodeURIComponent(SRV.slug)}`);
+  await page.goto(`http://localhost:${PORTA}/${destino}`, {waitUntil:'networkidle0', timeout:60000}); await esperar(500);
   return page;
 }
 const entrar = async (p, email) => { await p.type('#l-em', email); await p.type('#l-pw', '123456'); await clk(p, '#l-btn'); await esperar(900); };
